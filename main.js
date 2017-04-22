@@ -30,9 +30,22 @@ CellField.prototype.copy = function(cells) {
         }
     }
 };
-CellField.prototype.draw = function(c, side) {
-    for (var x = 0; x < this.x_size; x++) {
-        for (var y = 0; y < this.y_size; y++) {
+CellField.prototype.draw = function(c, side, _x, _y, _x_size, _y_size) {
+    _x = _x || 0;
+    _y = _y || 0;
+    _x_size = _x_size || this.x_size;
+    _y_size = _y_size || this.y_size;
+
+    for (var i = 0, x = _x; i < _x_size; i++, x++) {
+        if (x === this.x_size) {
+            x = 0;
+        }
+
+        for (var j = 0, y = _y; j < _y_size; j++, y++) {
+            if (y === this.y_size) {
+                y = 0;
+            }
+
             c.fillStyle = this.colors[this.data[x][y]];
             c.fillRect(x * side + 1, y * side + 1, side - 1, side - 1);
         }
@@ -112,8 +125,11 @@ var CellularAutomaton = function(xSize, ySize, canvas) {
         set gps(value) {
             delay = Math.round(1000 / value);
         },
-        refresh: function() {
-            cells.draw(ctx, cellSide);
+        get cellSide() {
+            return cellSide;
+        },
+        refresh: function(x, y, x_size, y_size) {
+            cells.draw(ctx, cellSide, x, y, x_size, y_size);
         },
         isStarted: function() {
             return !!intervalID;
@@ -168,5 +184,25 @@ window.onload = function() {
             ca.start();
             this.innerHTML = 'Stop';
         }
+    };
+
+    cellsCanvas.onmousemove = cellsCanvas.onmousedown = function(e) {
+        if (ca.isStarted() || (e.buttons !== 1 && e.buttons !== 2)) {
+            return;
+        }
+
+        var x = Math.floor(e.offsetX / ca.cellSide),
+            y = Math.floor(e.offsetY / ca.cellSide);
+
+        if (e.buttons === 1) {
+            ca.cells.data[x][y] = 1;
+        } else if (e.buttons === 2) {
+            ca.cells.data[x][y] = 0;
+        }
+
+        ca.refresh(x, y, 1, 1);
+    };
+    cellsCanvas.oncontextmenu = function() {
+        return false;
     };
 };
