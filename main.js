@@ -33,11 +33,15 @@ CellField.prototype.copy = function(cells) {
 CellField.prototype.draw = function(c, side) {
     for (var x = 0; x < this.x_size; x++) {
         for (var y = 0; y < this.y_size; y++) {
-            c.fillStyle = this.data[x][y] ? '#FFF' : '#000';
+            c.fillStyle = this.colors[this.data[x][y]];
             c.fillRect(x * side + 1, y * side + 1, side - 1, side - 1);
         }
     }
 };
+CellField.prototype.colors = {
+    0: '#000',
+    1: '#FFF'
+}
 
 var CellularAutomaton = function(xSize, ySize, canvas) {
     var cells = new CellField(xSize, ySize),
