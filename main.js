@@ -12,9 +12,9 @@ function CellField(x, y) {
         t[i] = new Array(y);
     }
 
-    /*this.fill(function() {
+    this.fill(function() {
         return 0;
-    });*/
+    });
 }
 CellField.prototype.fill = function(f) {
     for (var x = 0; x < this.x_size; x++) {
@@ -39,77 +39,118 @@ CellField.prototype.draw = function(c, side) {
     }
 };
 
+var CellularAutomaton = function(xSize, ySize, canvas) {
+    var cells = new CellField(xSize, ySize),
+        newCells = new CellField(xSize, ySize);
 
-function makeStep(cells, newCells) {
-    var d = cells.data,
-        xSize = cells.x_size,
-        ySize = cells.y_size;
+    var intervalID = null,
+        delay = 300;
 
-    for (var x = 0; x < xSize; x++) {
-        for (var y = 0; y < ySize; y++) {
-            var xPrev = x === 0 ? xSize - 1 : x - 1,
-                xNext = x === xSize - 1 ? 0 : x + 1,
-                yPrev = y === 0 ? ySize - 1 : y - 1,
-                yNext = y === ySize - 1 ? 0 : y + 1;
+    var ctx = canvas.getContext('2d'),
+        cellSide = 3;
 
-            var center = d[x][y],
-                north  = d[x][yPrev],
-                south  = d[x][yNext],
-                west   = d[xPrev][y],
-                east   = d[xNext][y],
-                n_west = d[xPrev][yPrev],
-                s_west = d[xPrev][yNext],
-                n_east = d[xNext][yPrev],
-                s_east = d[xNext][yNext];
+    canvas.width = ctx.width = xSize * cellSide + 1;
+    canvas.height = ctx.height = ySize * cellSide + 1;
+    ctx.fillStyle = '#888';
+    ctx.fillRect(0, 0, ctx.width, ctx.height);
+    cells.draw(ctx, cellSide);
 
-            var s = north + south + west + east + n_west + s_west + n_east + s_east;
+    function nextGeneration(n) {
+            if (isNaN(n) || n < 1) {
+                n = 1;
+            }
 
-            newCells.data[x][y] = s === 3 ? 1 : (s === 2 ? center : 0);
+            var d = cells.data,
+                newD = newCells.data,
+                xSize = cells.x_size,
+                ySize = cells.y_size;
+
+            for (var i = 0; i < n; i++) {
+                for (var x = 0; x < xSize; x++) {
+                    for (var y = 0; y < ySize; y++) {
+                        var xPrev = x === 0 ? xSize - 1 : x - 1,
+                            xNext = x === xSize - 1 ? 0 : x + 1,
+                            yPrev = y === 0 ? ySize - 1 : y - 1,
+                            yNext = y === ySize - 1 ? 0 : y + 1;
+
+                        var center = d[x][y],
+                            north  = d[x][yPrev],
+                            south  = d[x][yNext],
+                            west   = d[xPrev][y],
+                            east   = d[xNext][y],
+                            n_west = d[xPrev][yPrev],
+                            s_west = d[xPrev][yNext],
+                            n_east = d[xNext][yPrev],
+                            s_east = d[xNext][yNext];
+
+                        var s = north + south + west + east + n_west + s_west + n_east + s_east;
+
+                        newD[x][y] = s === 3 ? 1 : (s === 2 ? center : 0);
+                    }
+                }
+
+                cells.copy(newCells);
+            }
         }
-    }
 
-    cells.copy(newCells);
-}
+    return {
+        cells: cells,
+        nextGeneration: nextGeneration,
+        refresh: function() {
+            cells.draw(ctx, cellSide);
+        },
+        isStarted: function() {
+            return !!intervalID;
+        },
+        start: function() {
+            if (intervalID) {
+                return false;
+            }
+
+            intervalID = setInterval(function() {
+var timeStart = new Date();
+                nextGeneration(1);
+console.log('next generation got:', new Date() - timeStart);
+                cells.draw(ctx, cellSide);
+console.log(new Date() - timeStart);
+            }, delay);
+
+            return true;
+        },
+        stop: function() {
+            if (!intervalID) {
+                return false;
+            }
+
+            clearInterval(intervalID);
+            intervalID = null;
+
+            return true;
+        }
+    };
+};
 
 window.onload = function() {
     var X_SIZE = 256,
-        Y_SIZE = 256,
-        SIDE = 3;
+        Y_SIZE = 256;
 
-    var cells = new CellField(X_SIZE, Y_SIZE),
-        newCells = new CellField(X_SIZE, Y_SIZE);
+    var cellsCanvas = document.getElementById('cells');
 
-    cells.fill(function() {
+    var ca = CellularAutomaton(X_SIZE, Y_SIZE, cellsCanvas);
+
+    ca.cells.fill(function() {
         return random(2);
     });
 
-    var cellsCanvas = document.getElementById('cells'),
-        ctx = cellsCanvas.getContext('2d');
+    ca.refresh();
 
-    cellsCanvas.width = ctx.width = X_SIZE * SIDE + 1;
-    cellsCanvas.height = ctx.height = Y_SIZE * SIDE + 1;
-
-    ctx.fillStyle = '#888';
-    ctx.fillRect(0, 0, ctx.width, ctx.height);
-
-    cells.draw(ctx, SIDE);
-
-    var intervalID = null;
     document.getElementById('start').onclick = function() {
-        if (!intervalID) {
-            intervalID = setInterval(function() {
-var timeStart = new Date();
-
-                makeStep(cells, newCells);
-                cells.draw(ctx, SIDE);
-
-console.log(new Date() - timeStart);
-            }, 50);
+        if (ca.isStarted()) {
+            ca.stop();
+            this.innerHTML = 'Start';
         } else {
-            clearInterval(intervalID);
-            intervalID = null;
+            ca.start();
+            this.innerHTML = 'Stop';
         }
-
-        this.innerHTML = intervalID ? 'Stop' : 'Start';
     };
 };
