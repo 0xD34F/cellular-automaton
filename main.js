@@ -100,6 +100,18 @@ var CellularAutomaton = function(xSize, ySize, canvas) {
     return {
         cells: cells,
         nextGeneration: nextGeneration,
+        get delay() {
+            return delay;
+        },
+        set delay(value) {
+            delay = value;
+        },
+        get gps() {
+            return Math.round(1000 / delay);
+        },
+        set gps(value) {
+            delay = Math.round(1000 / value);
+        },
         refresh: function() {
             cells.draw(ctx, cellSide);
         },
