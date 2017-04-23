@@ -30,11 +30,12 @@ CellField.prototype.copy = function(cells) {
         }
     }
 };
-CellField.prototype.draw = function(c, side, _x, _y, _x_size, _y_size) {
+CellField.prototype.draw = function(c, _side, _x, _y, _x_size, _y_size) {
     _x = _x || 0;
     _y = _y || 0;
     _x_size = _x_size || this.x_size;
     _y_size = _y_size || this.y_size;
+    var side = _side - 1;
 
     for (var i = 0, x = _x; i < _x_size; i++, x++) {
         if (x === this.x_size) {
@@ -47,7 +48,31 @@ CellField.prototype.draw = function(c, side, _x, _y, _x_size, _y_size) {
             }
 
             c.fillStyle = this.colors[this.data[x][y]];
-            c.fillRect(x * side + 1, y * side + 1, side - 1, side - 1);
+            c.fillRect(x * _side + 1, y * _side + 1, side, side);
+        }
+    }
+};
+CellField.prototype.drawGrouped = function(c, _side) {
+    var numStates = 4,
+        side = _side - 1;
+
+    var g = [];
+    for (var i = 0; i < numStates; i++) {
+        g.push([]);
+    }
+
+    var d = this.data;
+    for (var x = 0; x < this.x_size; x++) {
+        for (var y = 0; y < this.y_size; y++) {
+            g[d[x][y]].push(x, y);
+        }
+    }
+
+    for (var state = 0; state < numStates; state++) {
+        c.fillStyle = this.colors[state];
+
+        for (var n = g[state], i = 0; i < n.length; i += 2) {
+            c.fillRect(n[i] * _side + 1, n[i + 1] * _side + 1, side, side);
         }
     }
 };
@@ -210,7 +235,7 @@ console.log('table built in: ', new Date() - startTime);
 var timeStart = new Date();
                 newGeneration(1);
 console.log('next generation got:', new Date() - timeStart);
-                cells.draw(ctx, cellSide);
+                cells.drawGrouped(ctx, cellSide);
 console.log(new Date() - timeStart);
             }, delay);
 
