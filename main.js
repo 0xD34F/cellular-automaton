@@ -53,7 +53,9 @@ CellField.prototype.draw = function(c, side, _x, _y, _x_size, _y_size) {
 };
 CellField.prototype.colors = {
     0: '#000',
-    1: '#FFF'
+    1: '#FFF',
+    2: '#444',
+    3: '#CCC'
 }
 
 var CellularAutomaton = function(xSize, ySize, canvas) {
@@ -61,10 +63,48 @@ var CellularAutomaton = function(xSize, ySize, canvas) {
         newCells = new CellField(xSize, ySize),
         newStatesTable = getNewStatesTable('\
 function main() {\
+    var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1),\
+        p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((center & 2) >> 1),\
+        p1 = center & 1;\
+\
+    return p0 | (p1 << 1);\
+}\
+        ');
+        /*newStatesTable = getNewStatesTable('\
+function main() {\
+    var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1),\
+        p0 = s === 3 ? 1 : (s === 2 ? center : 0),\
+        p1 = !!center;\
+\
+    return p0 | (p1 << 1);\
+}\
+        ');*/
+        /*newStatesTable = getNewStatesTable('\
+function ready() {\
+    return center & 3 === 0 ? 1 : 0;\
+}\
+\
+function stimulus() {\
+    var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\
+    return s === 2 ? 1 : 0;\
+}\
+\
+function main() {\
+    return (stimulus() & ready()) | ((center & 1) << 1);\
+}\
+        ');*/
+        /*newStatesTable = getNewStatesTable('\
+function main() {\
+    var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\
+    return s === 4 || s > 5 ? 1 : 0;\
+}\
+        ');*/
+        /*newStatesTable = getNewStatesTable('\
+function main() {\
     var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\
     return s === 3 ? 1 : (s === 2 ? center : 0);\
 }\
-        ');
+        ');*/
 
     var intervalID = null,
         delay = 30;
@@ -82,20 +122,20 @@ function main() {\
 var startTime = new Date();
         eval(code);
 
-        var table = new Array(Math.pow(2, 9));
+        var table = new Array(Math.pow(2, 18));
 
         for (var i = 0; i < table.length; i++) {
-            var center = (i & (1 << 8)) >> 8,
-                north  = (i & (1 << 7)) >> 7,
-                south  = (i & (1 << 6)) >> 6,
-                west   = (i & (1 << 5)) >> 5,
-                east   = (i & (1 << 4)) >> 4,
-                n_west = (i & (1 << 3)) >> 3,
-                s_west = (i & (1 << 2)) >> 2,
-                n_east = (i & (1 << 1)) >> 1,
-                s_east =  i &  1;
+            var center = (i & (3 << 16)) >> 16,
+                north  = (i & (3 << 14)) >> 14,
+                south  = (i & (3 << 12)) >> 12,
+                west   = (i & (3 << 10)) >> 10,
+                east   = (i & (3 <<  8)) >>  8,
+                n_west = (i & (3 <<  6)) >>  6,
+                s_west = (i & (3 <<  4)) >>  4,
+                n_east = (i & (3 <<  2)) >>  2,
+                s_east =  i &  3;
 
-            table[i] = main() & 1;
+            table[i] = main() & 3;
         }
 console.log('table built in: ', new Date() - startTime);
         return table;
@@ -119,15 +159,15 @@ console.log('table built in: ', new Date() - startTime);
                         yPrev = y === 0 ? ySize - 1 : y - 1,
                         yNext = y === ySize - 1 ? 0 : y + 1;
 
-                    var index = d[x][y] & 1;
-                    index <<= 1; index |= d[x][yPrev] & 1;
-                    index <<= 1; index |= d[x][yNext] & 1;
-                    index <<= 1; index |= d[xPrev][y] & 1;
-                    index <<= 1; index |= d[xNext][y] & 1;
-                    index <<= 1; index |= d[xPrev][yPrev] & 1;
-                    index <<= 1; index |= d[xPrev][yNext] & 1;
-                    index <<= 1; index |= d[xNext][yPrev] & 1;
-                    index <<= 1; index |= d[xNext][yNext] & 1;
+                    var index = d[x][y] & 3;
+                    index <<= 2; index |= d[x][yPrev] & 3;
+                    index <<= 2; index |= d[x][yNext] & 3;
+                    index <<= 2; index |= d[xPrev][y] & 3;
+                    index <<= 2; index |= d[xNext][y] & 3;
+                    index <<= 2; index |= d[xPrev][yPrev] & 3;
+                    index <<= 2; index |= d[xPrev][yNext] & 3;
+                    index <<= 2; index |= d[xNext][yPrev] & 3;
+                    index <<= 2; index |= d[xNext][yNext] & 3;
 
                     newD[x][y] = newStatesTable[index];
                 }
