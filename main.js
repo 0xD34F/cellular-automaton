@@ -3,6 +3,29 @@
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
+function shiftArray(array, shift) {
+    var from = 0,
+        val = array[from];
+        group = 1;
+
+    for (var i = 0; i < array.length; i++) {
+        var to = ((from + shift) + array.length) % array.length;
+        if (to === from) {
+            break;
+        }
+
+        var t = array[to];
+        array[to] = val;
+        from = to;
+        val = t;
+
+        if (from < group) {
+            from = group++;
+            val = array[from];
+        }
+    }
+}
+
 function CellField(x, y, viewOptions) {
     this.x_size = x;
     this.y_size = y;
@@ -63,6 +86,15 @@ CellField.prototype.fill = function(f) {
         for (var y = 0; y < this.y_size; y++) {
             this.data[x][y] = f(x, y);
         }
+    }
+};
+CellField.prototype.shift = function(_x, _y) {
+    _x = _x || 0;
+    _y = _y || 0;
+
+    shiftArray(this.data, _x);
+    for (var i = 0; i < this.x_size; i++) {
+        shiftArray(this.data[i], _y);
     }
 };
 CellField.prototype.copy = function(cells, _x, _y) {
@@ -160,7 +192,7 @@ CellField.prototype.colors = {
     1: '#FFF',
     2: '#444',
     3: '#CCC'
-}
+};
 
 var CellularAutomaton = function(xSize, ySize, canvas) {
     var cells = new CellField(xSize, ySize, {
