@@ -67,3 +67,7 @@ html {
     width: 900px;
     box-sizing: border-box;
 }
+
+.cells-field-wrapper {
+    overflow: auto;
+}
