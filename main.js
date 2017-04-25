@@ -282,8 +282,60 @@ function main() {\
 }\
         ');*/
 
-    var intervalID = null,
-        delay = 30;
+    var timer = {
+        intervalID: null,
+        _delay: 30,
+        get delay() {
+            return timer._delay;
+        },
+        set delay(value) {
+            timer._delay = value;
+            if (timer.intervalID) {
+                timer.stop();
+                timer.start();
+            }
+        },
+        start: function() {
+            if (timer.intervalID) {
+                return false;
+            }
+
+            cells.mode = '';
+            timer.intervalID = setInterval(function() {
+var timeStart = new Date();
+                newGeneration(1);
+console.log('next generation got:', new Date() - timeStart);
+                cells.drawGrouped();
+console.log(new Date() - timeStart);
+            }, timer.delay);
+
+            /*var drawIntervalID = setInterval(function() {
+                cells.drawGrouped();
+                if (!timer.intervalID) {
+                    clearInterval(drawIntervalID);
+                }
+            }, 100);
+            requestAnimationFrame(function drawCellField() {
+                cells.drawGrouped();
+                if (timer.intervalID) {
+                    requestAnimationFrame(drawCellField);
+                }
+            });*/
+
+            return true;
+        },
+        stop: function() {
+            if (!timer.intervalID) {
+                return false;
+            }
+
+            cells.mode = 'edit';
+            clearInterval(timer.intervalID);
+            timer.intervalID = null;
+
+            return true;
+        }
+    };
 
     function getNewStatesTable(code) {
 var startTime = new Date();
@@ -348,63 +400,25 @@ console.log('table built in: ', new Date() - startTime);
         cells: cells,
         newGeneration: newGeneration,
         get delay() {
-            return delay;
+            return timer.delay;
         },
         set delay(value) {
-            delay = value;
+            timer.delay = value;
         },
         get gps() {
-            return Math.round(1000 / delay);
+            return Math.round(1000 / timer.delay);
         },
         set gps(value) {
-            delay = Math.round(1000 / value);
+            timer.delay = Math.round(1000 / value);
         },
         refresh: function(x, y, xSize, ySize) {
             cells.draw(x, y, xSize, ySize);
         },
         isStarted: function() {
-            return !!intervalID;
+            return !!timer.intervalID;
         },
-        start: function() {
-            if (intervalID) {
-                return false;
-            }
-
-            cells.mode = '';
-            intervalID = setInterval(function() {
-var timeStart = new Date();
-                newGeneration(1);
-console.log('next generation got:', new Date() - timeStart);
-                cells.drawGrouped();
-console.log(new Date() - timeStart);
-            }, delay);
-
-            /*var drawIntervalID = setInterval(function() {
-                cells.drawGrouped();
-                if (!intervalID) {
-                    clearInterval(drawIntervalID);
-                }
-            }, 100);
-            requestAnimationFrame(function drawCellField() {
-                cells.drawGrouped();
-                if (intervalID) {
-                    requestAnimationFrame(drawCellField);
-                }
-            });*/
-
-            return true;
-        },
-        stop: function() {
-            if (!intervalID) {
-                return false;
-            }
-
-            cells.mode = 'edit';
-            clearInterval(intervalID);
-            intervalID = null;
-
-            return true;
-        }
+        start: timer.start,
+        stop: timer.stop
     };
 };
 
