@@ -3,9 +3,11 @@
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
-function CellField(x, y) {
+function CellField(x, y, viewOptions) {
     this.x_size = x;
     this.y_size = y;
+    this.mode = 'edit';
+    this.view = viewOptions instanceof Object ? viewOptions : {};
 
     var t = this.data = new Array(x);
     for (var i = 0; i < x; i++) {
@@ -15,6 +17,43 @@ function CellField(x, y) {
     this.fill(function() {
         return 0;
     });
+
+    if (this.view.canvas) {
+        var that = this;
+
+        var lastModified = null;
+        this.view.canvas.onmouseup = function() {
+            lastModified = null;
+        };
+        this.view.canvas.onmousedown = this.view.canvas.onmousemove = function(e) {
+            if (that.mode !== 'edit' || (e.buttons !== 1 && e.buttons !== 2)) {
+                return;
+            }
+
+            var x = Math.floor(e.offsetX / that.view.cell_side),
+                y = Math.floor(e.offsetY / that.view.cell_side);
+
+            if (lastModified && lastModified[0] === x && lastModified[1] === y) {
+                return;
+            }
+
+            if (e.buttons === 1) {
+                that.data[x][y] = (that.data[x][y] + 1) & 3;
+            } else if (e.buttons === 2) {
+                that.data[x][y] = (that.data[x][y] - 1) & 3;
+            }
+
+            that.draw(x, y, 1, 1);
+            lastModified = [ x, y ];
+        };
+        this.view.canvas.oncontextmenu = function() {
+            return false;
+        };
+    }
+
+    if (!isNaN(this.view.cell_side)) {
+        this.resizeView(this.view.cell_side);
+    }
 }
 CellField.prototype.fill = function(f) {
     for (var x = 0; x < this.x_size; x++) {
@@ -23,19 +62,33 @@ CellField.prototype.fill = function(f) {
         }
     }
 };
-CellField.prototype.copy = function(cells) {
-    for (var x = 0; x < this.x_size; x++) {
-        for (var y = 0; y < this.y_size; y++) {
-            this.data[x][y] = cells.data[x][y];
+CellField.prototype.copy = function(cells, _x, _y) {
+    _x = _x || 0;
+    _y = _y || 0;
+
+    for (var i = 0, x = _x; i < cells.x_size; i++, x++) {
+        if (x === this.x_size) {
+            x = 0;
+        }
+
+        for (var j = 0, y = _y; j < cells.y_size; j++, y++) {
+            if (y === this.y_size) {
+                y = 0;
+            }
+
+            this.data[x][y] = cells.data[i][j];
         }
     }
 };
-CellField.prototype.draw = function(c, _side, _x, _y, _x_size, _y_size) {
+CellField.prototype.draw = function(_x, _y, _x_size, _y_size) {
     _x = _x || 0;
     _y = _y || 0;
     _x_size = _x_size || this.x_size;
     _y_size = _y_size || this.y_size;
-    var side = _side - 1;
+
+    var sideFull = this.view.cell_side,
+        sideBordered = sideFull - 1,
+        c = this.view.context;
 
     for (var i = 0, x = _x; i < _x_size; i++, x++) {
         if (x === this.x_size) {
@@ -48,13 +101,15 @@ CellField.prototype.draw = function(c, _side, _x, _y, _x_size, _y_size) {
             }
 
             c.fillStyle = this.colors[this.data[x][y]];
-            c.fillRect(x * _side + 1, y * _side + 1, side, side);
+            c.fillRect(x * sideFull + 1, y * sideFull + 1, sideBordered, sideBordered);
         }
     }
 };
-CellField.prototype.drawGrouped = function(c, _side) {
+CellField.prototype.drawGrouped = function() {
     var numStates = 4,
-        side = _side - 1;
+        sideFull = this.view.cell_side,
+        sideBordered = sideFull - 1,
+        c = this.view.context;
 
     var g = [];
     for (var i = 0; i < numStates; i++) {
@@ -72,11 +127,28 @@ CellField.prototype.drawGrouped = function(c, _side) {
         c.fillStyle = this.colors[state];
 
         for (var n = g[state], i = 0; i < n.length; i += 2) {
-            c.fillRect(n[i] * _side + 1, n[i + 1] * _side + 1, side, side);
+            c.fillRect(n[i] * sideFull + 1, n[i + 1] * sideFull + 1, sideBordered, sideBordered);
         }
     }
 };
+CellField.prototype.resizeView = function(cell_side) {
+    if (!this.view.canvas) {
+        return;
+    }
+
+    var c = this.view.context = this.view.canvas.getContext('2d');
+
+    this.view.cell_side = cell_side;
+    this.view.canvas.width = c.width = this.x_size * cell_side + 1;
+    this.view.canvas.height = c.height = this.y_size * cell_side + 1;
+
+    c.fillStyle = this.colors.background;
+    c.fillRect(0, 0, c.width, c.height);
+
+    this.draw();
+};
 CellField.prototype.colors = {
+    background: '#888',
     0: '#000',
     1: '#FFF',
     2: '#444',
@@ -84,7 +156,10 @@ CellField.prototype.colors = {
 }
 
 var CellularAutomaton = function(xSize, ySize, canvas) {
-    var cells = new CellField(xSize, ySize),
+    var cells = new CellField(xSize, ySize, {
+            canvas: canvas,
+            cell_side: 3
+        }),
         newCells = new CellField(xSize, ySize),
         newStatesTable = getNewStatesTable('\
 function main() {\
@@ -133,15 +208,6 @@ function main() {\
 
     var intervalID = null,
         delay = 30;
-
-    var ctx = canvas.getContext('2d'),
-        cellSide = 3;
-
-    canvas.width = ctx.width = xSize * cellSide + 1;
-    canvas.height = ctx.height = ySize * cellSide + 1;
-    ctx.fillStyle = '#888';
-    ctx.fillRect(0, 0, ctx.width, ctx.height);
-    cells.draw(ctx, cellSide);
 
     function getNewStatesTable(code) {
 var startTime = new Date();
@@ -217,11 +283,8 @@ console.log('table built in: ', new Date() - startTime);
         set gps(value) {
             delay = Math.round(1000 / value);
         },
-        get cellSide() {
-            return cellSide;
-        },
         refresh: function(x, y, x_size, y_size) {
-            cells.draw(ctx, cellSide, x, y, x_size, y_size);
+            cells.draw(x, y, x_size, y_size);
         },
         isStarted: function() {
             return !!intervalID;
@@ -231,13 +294,27 @@ console.log('table built in: ', new Date() - startTime);
                 return false;
             }
 
+            cells.mode = '';
             intervalID = setInterval(function() {
 var timeStart = new Date();
                 newGeneration(1);
 console.log('next generation got:', new Date() - timeStart);
-                cells.drawGrouped(ctx, cellSide);
+                cells.drawGrouped();
 console.log(new Date() - timeStart);
             }, delay);
+
+            /*var drawIntervalID = setInterval(function() {
+                cells.drawGrouped();
+                if (!intervalID) {
+                    clearInterval(drawIntervalID);
+                }
+            }, 100);
+            requestAnimationFrame(function drawCellField() {
+                cells.drawGrouped();
+                if (intervalID) {
+                    requestAnimationFrame(drawCellField);
+                }
+            });*/
 
             return true;
         },
@@ -246,6 +323,7 @@ console.log(new Date() - timeStart);
                 return false;
             }
 
+            cells.mode = 'edit';
             clearInterval(intervalID);
             intervalID = null;
 
@@ -260,7 +338,7 @@ window.onload = function() {
 
     var cellsCanvas = document.getElementById('cells');
 
-    var ca = CellularAutomaton(X_SIZE, Y_SIZE, cellsCanvas);
+    var ca = window.ca = CellularAutomaton(X_SIZE, Y_SIZE, cellsCanvas);
 
     /*ca.cells.fill(function() {
         return random(2);
@@ -276,25 +354,5 @@ window.onload = function() {
             ca.start();
             this.innerHTML = 'Stop';
         }
-    };
-
-    cellsCanvas.onmousemove = cellsCanvas.onmousedown = function(e) {
-        if (ca.isStarted() || (e.buttons !== 1 && e.buttons !== 2)) {
-            return;
-        }
-
-        var x = Math.floor(e.offsetX / ca.cellSide),
-            y = Math.floor(e.offsetY / ca.cellSide);
-
-        if (e.buttons === 1) {
-            ca.cells.data[x][y] = (ca.cells.data[x][y] + 1) & 3;
-        } else if (e.buttons === 2) {
-            ca.cells.data[x][y] = (ca.cells.data[x][y] - 1) & 3;
-        }
-
-        ca.refresh(x, y, 1, 1);
-    };
-    cellsCanvas.oncontextmenu = function() {
-        return false;
     };
 };
