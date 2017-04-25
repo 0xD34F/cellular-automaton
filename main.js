@@ -44,12 +44,12 @@ function CellField(x, y, viewOptions) {
     if (this.view.canvas) {
         var that = this;
 
-        var lastModified = [];
+        var lastCoord = [];
         this.view.canvas.onmouseup = function() {
-            lastModified = [];
+            lastCoord = [];
         };
         this.view.canvas.onmousedown = this.view.canvas.onmousemove = function(e) {
-            if (that.mode !== 'edit' || (e.buttons !== 1 && e.buttons !== 2)) {
+            if (e.buttons !== 1 && e.buttons !== 2) {
                 return;
             }
 
@@ -58,19 +58,15 @@ function CellField(x, y, viewOptions) {
                 x = Math.floor((e.offsetX - _t) / (that.view.cell_side + _b)),
                 y = Math.floor((e.offsetY - _t) / (that.view.cell_side + _b));
 
-            if ((lastModified[0] === x && lastModified[1] === y) ||
-                (x >= that.x_size || y >= that.y_size || x < 0 || y < 0)) {
+            if (lastCoord[0] === x && lastCoord[1] === y) {
                 return;
             }
 
-            if (e.buttons === 1) {
-                that.data[x][y] = (that.data[x][y] + 1) & 3;
-            } else if (e.buttons === 2) {
-                that.data[x][y] = (that.data[x][y] - 1) & 3;
+            if (that.mode in that.userActions) {
+                if (that.userActions[that.mode].call(that, e, x, y, lastCoord[0], lastCoord[1]) !== false) {
+                    lastCoord = [ x, y ];
+                }
             }
-
-            that.draw(x, y, 1, 1);
-            lastModified = [ x, y ];
         };
         this.view.canvas.oncontextmenu = function() {
             return false;
@@ -81,6 +77,25 @@ function CellField(x, y, viewOptions) {
         this.resizeView(this.view.cell_side);
     }
 }
+CellField.prototype.userActions = {
+    edit: function(e, x, y, prevX, prevY) {
+        if (x >= this.x_size || y >= this.y_size || x < 0 || y < 0) {
+            return false;
+        }
+
+        if (e.buttons === 1) {
+            this.data[x][y] = (this.data[x][y] + 1) & 3;
+        } else if (e.buttons === 2) {
+            this.data[x][y] = (this.data[x][y] - 1) & 3;
+        }
+
+        this.draw(x, y, 1, 1);
+    },
+    shift: function(e, x, y, prevX, prevY) {
+        this.shift(x - prevX, y - prevY);
+        this.drawGrouped();
+    }
+};
 CellField.prototype.fill = function(f) {
     for (var x = 0; x < this.x_size; x++) {
         for (var y = 0; y < this.y_size; y++) {
