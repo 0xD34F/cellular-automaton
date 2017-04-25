@@ -21,19 +21,22 @@ function CellField(x, y, viewOptions) {
     if (this.view.canvas) {
         var that = this;
 
-        var lastModified = null;
+        var lastModified = [];
         this.view.canvas.onmouseup = function() {
-            lastModified = null;
+            lastModified = [];
         };
         this.view.canvas.onmousedown = this.view.canvas.onmousemove = function(e) {
             if (that.mode !== 'edit' || (e.buttons !== 1 && e.buttons !== 2)) {
                 return;
             }
 
-            var x = Math.floor(e.offsetX / that.view.cell_side),
-                y = Math.floor(e.offsetY / that.view.cell_side);
+            var _b = that.view.border,
+                _t = Math.round(_b / 2),
+                x = Math.floor((e.offsetX - _t) / (that.view.cell_side + _b)),
+                y = Math.floor((e.offsetY - _t) / (that.view.cell_side + _b));
 
-            if (lastModified && lastModified[0] === x && lastModified[1] === y) {
+            if ((lastModified[0] === x && lastModified[1] === y) ||
+                (x >= that.x_size || y >= that.y_size || x < 0 || y < 0)) {
                 return;
             }
 
@@ -86,8 +89,9 @@ CellField.prototype.draw = function(_x, _y, _x_size, _y_size) {
     _x_size = _x_size || this.x_size;
     _y_size = _y_size || this.y_size;
 
-    var sideFull = this.view.cell_side,
-        sideBordered = sideFull - 1,
+    var border = this.view.border,
+        side = this.view.cell_side,
+        sideFull = side + border,
         c = this.view.context;
 
     for (var i = 0, x = _x; i < _x_size; i++, x++) {
@@ -101,14 +105,15 @@ CellField.prototype.draw = function(_x, _y, _x_size, _y_size) {
             }
 
             c.fillStyle = this.colors[this.data[x][y]];
-            c.fillRect(x * sideFull + 1, y * sideFull + 1, sideBordered, sideBordered);
+            c.fillRect(x * sideFull + border, y * sideFull + border, side, side);
         }
     }
 };
 CellField.prototype.drawGrouped = function() {
     var numStates = 4,
-        sideFull = this.view.cell_side,
-        sideBordered = sideFull - 1,
+        border = this.view.border,
+        side = this.view.cell_side,
+        sideFull = side + border,
         c = this.view.context;
 
     var g = [];
@@ -127,20 +132,22 @@ CellField.prototype.drawGrouped = function() {
         c.fillStyle = this.colors[state];
 
         for (var n = g[state], i = 0; i < n.length; i += 2) {
-            c.fillRect(n[i] * sideFull + 1, n[i + 1] * sideFull + 1, sideBordered, sideBordered);
+            c.fillRect(n[i] * sideFull + border, n[i + 1] * sideFull + border, side, side);
         }
     }
 };
-CellField.prototype.resizeView = function(cell_side) {
-    if (!this.view.canvas) {
+CellField.prototype.resizeView = function(cell_side, border) {
+    if (!this.view.canvas || isNaN(cell_side) || cell_side < 1) {
         return;
     }
 
     var c = this.view.context = this.view.canvas.getContext('2d');
 
-    this.view.cell_side = cell_side;
-    this.view.canvas.width = c.width = this.x_size * cell_side + 1;
-    this.view.canvas.height = c.height = this.y_size * cell_side + 1;
+    var s = this.view.cell_side = cell_side,
+        b = this.view.border = (arguments.length === 1 ? this.view.border : border) || 0;
+
+    this.view.canvas.width  = c.width  = this.x_size * (s + b) + b;
+    this.view.canvas.height = c.height = this.y_size * (s + b) + b;
 
     c.fillStyle = this.colors.background;
     c.fillRect(0, 0, c.width, c.height);
@@ -343,8 +350,6 @@ window.onload = function() {
     /*ca.cells.fill(function() {
         return random(2);
     });*/
-
-    ca.refresh();
 
     document.getElementById('start').onclick = function() {
         if (ca.isStarted()) {
