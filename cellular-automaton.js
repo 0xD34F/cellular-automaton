@@ -1,9 +1,4 @@
-﻿function random(max, min) {
-    min = min || 0;
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
-function shiftArray(array, shift) {
+﻿function shiftArray(array, shift) {
     var from = 0,
         val = array[from];
         group = 1;
@@ -127,7 +122,7 @@ CellField.prototype.userActions = {
 CellField.prototype.fill = function(f) {
     for (var x = 0; x < this.xSize; x++) {
         for (var y = 0; y < this.ySize; y++) {
-            this.data[x][y] = f(x, y);
+            this.data[x][y] = f(x, y, this.data[x][y]);
         }
     }
 };

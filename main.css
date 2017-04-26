@@ -71,3 +71,21 @@ html {
 .cells-field-wrapper {
     overflow: auto;
 }
+
+.ca-filling-options td,
+.ca-filling-options th {
+    padding: 10px 15px;
+}
+
+.ca-filling-options .ca-filling-plane {
+    text-align: right;
+}
+
+.ca-filling-options .ca-filling-density {
+    width: 3em;
+}
+
+.ca-filling-options .ca-filling-fill {
+    width: 16px;
+    height: 16px;
+}

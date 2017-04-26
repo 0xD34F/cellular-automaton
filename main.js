@@ -1,4 +1,27 @@
-﻿$(document).ready(function() {
+﻿function random(max, min) {
+    min = min || 0;
+    return Math.floor(Math.random() * (max - min)) + min;
+}
+
+// fillingMap - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
+function fillCellsField(field, fillingMap) {
+    field.fill(function(x, y, value) {
+        for (var i in fillingMap) {
+            var mask = (1 << i);
+
+            if (random(100) < fillingMap[i]) {
+                value |= mask;
+            } else {
+                value &= ~mask;
+            }
+        }
+
+        return value;
+    })
+    field.draw();
+}
+
+$(document).ready(function() {
     var X_SIZE = 256,
         Y_SIZE = 256;
 
@@ -51,6 +74,52 @@
             'OK': function() {
                 ca.cells.brush.copy(brushDialog);
                 $(this).dialog('close');
+            },
+            'Cancel': function() {
+                $(this).dialog('close');
+            }
+        }
+    });
+
+
+    $('#fill').click(function() {
+        $('#ca-filling').dialog('open');
+    });
+
+    $('#ca-filling').dialog({
+        modal: true,
+        autoOpen: false,
+        create: function() {
+            var bitPlanes = 2;
+
+            var html = '<tr><th>Bit plane</th><th>Density, %</th><th>Fill</th></tr>';
+            for (var i = 0; i < bitPlanes; i++) {
+                html += '<tr><td class="ca-filling-plane">' + i + '</td><td><input class="ca-filling-density"></td><td><input type="checkbox" class="ca-filling-fill" checked=checked"></td></tr>';
+            }
+
+            $(this).append('<table class="ca-filling-options">' + html + '</table>').find('.ca-filling-density').each(function() {
+                $(this).val(50).spinner({
+                    min: 0,
+                    max: 100,
+                    step: 1,
+                    numberFormat: 'n'
+                });
+            });
+        },
+        buttons: {
+            'OK': function() {
+                var $this = $(this);
+
+                var t = {};
+                $this.find('.ca-filling-fill').each(function() {
+                    var $tr = $(this).closest('tr');
+                    if (this.checked) {
+                        t[$tr.find('.ca-filling-plane').text()] = $tr.find('.ca-filling-density').val();
+                    }
+                });
+                fillCellsField(ca.cells, t);
+
+                $this.dialog('close');
             },
             'Cancel': function() {
                 $(this).dialog('close');
