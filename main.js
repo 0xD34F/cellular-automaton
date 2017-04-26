@@ -9,7 +9,7 @@ function fillCellsField(field, fillingMap) {
         for (var i in fillingMap) {
             var mask = (1 << i);
 
-            if (random(100) < fillingMap[i]) {
+            if (random(1000) < fillingMap[i]) {
                 value |= mask;
             } else {
                 value &= ~mask;
@@ -92,15 +92,15 @@ $(document).ready(function() {
         create: function() {
             var bitPlanes = 2;
 
-            var html = '<tr><th>Bit plane</th><th>Density, %</th><th>Fill</th></tr>';
+            var html = '<tr><th>Bit plane</th><th>Density, ‰</th><th>Fill</th></tr>';
             for (var i = 0; i < bitPlanes; i++) {
                 html += '<tr><td class="ca-filling-plane">' + i + '</td><td><input class="ca-filling-density"></td><td><input type="checkbox" class="ca-filling-fill" checked=checked"></td></tr>';
             }
 
             $(this).append('<table class="ca-filling-options">' + html + '</table>').find('.ca-filling-density').each(function() {
-                $(this).val(50).spinner({
+                $(this).val(500).spinner({
                     min: 0,
-                    max: 100,
+                    max: 1000,
                     step: 1,
                     numberFormat: 'n'
                 });
@@ -111,10 +111,9 @@ $(document).ready(function() {
                 var $this = $(this);
 
                 var t = {};
-                $this.find('.ca-filling-fill').each(function() {
-                    var $tr = $(this).closest('tr');
+                $this.find('.ca-filling-fill').each(function(i) {
                     if (this.checked) {
-                        t[$tr.find('.ca-filling-plane').text()] = $tr.find('.ca-filling-density').val();
+                        t[i] = $(this).closest('tr').find('.ca-filling-density').val();
                     }
                 });
                 fillCellsField(ca.cells, t);
