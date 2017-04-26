@@ -27,41 +27,43 @@ function shiftArray(array, shift) {
 }
 
 function CellField(x, y, viewOptions) {
-    this.xSize = x;
-    this.ySize = y;
-    this.mode = 'edit';
-    this.view = viewOptions instanceof Object ? viewOptions : {};
+    var o = Object.create(CellField.prototype);
 
-    var t = this.data = new Array(x);
+    o.xSize = x;
+    o.ySize = y;
+    o.mode = 'edit';
+    o.view = viewOptions instanceof Object ? viewOptions : {};
+
+    var t = o.data = new Array(x);
     for (var i = 0; i < x; i++) {
         t[i] = new Array(y);
     }
 
-    this.fill(function() {
+    o.fill(function() {
         return 0;
     });
 
-    if (this.view.wrapper instanceof HTMLElement) {
-        if (this.view.width) {
-            this.view.wrapper.style.width = this.view.width + 'px';
+    if (o.view.wrapper instanceof HTMLElement) {
+        if (o.view.width) {
+            o.view.wrapper.style.width = o.view.width + 'px';
         }
-        if (this.view.height) {
-            this.view.wrapper.style.height = this.view.height + 'px';
+        if (o.view.height) {
+            o.view.wrapper.style.height = o.view.height + 'px';
         }
 
         var canvas = document.createElement('canvas');
-        this.view.wrapper.appendChild(canvas);
-        this.view.canvas = canvas;
+        o.view.wrapper.appendChild(canvas);
+        o.view.canvas = canvas;
     }
 
-    if (this.view.canvas) {
-        var that = this;
+    if (o.view.canvas) {
+        var that = o;
 
         var lastCoord = [];
-        this.view.canvas.onmouseup = function() {
+        o.view.canvas.onmouseup = function() {
             lastCoord = [];
         };
-        this.view.canvas.onmousedown = this.view.canvas.onmousemove = function(e) {
+        o.view.canvas.onmousedown = o.view.canvas.onmousemove = function(e) {
             if (e.buttons !== 1 && e.buttons !== 2) {
                 return;
             }
@@ -81,14 +83,16 @@ function CellField(x, y, viewOptions) {
                 }
             }
         };
-        this.view.canvas.oncontextmenu = function() {
+        o.view.canvas.oncontextmenu = function() {
             return false;
         };
     }
 
-    if (!isNaN(this.view.cellSide)) {
-        this.resizeView(this.view.cellSide);
+    if (!isNaN(o.view.cellSide)) {
+        o.resizeView(o.view.cellSide);
     }
+
+    return o;
 }
 CellField.prototype.userActions = {
     edit: function(e, x, y, prevX, prevY) {
@@ -96,13 +100,24 @@ CellField.prototype.userActions = {
             return false;
         }
 
-        if (e.buttons === 1) {
-            this.data[x][y] = (this.data[x][y] + 1) & 3;
-        } else if (e.buttons === 2) {
-            this.data[x][y] = (this.data[x][y] - 1) & 3;
-        }
+        if (this.brush instanceof CellField) {
+            x = (x - Math.floor(this.brush.xSize / 2) + this.xSize) % this.xSize;
+            y = (y - Math.floor(this.brush.ySize / 2) + this.ySize) % this.ySize;
 
-        this.draw(x, y, 1, 1);
+            this.copy(this.brush, x, y, {
+                skipZeros: true,
+                setZeros: e.buttons === 2
+            });
+            this.draw(x, y, this.brush.xSize, this.brush.ySize);
+        } else {
+            if (e.buttons === 1) {
+                this.data[x][y] = (this.data[x][y] + 1) & 3;
+            } else if (e.buttons === 2) {
+                this.data[x][y] = (this.data[x][y] - 1) & 3;
+            }
+
+            this.draw(x, y, 1, 1);
+        }
     },
     shift: function(e, x, y, prevX, prevY) {
         this.shift(x - prevX, y - prevY);
@@ -125,9 +140,10 @@ CellField.prototype.shift = function(_x, _y) {
         shiftArray(this.data[i], _y);
     }
 };
-CellField.prototype.copy = function(cells, _x, _y) {
+CellField.prototype.copy = function(cells, _x, _y, options) {
     _x = _x || 0;
     _y = _y || 0;
+    options = options instanceof Object ? options : {};
 
     for (var i = 0, x = _x; i < cells.xSize; i++, x++) {
         if (x === this.xSize) {
@@ -139,7 +155,10 @@ CellField.prototype.copy = function(cells, _x, _y) {
                 y = 0;
             }
 
-            this.data[x][y] = cells.data[i][j];
+            var t = cells.data[i][j];
+            if (!options.skipZeros || t !== 0) {
+                this.data[x][y] = options.setZeros ? 0 : t;
+            }
         }
     }
 };
@@ -223,8 +242,8 @@ CellField.prototype.colors = {
 };
 
 var CellularAutomaton = function(xSize, ySize, viewOptions) {
-    var cells = new CellField(xSize, ySize, viewOptions),
-        newCells = new CellField(xSize, ySize),
+    var cells = CellField(xSize, ySize, viewOptions),
+        newCells = CellField(xSize, ySize),
         newStatesTable = getNewStatesTable('\
 function main() {\
     var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1),\
@@ -392,7 +411,9 @@ console.log('table built in: ', new Date() - startTime);
                 }
             }
 
-            cells.copy(newCells);
+            var t = newCells.data;
+            newCells.data = cells.data;
+            cells.data = t;
         }
     }
 
