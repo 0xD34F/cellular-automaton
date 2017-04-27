@@ -75,6 +75,7 @@ html {
 .ca-options-table td,
 .ca-options-table th {
     padding: 10px 15px;
+    vertical-align: middle;
 }
 
 .ca-options-table input[type="text"] {
@@ -92,6 +93,11 @@ html {
 
 .ca-options-table input.jscolor {
     width: 7em;
+    text-align: right;
+    font-family: "Lucida Console", monospace;
+    font-size: 1.2em;
+    padding-right: .2em;
+    box-sizing: border-box;
 }
 
 #ca-rule-source {
@@ -101,4 +107,5 @@ html {
     min-height: 300px;
     font-family: monospace;
     box-sizing: border-box;
+    resize: none;
 }

@@ -154,7 +154,7 @@ $(document).ready(function() {
 
             var colors = CellField.prototype.colors;
             for (var i in colors) {
-                html += '<tr><td>' + (isNaN(i) ? i : ('State ' + i)) + '</td><td><input type="text" class="jscolor" color-name="' + i + '" readonly="readonly"></td></tr>';
+                html += '<tr><td>' + (isNaN(i) ? i : ('state ' + i)) + '</td><td><input type="text" class="jscolor" color-name="' + i + '" readonly="readonly"></td></tr>';
             }
 
             $(this).append('<table class="ca-options-table">' + html + '</table>').find('.jscolor').each(function() {
