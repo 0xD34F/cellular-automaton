@@ -21,6 +21,12 @@ function fillCellsField(field, fillingMap) {
     field.draw();
 }
 
+$.extend($.ui.dialog.prototype.options, {
+    modal: true,
+    autoOpen: false,
+    resizable: false
+});
+
 $(document).ready(function() {
     var X_SIZE = 256,
         Y_SIZE = 256;
@@ -45,9 +51,6 @@ $(document).ready(function() {
     });
 
     $('#ca-brush').dialog({
-        modal: true,
-        autoOpen: false,
-        resizable: false,
         create: function() {
             var $brushWrapper = $('<div class="cells-field-wrapper" />').appendTo(this);
 
@@ -78,9 +81,6 @@ $(document).ready(function() {
     });
 
     $('#ca-filling').dialog({
-        modal: true,
-        autoOpen: false,
-        resizable: false,
         create: function() {
             var bitPlanes = 2;
 
@@ -124,9 +124,6 @@ $(document).ready(function() {
     });
 
     $('#ca-rule').dialog({
-        modal: true,
-        autoOpen: false,
-        resizable: false,
         width: '80%',
         open: function() {
             $('#ca-rule-source').val(ca.rule);
