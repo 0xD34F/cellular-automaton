@@ -239,6 +239,7 @@ CellField.prototype.colors = {
 var CellularAutomaton = function(xSize, ySize, viewOptions) {
     var cells = CellField(xSize, ySize, viewOptions),
         newCells = CellField(xSize, ySize),
+        rule = 'function main() { return center; }',
         newStatesTable = getNewStatesTable('\
 function main() {\
     var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1),\
@@ -415,6 +416,13 @@ console.log('table built in: ', new Date() - startTime);
     return {
         cells: cells,
         newGeneration: newGeneration,
+        get rule() {
+            return rule;
+        },
+        set rule(code) {
+            newStatesTable = getNewStatesTable(code);
+            rule = code;
+        },
         get delay() {
             return timer.delay;
         },

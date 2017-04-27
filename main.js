@@ -40,16 +40,6 @@ $(document).ready(function() {
 
     var brushDialog = null;
 
-    $('#start').click(function() {
-        if (ca.isStarted()) {
-            ca.stop();
-            this.innerHTML = 'Start';
-        } else {
-            ca.start();
-            this.innerHTML = 'Stop';
-        }
-    });
-
     $('#brush').click(function() {
         $('#ca-brush').dialog('open');
     });
@@ -57,8 +47,9 @@ $(document).ready(function() {
     $('#ca-brush').dialog({
         modal: true,
         autoOpen: false,
+        resizable: false,
         create: function() {
-            var $brushWrapper = $('<div class="cells-field-wrapper" />').appendTo($(this));
+            var $brushWrapper = $('<div class="cells-field-wrapper" />').appendTo(this);
 
             brushDialog = CellField(BRUSH_SIZE, BRUSH_SIZE, {
                 wrapper: $brushWrapper[0],
@@ -89,6 +80,7 @@ $(document).ready(function() {
     $('#ca-filling').dialog({
         modal: true,
         autoOpen: false,
+        resizable: false,
         create: function() {
             var bitPlanes = 2;
 
@@ -123,6 +115,41 @@ $(document).ready(function() {
             'Cancel': function() {
                 $(this).dialog('close');
             }
+        }
+    });
+
+
+    $('#rule').click(function() {
+        $('#ca-rule').dialog('open');
+    });
+
+    $('#ca-rule').dialog({
+        modal: true,
+        autoOpen: false,
+        resizable: false,
+        width: '80%',
+        open: function() {
+            $('#ca-rule-source').val(ca.rule);
+        },
+        buttons: {
+            'OK': function() {
+                ca.rule = $('#ca-rule-source').val();
+                $(this).dialog('close');
+            },
+            'Cancel': function() {
+                $(this).dialog('close');
+            }
+        }
+    });
+
+
+    $('#start').click(function() {
+        if (ca.isStarted()) {
+            ca.stop();
+            this.innerHTML = 'Start';
+        } else {
+            ca.start();
+            this.innerHTML = 'Stop';
         }
     });
 });
