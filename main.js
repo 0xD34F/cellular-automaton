@@ -62,7 +62,7 @@ $(document).ready(function() {
         },
         open: function() {
             brushDialog.copy(ca.cells.brush);
-            brushDialog.draw();
+            brushDialog.refresh();
         },
         buttons: {
             'OK': function() {
@@ -175,7 +175,7 @@ $(document).ready(function() {
                     CellField.prototype.colors[$this.attr('color-name')] = '#' + $this.val();
                 });
 
-                ca.cells.draw();
+                ca.cells.refresh();
 
                 $(this).dialog('close');
             },

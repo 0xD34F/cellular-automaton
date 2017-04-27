@@ -116,7 +116,7 @@ CellField.prototype.userActions = {
     },
     shift: function(e, x, y, prevX, prevY) {
         this.shift(x - prevX, y - prevY);
-        this.drawGrouped();
+        this.draw();
     }
 };
 CellField.prototype.fill = function(f) {
@@ -157,33 +157,20 @@ CellField.prototype.copy = function(cells, _x, _y, options) {
         }
     }
 };
+CellField.prototype.refresh = function() {
+    var c = this.view.context;
+
+    c.fillStyle = this.colors.background;
+    c.fillRect(0, 0, c.width, c.height);
+
+    this.draw();
+};
 CellField.prototype.draw = function(_x, _y, _xSize, _ySize) {
     _x = _x || 0;
     _y = _y || 0;
     _xSize = _xSize || this.xSize;
     _ySize = _ySize || this.ySize;
 
-    var border = this.view.border,
-        side = this.view.cellSide,
-        sideFull = side + border,
-        c = this.view.context;
-
-    for (var i = 0, x = _x; i < _xSize; i++, x++) {
-        if (x === this.xSize) {
-            x = 0;
-        }
-
-        for (var j = 0, y = _y; j < _ySize; j++, y++) {
-            if (y === this.ySize) {
-                y = 0;
-            }
-
-            c.fillStyle = this.colors[this.data[x][y]];
-            c.fillRect(x * sideFull + border, y * sideFull + border, side, side);
-        }
-    }
-};
-CellField.prototype.drawGrouped = function() {
     var numStates = 4,
         border = this.view.border,
         side = this.view.cellSide,
@@ -196,8 +183,16 @@ CellField.prototype.drawGrouped = function() {
     }
 
     var d = this.data;
-    for (var x = 0; x < this.xSize; x++) {
-        for (var y = 0; y < this.ySize; y++) {
+    for (var i = 0, x = _x; i < _xSize; i++, x++) {
+        if (x === this.xSize) {
+            x = 0;
+        }
+
+        for (var j = 0, y = _y; j < _ySize; j++, y++) {
+            if (y === this.ySize) {
+                y = 0;
+            }
+
             g[d[x][y]].push(x, y);
         }
     }
@@ -320,18 +315,18 @@ function main() {\
 var timeStart = new Date();
                 newGeneration(1);
 console.log('next generation got:', new Date() - timeStart);
-                cells.drawGrouped();
+                cells.draw();
 console.log(new Date() - timeStart);
             }, timer.delay);
 
             /*var drawIntervalID = setInterval(function() {
-                cells.drawGrouped();
+                cells.draw();
                 if (!timer.intervalID) {
                     clearInterval(drawIntervalID);
                 }
             }, 100);
             requestAnimationFrame(function drawCellField() {
-                cells.drawGrouped();
+                cells.draw();
                 if (timer.intervalID) {
                     requestAnimationFrame(drawCellField);
                 }
@@ -434,9 +429,6 @@ console.log('table built in: ', new Date() - startTime);
         },
         set gps(value) {
             timer.delay = Math.round(1000 / value);
-        },
-        refresh: function(x, y, xSize, ySize) {
-            cells.draw(x, y, xSize, ySize);
         },
         isStarted: function() {
             return !!timer.intervalID;
