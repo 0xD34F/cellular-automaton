@@ -130,8 +130,12 @@ $(document).ready(function() {
         },
         buttons: {
             'OK': function() {
-                ca.rule = $('#ca-rule-source').val();
-                $(this).dialog('close');
+                try {
+                    ca.rule = $('#ca-rule-source').val();
+                    $(this).dialog('close');
+                } catch (e) {
+                    toastr.error(e.message);
+                }
             },
             'Cancel': function() {
                 $(this).dialog('close');
