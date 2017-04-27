@@ -229,11 +229,11 @@ CellField.prototype.resizeView = function(cellSide, border) {
     this.draw();
 };
 CellField.prototype.colors = {
-    background: '#888',
-    0: '#000',
-    1: '#FFF',
-    2: '#444',
-    3: '#CCC'
+    background: '#888888',
+    0: '#000000',
+    1: '#FFFFFF',
+    2: '#444444',
+    3: '#CCCCCC'
 };
 
 var CellularAutomaton = function(xSize, ySize, viewOptions) {

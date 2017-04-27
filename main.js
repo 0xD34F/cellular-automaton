@@ -86,10 +86,10 @@ $(document).ready(function() {
 
             var html = '<tr><th>Bit plane</th><th>Density, ‰</th><th>Fill</th></tr>';
             for (var i = 0; i < bitPlanes; i++) {
-                html += '<tr><td class="ca-filling-plane">' + i + '</td><td><input class="ca-filling-density"></td><td><input type="checkbox" class="ca-filling-fill" checked=checked"></td></tr>';
+                html += '<tr><td class="ca-filling-plane">' + i + '</td><td><input type="text" class="ca-filling-density"></td><td><input type="checkbox" class="ca-filling-fill" checked=checked"></td></tr>';
             }
 
-            $(this).append('<table class="ca-filling-options">' + html + '</table>').find('.ca-filling-density').each(function() {
+            $(this).append('<table class="ca-options-table">' + html + '</table>').find('.ca-filling-density').each(function() {
                 $(this).val(500).spinner({
                     min: 0,
                     max: 1000,
@@ -136,6 +136,48 @@ $(document).ready(function() {
                 } catch (e) {
                     toastr.error(e.message);
                 }
+            },
+            'Cancel': function() {
+                $(this).dialog('close');
+            }
+        }
+    });
+
+
+    $('#colors').click(function() {
+        $('#ca-colors').dialog('open');
+    });
+
+    $('#ca-colors').dialog({
+        create: function() {
+            var html = '';
+
+            var colors = CellField.prototype.colors;
+            for (var i in colors) {
+                html += '<tr><td>' + (isNaN(i) ? i : ('State ' + i)) + '</td><td><input type="text" class="jscolor" color-name="' + i + '" readonly="readonly"></td></tr>';
+            }
+
+            $(this).append('<table class="ca-options-table">' + html + '</table>').find('.jscolor').each(function() {
+                this.jscolor = new jscolor(this);
+            });
+        },
+        open: function() {
+            $(this).find('.jscolor').each(function() {
+                var $this = $(this);
+                $this.val(CellField.prototype.colors[$this.attr('color-name')].slice(1));
+                this.jscolor.importColor();
+            });
+        },
+        buttons: {
+            'OK': function() {
+                $(this).find('.jscolor').each(function() {
+                    var $this = $(this);
+                    CellField.prototype.colors[$this.attr('color-name')] = '#' + $this.val();
+                });
+
+                ca.cells.draw();
+
+                $(this).dialog('close');
             },
             'Cancel': function() {
                 $(this).dialog('close');

@@ -72,22 +72,26 @@ html {
     overflow: auto;
 }
 
-.ca-filling-options td,
-.ca-filling-options th {
+.ca-options-table td,
+.ca-options-table th {
     padding: 10px 15px;
 }
 
-.ca-filling-options .ca-filling-plane {
-    text-align: right;
-}
-
-.ca-filling-options .ca-filling-density {
+.ca-options-table input[type="text"] {
     width: 3em;
 }
 
-.ca-filling-options .ca-filling-fill {
+.ca-options-table input[type="checkbox"] {
     width: 16px;
     height: 16px;
+}
+
+.ca-options-table .ca-filling-plane {
+    text-align: right;
+}
+
+.ca-options-table input.jscolor {
+    width: 7em;
 }
 
 #ca-rule-source {
