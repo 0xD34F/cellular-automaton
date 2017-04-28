@@ -165,7 +165,7 @@ CellField.prototype.refresh = function() {
 
     this.draw();
 };
-CellField.prototype.draw = function(_x, _y, _xSize, _ySize) {
+CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
     _x = _x || 0;
     _y = _y || 0;
     _xSize = _xSize || this.xSize;
@@ -193,7 +193,10 @@ CellField.prototype.draw = function(_x, _y, _xSize, _ySize) {
                 y = 0;
             }
 
-            g[d[x][y]].push(x, y);
+            var t = d[x][y];
+            if (!(prevStates && prevStates[x][y] === t)) {
+                g[t].push(x, y);
+            }
         }
     }
 
@@ -235,7 +238,7 @@ var CellularAutomaton = function(xSize, ySize, viewOptions) {
     var cells = CellField(xSize, ySize, viewOptions),
         newCells = CellField(xSize, ySize),
         rule = 'function main() { return center; }',
-        newStatesTable = getNewStatesTable('\
+        /*newStatesTable = getNewStatesTable('\
 function main() {\
     var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1),\
         p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((center & 2) >> 1),\
@@ -243,8 +246,8 @@ function main() {\
 \
     return p0 | (p1 << 1);\
 }\
-        ');
-        /*newStatesTable = getNewStatesTable('\
+        ');*/
+        newStatesTable = getNewStatesTable('\
 function main() {\
     var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1),\
         p0 = s === 3 ? 1 : (s === 2 ? center : 0),\
@@ -252,7 +255,7 @@ function main() {\
 \
     return p0 | (p1 << 1);\
 }\
-        ');*/
+        ');
         /*newStatesTable = getNewStatesTable('\
 function main() {\
     var s = (north === 1) + (south === 1) + (west === 1) + (east === 1) + (n_west === 1) + (s_west === 1) + (n_east === 1) + (s_east === 1);\
@@ -315,7 +318,7 @@ function main() {\
 var timeStart = new Date();
                 newGeneration(1);
 console.log('next generation got:', new Date() - timeStart);
-                cells.draw();
+                cells.draw(null, null, null, null, newCells.data);
 console.log(new Date() - timeStart);
             }, timer.delay);
 
