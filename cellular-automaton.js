@@ -295,6 +295,10 @@ function main() {\
 }\
         ');
 
+    var MIN_STEPS = 1,
+        MAX_STEPS = 20,
+        steps = MIN_STEPS;
+
     var timer = {
         intervalID: null,
         _delay: 30,
@@ -316,9 +320,9 @@ function main() {\
             cells.mode = '';
             timer.intervalID = setInterval(function() {
 var timeStart = new Date();
-                newGeneration(1);
+                newGeneration(steps);
 console.log('next generation got:', new Date() - timeStart);
-                cells.draw(null, null, null, null, newCells.data);
+                cells.draw(null, null, null, null, steps === 1 ? newCells.data : null);
 console.log(new Date() - timeStart);
             }, timer.delay);
 
@@ -378,12 +382,13 @@ console.log('table built in: ', new Date() - startTime);
             n = 1;
         }
 
-        var d = cells.data,
-            newD = newCells.data,
-            xSize = cells.xSize,
+        var xSize = cells.xSize,
             ySize = cells.ySize;
 
         for (var i = 0; i < n; i++) {
+            var d = cells.data,
+                newD = newCells.data;
+
             for (var x = 0; x < xSize; x++) {
                 for (var y = 0; y < ySize; y++) {
                     var xPrev = x === 0 ? xSize - 1 : x - 1,
@@ -414,6 +419,21 @@ console.log('table built in: ', new Date() - startTime);
     return {
         cells: cells,
         newGeneration: newGeneration,
+        get steps() {
+            return steps;
+        },
+        set steps(value) {
+            value = value << 0;
+
+            if (value < MIN_STEPS) {
+                value = MIN_STEPS;
+            }
+            if (value > MAX_STEPS) {
+                value = MAX_STEPS;
+            }
+
+            steps = value;
+        },
         get rule() {
             return rule;
         },
