@@ -238,62 +238,7 @@ var CellularAutomaton = function(xSize, ySize, viewOptions) {
     var cells = CellField(xSize, ySize, viewOptions),
         newCells = CellField(xSize, ySize),
         rule = 'function main() { return center; }',
-        /*newStatesTable = getNewStatesTable('\
-function main() {\
-    var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1),\
-        p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((center & 2) >> 1),\
-        p1 = center & 1;\
-\
-    return p0 | (p1 << 1);\
-}\
-        ');*/
-        /*newStatesTable = getNewStatesTable('\
-function main() {\
-    var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1),\
-        p0 = s === 3 ? 1 : (s === 2 ? center : 0),\
-        p1 = !!center;\
-\
-    return p0 | (p1 << 1);\
-}\
-        ');*/
-        /*newStatesTable = getNewStatesTable('\
-function main() {\
-    var s = (north === 1) + (south === 1) + (west === 1) + (east === 1) + (n_west === 1) + (s_west === 1) + (n_east === 1) + (s_east === 1);\
-\
-    return ({\
-        0: 0,\
-        1: 2,\
-        2: 3,\
-        3: s === 1 || s === 2 ? 1 : 3\
-    })[center];\
-}\
-        ');*/
-        /*newStatesTable = getNewStatesTable('\
-function ready() {\
-    return center & 3 === 0 ? 1 : 0;\
-}\
-\
-function stimulus() {\
-    var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\
-    return s === 2 ? 1 : 0;\
-}\
-\
-function main() {\
-    return (stimulus() & ready()) | ((center & 1) << 1);\
-}\
-        ');*/
-        /*newStatesTable = getNewStatesTable('\
-function main() {\
-    var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\
-    return s === 4 || s > 5 ? 1 : 0;\
-}\
-        ');*/
-        newStatesTable = getNewStatesTable('\
-function main() {\
-    var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\
-    return s === 3 ? 1 : (s === 2 ? center : 0);\
-}\
-        ');
+        newStatesTable = getNewStatesTable(rule);
 
     var MIN_STEPS = 1,
         MAX_STEPS = 20,

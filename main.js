@@ -27,6 +27,23 @@ $.extend($.ui.dialog.prototype.options, {
     resizable: false
 });
 
+var predefinedRules = {
+    'Conway\'s Life': 'function main() {\n\
+    var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\n\
+    return s === 3 ? 1 : (s === 2 ? center : 0);\n\
+}',
+    'Wireworld': 'function main() {\n\
+    var s = (north === 1) + (south === 1) + (west === 1) + (east === 1) + (n_west === 1) + (s_west === 1) + (n_east === 1) + (s_east === 1);\n\
+\n\
+    return ({\n\
+        0: 0,\n\
+        1: 2,\n\
+        2: 3,\n\
+        3: s === 1 || s === 2 ? 1 : 3\n\
+    })[center];\n\
+}'
+};
+
 $(document).ready(function() {
     var X_SIZE = 256,
         Y_SIZE = 256;
@@ -126,7 +143,18 @@ $(document).ready(function() {
     $('#ca-rule').dialog({
         width: '80%',
         create: function() {
-            $(this).append('<textarea id="ca-rule-source"></textarea>');
+            var rulesHTML = '';
+            for (var i in predefinedRules) {
+                rulesHTML += '<option value="' + i + '">' + i + '</option>';
+            }
+
+            $(this).append('<div class="controls"><select id="predefined-rules" class="ui-widget ui-state-default"></select></div><textarea id="ca-rule-source"></textarea>')
+                .find('#predefined-rules').append(rulesHTML).change(function() {
+                    $('#ca-rule-source').val(predefinedRules[this.value]);
+                }).val(null).end()
+                .find('#ca-rule-source').on('input propertychange', function() {
+                    $('#predefined-rules').val(null);
+                });
         },
         open: function() {
             $('#ca-rule-source').val(ca.rule);
@@ -189,7 +217,7 @@ $(document).ready(function() {
     });
 
 
-    $('#controls').find('button').button();
+    $('.content > .controls button').button();
 
     $(document).on({
         'ca-start': function() {

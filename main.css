@@ -61,15 +61,15 @@ html {
     max-width: 900px;
 }
 
-#controls {
-    padding: 20px 5px;
-    width: 900px;
+.controls {
+    padding: 20px 0;
+    width: 100%;
     box-sizing: border-box;
 }
 
 .cells-field-wrapper {
     overflow: auto;
-    padding: 0 5px;
+    padding: 0;
 }
 
 .ca-options-table td,
@@ -110,11 +110,11 @@ html {
     resize: none;
 }
 
-button, input, textarea {
+button, input, textarea, select {
     outline: 0;
 }
 
-.ui-button {
+.ui-button, select.ui-widget {
     padding: .4em .4em .2em .4em;
 }
 
