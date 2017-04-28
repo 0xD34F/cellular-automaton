@@ -125,6 +125,9 @@ $(document).ready(function() {
 
     $('#ca-rule').dialog({
         width: '80%',
+        create: function() {
+            $(this).append('<textarea id="ca-rule-source"></textarea>');
+        },
         open: function() {
             $('#ca-rule-source').val(ca.rule);
         },

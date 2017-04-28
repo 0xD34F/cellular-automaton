@@ -247,7 +247,7 @@ function main() {\
     return p0 | (p1 << 1);\
 }\
         ');*/
-        newStatesTable = getNewStatesTable('\
+        /*newStatesTable = getNewStatesTable('\
 function main() {\
     var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1),\
         p0 = s === 3 ? 1 : (s === 2 ? center : 0),\
@@ -255,7 +255,7 @@ function main() {\
 \
     return p0 | (p1 << 1);\
 }\
-        ');
+        ');*/
         /*newStatesTable = getNewStatesTable('\
 function main() {\
     var s = (north === 1) + (south === 1) + (west === 1) + (east === 1) + (n_west === 1) + (s_west === 1) + (n_east === 1) + (s_east === 1);\
@@ -288,12 +288,12 @@ function main() {\
     return s === 4 || s > 5 ? 1 : 0;\
 }\
         ');*/
-        /*newStatesTable = getNewStatesTable('\
+        newStatesTable = getNewStatesTable('\
 function main() {\
     var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\
     return s === 3 ? 1 : (s === 2 ? center : 0);\
 }\
-        ');*/
+        ');
 
     var timer = {
         intervalID: null,
