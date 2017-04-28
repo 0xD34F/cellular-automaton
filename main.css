@@ -56,20 +56,20 @@ html {
     width: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
     justify-content: center;
     box-sizing: border-box;
     max-width: 900px;
 }
 
 #controls {
-    padding: 20px;
+    padding: 20px 5px;
     width: 900px;
     box-sizing: border-box;
 }
 
 .cells-field-wrapper {
     overflow: auto;
+    padding: 0 5px;
 }
 
 .ca-options-table td,
@@ -108,4 +108,22 @@ html {
     font-family: monospace;
     box-sizing: border-box;
     resize: none;
+}
+
+button, input, textarea {
+    outline: 0;
+}
+
+.ui-button {
+    padding: .4em .4em .2em .4em;
+}
+
+#skip > input {
+    margin: 0;
+    outline: 0;
+    padding: .3em;
+    width: 3em;
+}
+#skip > button {
+    margin: -1px;
 }

@@ -317,7 +317,7 @@ function main() {\
                 return false;
             }
 
-            cells.mode = '';
+            cells.mode = 'shift';
             timer.intervalID = setInterval(function() {
 var timeStart = new Date();
                 newGeneration(steps);
@@ -339,6 +339,8 @@ console.log(new Date() - timeStart);
                 }
             });*/
 
+            $(document).trigger('ca-start');
+
             return true;
         },
         stop: function() {
@@ -349,6 +351,8 @@ console.log(new Date() - timeStart);
             cells.mode = 'edit';
             clearInterval(timer.intervalID);
             timer.intervalID = null;
+
+            $(document).trigger('ca-stop');
 
             return true;
         }

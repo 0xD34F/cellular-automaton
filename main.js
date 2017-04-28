@@ -189,13 +189,34 @@ $(document).ready(function() {
     });
 
 
+    $('#controls').find('button').button();
+
+    $(document).on({
+        'ca-start': function() {
+            $('#start .ui-icon').removeClass('ui-icon-play').addClass('ui-icon-pause');
+            $('#skip, #fill, #rule').addClass('ui-state-disabled');
+        },
+        'ca-stop': function() {
+            $('#start .ui-icon').removeClass('ui-icon-pause').addClass('ui-icon-play');
+            $('#skip, #fill, #rule').removeClass('ui-state-disabled');
+        }
+    })
+
     $('#start').click(function() {
         if (ca.isStarted()) {
             ca.stop();
-            this.innerHTML = 'Start';
         } else {
             ca.start();
-            this.innerHTML = 'Stop';
         }
     });
+
+    $('#skip').find('button').click(function() {
+        var n = $(this).parent().find('input').val();
+        if (!/^\d*\.?\d+$/.test(n)) {
+            toastr.error('"' + n + '" is not a number');
+        } else {
+            ca.newGeneration(+n);
+            ca.cells.refresh();
+        }
+    }).end().find('input').val('1');
 });
