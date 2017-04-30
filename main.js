@@ -69,17 +69,37 @@ $(document).ready(function() {
 
     $('#ca-brush').dialog({
         create: function() {
-            var $brushWrapper = $('<div class="cells-field-wrapper" />').appendTo(this);
+            var side = 12,
+                border = 1;
 
             brushDialog = CellField(BRUSH_SIZE, BRUSH_SIZE, {
-                wrapper: $brushWrapper[0],
-                cellSide: 10,
-                border: 1
+                wrapper: $(this).find('.cells-field-wrapper')[0],
+                cellSide: side,
+                border: border,
+                width: BRUSH_SIZE * (side + border) + border,
+                height: BRUSH_SIZE * (side + border) + border
             });
+            brushDialog.brush = CellField(1, 1);
+            brushDialog.brush.data[0][0] = 1;
+
+            $(this).find('.ca-state-select').on('click', '.ca-state', function() {
+                var $this = $(this);
+                $this.parent().find('.ui-state-active').removeClass('ui-state-active');
+                $this.addClass('ui-state-active');
+                brushDialog.brush.data[0][0] = $this.attr('ca-state');
+            }).height(brushDialog.view.canvas.height);
         },
         open: function() {
             brushDialog.copy(ca.cells.brush);
             brushDialog.refresh();
+
+            $(this).find('.ca-state-select').html($.map(CellField.prototype.colors, function(n, i) {
+                if (isNaN(i)) {
+                    return null;
+                }
+
+                return '<div class="ca-state" ca-state="' + i + '"><span class="ca-state-name">state ' + i + '</span><span class="ca-state-color" style="background-color: ' + n + '"></span></div>';
+            }).join('')).find('[ca-state="' + brushDialog.brush.data[0][0] + '"]').addClass('ui-state-active');
         },
         buttons: {
             'OK': function() {
@@ -143,10 +163,9 @@ $(document).ready(function() {
     $('#ca-rule').dialog({
         width: '80%',
         create: function() {
-            var rulesHTML = '';
-            for (var i in predefinedRules) {
-                rulesHTML += '<option value="' + i + '">' + i + '</option>';
-            }
+            var rulesHTML = $.map(predefinedRules, function(n, i) {
+                return '<option value="' + i + '">' + i + '</option>';
+            }).join('');
 
             $(this).append('<div class="controls"><select id="predefined-rules" class="ui-widget ui-state-default"></select></div><textarea id="ca-rule-source"></textarea>')
                 .find('#predefined-rules').append(rulesHTML).change(function() {
@@ -181,12 +200,9 @@ $(document).ready(function() {
 
     $('#ca-colors').dialog({
         create: function() {
-            var html = '';
-
-            var colors = CellField.prototype.colors;
-            for (var i in colors) {
-                html += '<tr><td>' + (isNaN(i) ? i : ('state ' + i)) + '</td><td><input type="text" class="jscolor" color-name="' + i + '" readonly="readonly"></td></tr>';
-            }
+            var html = $.map(CellField.prototype.colors, function(n, i) {
+                return '<tr><td>' + (isNaN(i) ? i : ('state ' + i)) + '</td><td><input type="text" class="jscolor" color-name="' + i + '" readonly="readonly"></td></tr>';
+            }).join('');
 
             $(this).append('<table class="ca-options-table">' + html + '</table>').find('.jscolor').each(function() {
                 this.jscolor = new jscolor(this);

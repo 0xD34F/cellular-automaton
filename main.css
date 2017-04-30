@@ -50,6 +50,10 @@ html {
     font-family: sans-serif;
 }
 
+#toast-container > div {
+    border-radius: 0;
+}
+
 .content {
     margin: 0 auto;
     padding: 0 10px;
@@ -68,8 +72,12 @@ html {
 }
 
 .cells-field-wrapper {
-    overflow: auto;
+    display: inline-block;
+    overflow: hidden;
     padding: 0;
+}
+.cells-field-wrapper.scrollable {
+    overflow: auto;
 }
 
 .ca-options-table td,
@@ -97,6 +105,32 @@ html {
     font-family: "Lucida Console", monospace;
     font-size: 1.2em;
     padding-right: .2em;
+    box-sizing: border-box;
+}
+
+.ca-state-select {
+    display: inline-flex;
+    flex-flow: column wrap;
+    justify-content: space-between;
+    vertical-align: top;
+}
+.ca-state {
+    padding: 5px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+.ca-state-name {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 18px;
+}
+.ca-state-color {
+    display: inline-block;
+    vertical-align: top;
+    margin: 0 5px;
+    width: 16px;
+    height: 16px;
+    border: 1px solid black;
     box-sizing: border-box;
 }
 

@@ -365,6 +365,8 @@ console.log('table built in: ', new Date() - startTime);
         }
     }
 
+    cells.view.canvas.classList.add('scrollable');
+
     return {
         cells: cells,
         newGeneration: newGeneration,
