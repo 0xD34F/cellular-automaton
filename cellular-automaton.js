@@ -254,7 +254,7 @@ var CellularAutomaton = function(xSize, ySize, viewOptions) {
         newStatesTable = getNewStatesTable(rule);
 
     var MIN_STEPS = 1,
-        MAX_STEPS = 20,
+        MAX_STEPS = 100,
         steps = MIN_STEPS;
 
     var timer = {
@@ -288,25 +288,9 @@ var CellularAutomaton = function(xSize, ySize, viewOptions) {
 
             cells.mode = 'shift';
             timer.intervalID = setInterval(function() {
-var timeStart = new Date();
                 newGeneration(steps);
-console.log('next generation got:', new Date() - timeStart);
                 cells.draw(null, null, null, null, steps === 1 ? newCells.data : null);
-console.log(new Date() - timeStart);
             }, timer.delay);
-
-            /*var drawIntervalID = setInterval(function() {
-                cells.draw();
-                if (!timer.intervalID) {
-                    clearInterval(drawIntervalID);
-                }
-            }, 100);
-            requestAnimationFrame(function drawCellField() {
-                cells.draw();
-                if (timer.intervalID) {
-                    requestAnimationFrame(drawCellField);
-                }
-            });*/
 
             $(document).trigger('ca-start');
 
@@ -327,8 +311,8 @@ console.log(new Date() - timeStart);
         }
     };
 
+
     function getNewStatesTable(code) {
-var startTime = new Date();
         eval(code);
 
         var table = new Array(Math.pow(2, 18));
@@ -346,9 +330,9 @@ var startTime = new Date();
 
             table[i] = main() & 3;
         }
-console.log('table built in: ', new Date() - startTime);
+
         return table;
-    };
+    }
 
     function newGeneration(n) {
         if (isNaN(n) || n < 1) {
@@ -388,6 +372,24 @@ console.log('table built in: ', new Date() - startTime);
             cells.data = t;
         }
     }
+
+
+    function runTimeLog(f, message) {
+        return function() {
+            var startTime = new Date();
+
+            var result = f.apply(this, arguments);
+
+            console.log(message, arguments, 'time: ' + (new Date() - startTime));
+
+            return result;
+        };
+    }
+
+    CellField.prototype.draw = runTimeLog(CellField.prototype.draw, 'CellField display');
+    getNewStatesTable = runTimeLog(getNewStatesTable, 'new states table built');
+    newGeneration = runTimeLog(newGeneration, 'new generation got'); // */
+
 
     return {
         cells: cells,
