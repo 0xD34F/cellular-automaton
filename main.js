@@ -63,10 +63,6 @@ $(document).ready(function() {
 
     var brushDialog = null;
 
-    $('#brush').click(function() {
-        $('#ca-brush').dialog('open');
-    });
-
     $('#ca-brush').dialog({
         create: function() {
             var side = 12,
@@ -113,10 +109,6 @@ $(document).ready(function() {
     });
 
 
-    $('#fill').click(function() {
-        $('#ca-filling').dialog('open');
-    });
-
     $('#ca-filling').dialog({
         create: function() {
             var bitPlanes = 2;
@@ -156,10 +148,6 @@ $(document).ready(function() {
     });
 
 
-    $('#rule').click(function() {
-        $('#ca-rule').dialog('open');
-    });
-
     $('#ca-rule').dialog({
         width: '80%',
         create: function() {
@@ -193,10 +181,6 @@ $(document).ready(function() {
         }
     });
 
-
-    $('#colors').click(function() {
-        $('#ca-colors').dialog('open');
-    });
 
     $('#ca-colors').dialog({
         create: function() {
@@ -233,10 +217,6 @@ $(document).ready(function() {
     });
 
 
-    $('#speed').click(function() {
-        $('#ca-speed').dialog('open');
-    });
-
     $('#ca-speed').dialog({
         width: 320,
         create: function() {
@@ -271,7 +251,11 @@ $(document).ready(function() {
     });
 
 
-    $('.content > .controls button').button();
+    $('.content > .controls')
+        .find('button').button().end()
+        .on('click', '[data-dialog]', function() {
+            $('#' + $(this).attr('data-dialog')).dialog('open');
+        });
 
     $(document).on({
         'ca-start': function() {
