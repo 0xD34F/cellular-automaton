@@ -50,8 +50,6 @@ $(document).ready(function() {
 
     var ca = window.ca = CellularAutomaton(X_SIZE, Y_SIZE, {
         wrapper: $('#cells-wrapper')[0],
-        width: 800,
-        height: 800,
         cellSide: 2,
         border: 1
     });
@@ -61,33 +59,31 @@ $(document).ready(function() {
     ca.cells.brush = CellField(BRUSH_SIZE, BRUSH_SIZE);
     ca.cells.brush.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
 
-    var brushDialog = null;
+    var caBrush = null;
 
     $('#ca-brush').dialog({
         create: function() {
             var side = 12,
                 border = 1;
 
-            brushDialog = CellField(BRUSH_SIZE, BRUSH_SIZE, {
+            caBrush = CellField(BRUSH_SIZE, BRUSH_SIZE, {
                 wrapper: $(this).find('.cells-field-wrapper')[0],
                 cellSide: side,
-                border: border,
-                width: BRUSH_SIZE * (side + border) + border,
-                height: BRUSH_SIZE * (side + border) + border
+                border: border
             });
-            brushDialog.brush = CellField(1, 1);
-            brushDialog.brush.data[0][0] = 1;
+            caBrush.brush = CellField(1, 1);
+            caBrush.brush.data[0][0] = 1;
 
             $(this).find('.ca-state-select').on('click', '.ca-state', function() {
                 var $this = $(this);
                 $this.parent().find('.ui-state-active').removeClass('ui-state-active');
                 $this.addClass('ui-state-active');
-                brushDialog.brush.data[0][0] = $this.attr('ca-state');
-            }).height(brushDialog.view.canvas.height);
+                caBrush.brush.data[0][0] = $this.attr('ca-state');
+            }).height(caBrush.view.canvas.height);
         },
         open: function() {
-            brushDialog.copy(ca.cells.brush);
-            brushDialog.refresh();
+            caBrush.copy(ca.cells.brush);
+            caBrush.refresh();
 
             $(this).find('.ca-state-select').html($.map(CellField.prototype.colors, function(n, i) {
                 if (isNaN(i)) {
@@ -95,11 +91,11 @@ $(document).ready(function() {
                 }
 
                 return '<div class="ca-state" ca-state="' + i + '"><span class="ca-state-name">state ' + i + '</span><span class="ca-state-color" style="background-color: ' + n + '"></span></div>';
-            }).join('')).find('[ca-state="' + brushDialog.brush.data[0][0] + '"]').addClass('ui-state-active');
+            }).join('')).find('[ca-state="' + caBrush.brush.data[0][0] + '"]').addClass('ui-state-active');
         },
         buttons: {
             'OK': function() {
-                ca.cells.brush.copy(brushDialog);
+                ca.cells.brush.copy(caBrush);
                 $(this).dialog('close');
             },
             'Cancel': function() {

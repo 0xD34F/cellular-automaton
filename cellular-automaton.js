@@ -39,12 +39,18 @@ function CellField(x, y, viewOptions) {
     });
 
     if (o.view.wrapper instanceof HTMLElement) {
-        if (o.view.width) {
-            o.view.wrapper.style.width = o.view.width + 'px';
+        o.view.cellSide = o.view.cellSide << 0;
+        o.view.border = o.view.border << 0;
+
+        if (!o.view.width) {
+            o.view.width = x * (o.view.cellSide + o.view.border) + o.view.border;
         }
-        if (o.view.height) {
-            o.view.wrapper.style.height = o.view.height + 'px';
+        if (!o.view.height) {
+            o.view.height = y * (o.view.cellSide + o.view.border) + o.view.border;
         }
+
+        o.view.wrapper.style.width = o.view.width + 'px';
+        o.view.wrapper.style.height = o.view.height + 'px';
 
         var canvas = document.createElement('canvas');
         o.view.wrapper.appendChild(canvas);
@@ -221,6 +227,13 @@ CellField.prototype.resizeView = function(cellSide, border) {
     this.view.canvas.width  = c.width  = this.xSize * (s + b) + b;
     this.view.canvas.height = c.height = this.ySize * (s + b) + b;
 
+    var parent = this.view.canvas.parentNode;
+    if (c.width > parseInt(parent.style.width) || c.height > parseInt(parent.style.height)) {
+        parent.classList.add('scrollable');
+    } else {
+        parent.classList.remove('scrollable');
+    }
+
     c.fillStyle = this.colors.background;
     c.fillRect(0, 0, c.width, c.height);
 
@@ -375,8 +388,6 @@ console.log('table built in: ', new Date() - startTime);
             cells.data = t;
         }
     }
-
-    cells.view.canvas.classList.add('scrollable');
 
     return {
         cells: cells,
