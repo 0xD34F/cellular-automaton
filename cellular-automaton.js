@@ -246,11 +246,22 @@ var CellularAutomaton = function(xSize, ySize, viewOptions) {
 
     var timer = {
         intervalID: null,
+        MIN_DELAY: 1,
+        MAX_DELAY: 10000,
         _delay: 30,
         get delay() {
             return timer._delay;
         },
         set delay(value) {
+            value = value << 0;
+
+            if (value < this.MIN_DELAY) {
+                value = this.MIN_DELAY;
+            }
+            if (value > this.MAX_DELAY) {
+                value = this.MAX_DELAY;
+            }
+
             timer._delay = value;
             if (timer.intervalID) {
                 timer.stop();
@@ -370,10 +381,10 @@ console.log('table built in: ', new Date() - startTime);
     return {
         cells: cells,
         newGeneration: newGeneration,
-        get steps() {
+        get stepsPerStroke() {
             return steps;
         },
-        set steps(value) {
+        set stepsPerStroke(value) {
             value = value << 0;
 
             if (value < MIN_STEPS) {
@@ -385,24 +396,18 @@ console.log('table built in: ', new Date() - startTime);
 
             steps = value;
         },
+        get strokeDuration() {
+            return timer.delay;
+        },
+        set strokeDuration(value) {
+            timer.delay = value;
+        },
         get rule() {
             return rule;
         },
         set rule(code) {
             newStatesTable = getNewStatesTable(code);
             rule = code;
-        },
-        get delay() {
-            return timer.delay;
-        },
-        set delay(value) {
-            timer.delay = value;
-        },
-        get gps() {
-            return Math.round(1000 / timer.delay);
-        },
-        set gps(value) {
-            timer.delay = Math.round(1000 / value);
         },
         isStarted: function() {
             return !!timer.intervalID;

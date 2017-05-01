@@ -21,6 +21,7 @@
             <button id="brush">Brush...</button>
             <button id="colors">Colors...</button>
             <button id="fill">Fill...</button>
+            <button id="speed">Speed...</button>
             <button id="rule">Rule...</button>
         </div>
         <div id="cells-wrapper" class="cells-field-wrapper"></div>
@@ -33,5 +34,11 @@
     </div>
     <div id="ca-colors" title="Colors"></div>
     <div id="ca-filling" title="Cells field filling"></div>
+    <div id="ca-speed" title="Speed">
+        <table class="ca-options-table">
+            <tr><td>Steps per stroke</td><td><input id="steps-per-stroke" type="text" maxlength="3"></td></tr>
+            <tr><td>Stroke duration, ms</td><td><input id="stroke-duration" type="text" maxlength="4"></td></tr>
+        </table>
+    </div>
 </body>
 </html>

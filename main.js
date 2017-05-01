@@ -233,6 +233,44 @@ $(document).ready(function() {
     });
 
 
+    $('#speed').click(function() {
+        $('#ca-speed').dialog('open');
+    });
+
+    $('#ca-speed').dialog({
+        width: 320,
+        create: function() {
+            $(this).find('#steps-per-stroke').spinner({
+                min: 1,
+                max: 100,
+                step: 1
+            }).end().find('#stroke-duration').spinner({
+                min: 10,
+                max: 5000,
+                step: 10
+            });
+        },
+        open: function() {
+            $(this)
+                .find('#steps-per-stroke').val(ca.stepsPerStroke).end()
+                .find('#stroke-duration').val(ca.strokeDuration);
+        },
+        buttons: {
+            'OK': function() {
+                var $this = $(this);
+
+                ca.stepsPerStroke = $this.find('#steps-per-stroke').val();
+                ca.strokeDuration = $this.find('#stroke-duration').val();
+
+                $this.dialog('close');
+            },
+            'Cancel': function() {
+                $(this).dialog('close');
+            }
+        }
+    });
+
+
     $('.content > .controls button').button();
 
     $(document).on({
