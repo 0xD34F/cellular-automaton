@@ -41,6 +41,20 @@ var predefinedRules = {
         2: 3,\n\
         3: s === 1 || s === 2 ? 1 : 3\n\
     })[center];\n\
+}',
+    'Parity': 'function main() {\n\
+    return (north & 1) ^ (south & 1) ^ (west & 1) ^ (east & 1) ^ (center & 1);\n\
+}',
+    'Anneal': 'function main() {\n\
+    var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\n\
+    return s > 5 || s === 4 ? 1 : 0;\n\
+}',
+    'Time tunnel': 'function main() {\n\
+    var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1),\n\
+        p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((center & 2) >> 1),\n\
+        p1 = center & 1;\n\
+\n\
+    return p0 | (p1 << 1);\n\
 }'
 };
 
