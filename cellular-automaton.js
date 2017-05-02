@@ -163,6 +163,17 @@ CellField.prototype.copy = function(cells, _x, _y, options) {
         }
     }
 };
+CellField.prototype.copyBitPlane = function(o) {
+    this.fill(function(x, y, val) {
+        var newVal = val;
+
+        for (var i in o) {
+            newVal = (newVal & ~(1 << i)) | (((val & (1 << o[i])) >> o[i]) << i);
+        }
+
+        return newVal;
+    });
+};
 CellField.prototype.refresh = function() {
     var c = this.view.context;
 
