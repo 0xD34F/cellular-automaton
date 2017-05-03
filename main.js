@@ -287,12 +287,15 @@ $(document).ready(function() {
     });
 
     $('#skip').find('button').click(function() {
-        var n = $(this).parent().find('input').val();
-        if (!/^\d*\.?\d+$/.test(n)) {
-            toastr.error('"' + n + '" is not a number');
-        } else {
-            ca.newGeneration(+n);
-            ca.cells.refresh();
+        var $steps = $(this).parent().find('input'),
+            steps = $steps.val() >> 0;
+
+        if (steps < 1) {
+            steps = 1;
         }
+        $steps.val(steps);
+
+        ca.newGeneration(steps);
+        ca.cells.refresh();
     }).end().find('input').val('1');
 });
