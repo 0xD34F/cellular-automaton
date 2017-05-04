@@ -28,33 +28,52 @@ $.extend($.ui.dialog.prototype.options, {
 });
 
 var predefinedRules = {
-    'Conway\'s Life': 'function main() {\n\
-    var s = (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\n\
-    return s === 3 ? 1 : (s === 2 ? center : 0);\n\
+    'Conway\'s Life': 'function main(n) {\n\
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
+    return s === 3 ? 1 : (s === 2 ? n.center : 0);\n\
 }',
-    'Wireworld': 'function main() {\n\
-    var s = (north === 1) + (south === 1) + (west === 1) + (east === 1) + (n_west === 1) + (s_west === 1) + (n_east === 1) + (s_east === 1);\n\
+    'Wireworld': 'setNeighborhoods({\n\
+    main: \'Moore-thick\',\n\
+});\n\
+function main(n) {\n\
+    var s = (n.north === 1) + (n.south === 1) + (n.west === 1) + (n.east === 1) + (n.n_west === 1) + (n.s_west === 1) + (n.n_east === 1) + (n.s_east === 1);\n\
 \n\
     return ({\n\
         0: 0,\n\
         1: 2,\n\
         2: 3,\n\
         3: s === 1 || s === 2 ? 1 : 3\n\
-    })[center];\n\
+    })[n.center];\n\
 }',
-    'Parity': 'function main() {\n\
-    return (north & 1) ^ (south & 1) ^ (west & 1) ^ (east & 1) ^ (center & 1);\n\
+    'Parity': 'function main(n) {\n\
+    return n.north ^ n.south ^ n.west ^ n.east ^ (n.center & 1);\n\
 }',
-    'Anneal': 'function main() {\n\
-    var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1) + (n_west & 1) + (s_west & 1) + (n_east & 1) + (s_east & 1);\n\
+    'Anneal': 'function main(n) {\n\
+    var s = (n.center & 1) + n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
     return s > 5 || s === 4 ? 1 : 0;\n\
 }',
-    'Time tunnel': 'function main() {\n\
-    var s = (center & 1) + (north & 1) + (south & 1) + (west & 1) + (east & 1),\n\
-        p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((center & 2) >> 1),\n\
-        p1 = center & 1;\n\
+    'Time tunnel': 'function main(n) {\n\
+    var s = (n.center & 1) + n.north + n.south + n.west + n.east,\n\
+        p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((n.center & 2) >> 1),\n\
+        p1 = n.center & 1;\n\
 \n\
     return p0 | (p1 << 1);\n\
+}',
+    'Border / hollow': 'setNeighborhoods({\n\
+    extra: [\'phase\']\n\
+});\n\
+\n\
+function border(n) {\n\
+    return 1 & (n.center | n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east);\n\
+}\n\
+\n\
+function hollow(n) {\n\
+    var t = 1 & n.north & n.south & n.west & n.east & n.n_west & n.n_east & n.s_west & n.s_east;\n\
+    return t ? 0 : n.center;\n\
+}\n\
+\n\
+function main(n) {\n\
+    return (n.phase & 1) ? hollow(n) : border(n);\n\
 }'
 };
 
