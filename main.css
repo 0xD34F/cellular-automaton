@@ -71,6 +71,10 @@ html {
     box-sizing: border-box;
 }
 
+.controls > button {
+    vertical-align: top;
+}
+
 .cells-field-wrapper {
     display: inline-block;
     overflow: hidden;
@@ -146,18 +150,25 @@ html {
 
 button, input, textarea, select {
     outline: 0;
+    border: 1px solid rgb(197, 197, 197);
 }
 
-.ui-button, select.ui-widget {
-    padding: .4em .4em .2em .4em;
+.ui-button {
+    padding: 6px 6px 4px 6px;
+    line-height: 18px;
 }
 
 #skip > input {
     margin: 0;
-    outline: 0;
-    padding: .3em;
+    padding: 4px;
     width: 3em;
 }
 #skip > button {
     margin: -1px;
+}
+
+#predefined-rules {
+    margin: 0;
+    padding: 4px;
+    line-height: 20px;
 }

@@ -27,15 +27,16 @@ $.extend($.ui.dialog.prototype.options, {
     resizable: false
 });
 
-var predefinedRules = [ {
-    name: 'Conway\'s Life',
-    code: 'function main(n) {\n\
+var rules = (function() {
+    var predefinedRules = [ {
+        name: 'Conway\'s Life',
+        code: 'function main(n) {\n\
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
     return s === 3 ? 1 : (s === 2 ? n.center : 0);\n\
 }'
-}, {
-    name: 'Brian\'s brain',
-    code: 'function ready(n) {\n\
+    }, {
+        name: 'Brian\'s brain',
+        code: 'function ready(n) {\n\
     return n.center === 0 ? 1 : 0;\n\
 }\n\
 \n\
@@ -50,9 +51,9 @@ function main(n) {\n\
 \n\
     return (p1 << 1) | p0;\n\
 }'
-}, {
-    name: 'Wireworld',
-    code: 'setNeighborhoods({\n\
+    }, {
+        name: 'Wireworld',
+        code: 'setNeighborhoods({\n\
     main: \'Moore-thick\'\n\
 });\n\
 \n\
@@ -66,29 +67,29 @@ function main(n) {\n\
         3: s === 1 || s === 2 ? 1 : 3\n\
     })[n.center];\n\
 }'
-}, {
-    name: 'Parity',
-    code: 'function main(n) {\n\
+    }, {
+        name: 'Parity',
+        code: 'function main(n) {\n\
     return n.north ^ n.south ^ n.west ^ n.east ^ (n.center & 1);\n\
 }'
-}, {
-    name: 'Anneal',
-    code: 'function main(n) {\n\
+    }, {
+        name: 'Anneal',
+        code: 'function main(n) {\n\
     var s = (n.center & 1) + n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
     return s > 5 || s === 4 ? 1 : 0;\n\
 }'
-}, {
-    name: 'Time tunnel',
-    code: 'function main(n) {\n\
+    }, {
+        name: 'Time tunnel',
+        code: 'function main(n) {\n\
     var s = (n.center & 1) + n.north + n.south + n.west + n.east,\n\
         p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((n.center & 2) >> 1),\n\
         p1 = n.center & 1;\n\
 \n\
     return p0 | (p1 << 1);\n\
 }'
-}, {
-    name: 'Border / hollow',
-    code: 'setNeighborhoods({\n\
+    }, {
+        name: 'Border / hollow',
+        code: 'setNeighborhoods({\n\
     extra: [\'phase\']\n\
 });\n\
 \n\
@@ -104,21 +105,80 @@ function hollow(n) {\n\
 function main(n) {\n\
     return (n.phase & 1) ? hollow(n) : border(n);\n\
 }'
-}, {
-    name: '30',
-    code: 'function main(n) {\n\
+    }, {
+        name: '30',
+        code: 'function main(n) {\n\
     var s = (n.n_west << 2) + (n.north << 1) + n.n_east;\n\
     var newState = s > 4 || s === 0 ? 0 : 1;\n\
     return newState | n.center;\n\
 }'
-}, {
-    name: '110',
-    code: 'function main(n) {\n\
+    }, {
+        name: '110',
+        code: 'function main(n) {\n\
     var s = (n.n_west << 2) + (n.north << 1) + n.n_east;\n\
     var newState = s === 7 || s === 4 || s === 0 ? 0 : 1;\n\
     return newState | n.center;\n\
 }'
-} ];
+    } ];
+
+    var savedRules = null;
+    try {
+        savedRules = JSON.parse(localStorage.rules);
+    } catch (e) {}
+    savedRules = savedRules instanceof Array ? savedRules : [];
+
+    function save() {
+        if (savedRules.length) {
+            localStorage.rules = JSON.stringify(savedRules);
+        } else {
+            localStorage.removeItem('rules');
+        }
+    }
+
+    return {
+        add: function(name, code) {
+            for (var i = 0; i < predefinedRules.length; i++) {
+                if (predefinedRules[i].name === name) {
+                    return false;
+                }
+            }
+
+            for (i = 0; i < savedRules.length; i++) {
+                if (savedRules[i].name === name) {
+                    savedRules.splice(i, 1);
+                    break;
+                }
+            }
+
+            savedRules.push({
+                name: name,
+                code: code
+            });
+
+            save();
+
+            return true;
+        },
+        del: function(name) {
+            for (var i = 0; i < savedRules.length; i++) {
+                if (savedRules[i].name === name) {
+                    savedRules.splice(i, 1);
+                    save();
+                    return true;
+                }
+            }
+
+            return false;
+        },
+        saved: function() {
+            return savedRules;
+        },
+        predefined: function() {
+            return predefinedRules;
+        }
+    };
+})();
+
 
 $(document).ready(function() {
     var X_SIZE = 256,
@@ -223,17 +283,67 @@ $(document).ready(function() {
     $('#ca-rule').dialog({
         width: '80%',
         create: function() {
-            var rulesHTML = predefinedRules.map(function(n, i) {
-                return '<option value="' + i + '">' + n.name + '</option>';
-            }).join('');
+            $(this).find('#predefined-rules').autocomplete({
+                delay: 0,
+                minLength: 0,
+                source: function(request, response) {
+                    response(rules.predefined().concat(rules.saved()).map(function(n) {
+                        return {
+                            label: n.name,
+                            value: n.code
+                        };
+                    }));
+                },
+                select: function(e, ui) {
+                    $(this).val(ui.item.label);
+                    $('#ca-rule-source').val(ui.item.value);
 
-            $(this).append('<div class="controls"><select id="predefined-rules" class="ui-widget ui-state-default"></select></div><textarea id="ca-rule-source"></textarea>')
-                .find('#predefined-rules').append(rulesHTML).change(function() {
-                    $('#ca-rule-source').val(predefinedRules[this.value].code);
-                }).val(null).end()
-                .find('#ca-rule-source').on('input propertychange', function() {
-                    $('#predefined-rules').val(null);
-                });
+                    return false;
+                }
+            }).click(function() {
+                $(this).autocomplete('search');
+            }).end().find('#save-rule').button().click(function() {
+                var ruleName = $('#predefined-rules').val(),
+                    ruleCode = $('#ca-rule-source').val();
+
+                if (!ruleName || !ruleCode) {
+                    var errMess = [];
+                    if (!ruleName) {
+                        errMess.push('no rule name');
+                    }
+                    if (!ruleCode) {
+                        errMess.push('no rule code');
+                    }
+                    toastr.error(errMess.join('<br>'));
+                    return;
+                }
+
+                if (rules.add(ruleName, ruleCode)) {
+                    toastr.success('rule "' + ruleName + '" saved');
+                } else {
+                    toastr.error('rule "' + ruleName + '" can not be rewrite');
+                }
+            }).end().find('#delete-rule').button().click(function() {
+                var ruleName = $('#predefined-rules').val();
+                if (!ruleName) {
+                    toastr.error('no rule name');
+                    return;
+                }
+
+                var predefined = rules.predefined();
+                for (var i = 0; i < predefined.length; i++) {
+                    if (predefined[i].name === ruleName) {
+                        toastr.error('rule "' + ruleName + '" can not be deleted');
+                        return;
+                    }
+                }
+
+                if (rules.del(ruleName)) {
+                    toastr.success('rule "' + ruleName + '" deleted');
+                } else {
+                    toastr.error('rule "' + ruleName + '" is not exists');
+                }
+            });
         },
         open: function() {
             $('#ca-rule-source').val(ca.rule);
