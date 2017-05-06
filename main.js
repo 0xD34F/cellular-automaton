@@ -361,4 +361,6 @@ $(document).ready(function() {
         ca.newGeneration(steps);
         ca.cells.refresh();
     }).end().find('input').val('1');
+
+    $('body').removeClass('hidden');
 });
