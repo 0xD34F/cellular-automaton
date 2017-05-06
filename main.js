@@ -242,34 +242,75 @@ $(document).ready(function() {
 
 
     $('#ca-filling').dialog({
+        width: 500,
         create: function() {
             var bitPlanes = 2;
 
-            var html = '<tr><th>Bit plane</th><th>Density, ‰</th><th>Fill</th></tr>';
+            var html = '<tr><th>Bit plane</th><th>Method</th><th></th><th>Fill</th></tr>';
             for (var i = 0; i < bitPlanes; i++) {
-                html += '<tr><td class="ca-filling-plane">' + i + '</td><td><input type="text" class="ca-filling-density"></td><td><input type="checkbox" class="ca-filling-fill" checked=checked"></td></tr>';
+                html += '<tr><td class="ca-filling-plane">' + i + '</td><td><select class="ca-filling-method" dir="rtl"><option value="random">Random</option><option value="copy">Copy</option></select></td><td class="ca-filling-options"><div class="ca-filling-random"><span class="ca-filling-options-note">density, ‰</span><input type="text"></div><div class="ca-filling-copy"><span class="ca-filling-options-note">from plane</span><input type="text"></div></td><td><input type="checkbox" class="ca-filling-fill" checked=checked"></td></tr>';
             }
 
-            $(this).append('<table class="ca-options-table">' + html + '</table>').find('.ca-filling-density').each(function() {
+            $(this).append('<table class="ca-options-table">' + html + '</table>').find('.ca-filling-random > input').each(function() {
                 $(this).val(500).spinner({
                     min: 0,
                     max: 1000,
                     step: 1,
                     numberFormat: 'n'
                 });
-            });
+            }).end().on('change', 'select', function() {
+                var $this = $(this),
+                    method = $this.val();
+
+                $this.closest('tr').find('.ca-filling-options').find('>').hide().end().find('.ca-filling-' + method).show();
+            }).find('select').change().end().find('.ca-filling-copy > input').autocomplete({
+                delay: 0,
+                minLength: 0,
+                source: function(request, response) {
+                    var ownPlane = +this.element.closest('tr').find('.ca-filling-plane').text();
+
+                    var data = [];
+                    for (var i = 0; i < bitPlanes; i++) {
+                        if (i !== ownPlane) {
+                            data.push('' + i);
+                        }
+                    }
+
+                    response(data);
+                }
+            }).click(function() {
+                $(this).autocomplete('search');
+            }).attr('readonly', 'readonly');
         },
         buttons: {
             'OK': function() {
-                var $this = $(this);
+                var $this = $(this),
+                    $options = $this.closest('.ui-dialog').find('.ca-options-table');
 
-                var t = {};
-                $this.find('.ca-filling-fill').each(function(i) {
+                var fillRandom = {},
+                    fillCopy = {};
+
+                $options.find('.ca-filling-fill').each(function(i) {
                     if (this.checked) {
-                        t[i] = $(this).closest('tr').find('.ca-filling-density').val();
+                        var $tr = $(this).closest('tr'),
+                            method = $tr.find('.ca-filling-method').val();
+
+                        if (method === 'random') {
+                            fillRandom[i] = $tr.find('.ca-filling-random input').val();
+                        } else if (method === 'copy') {
+                            fillCopy[i] = $tr.find('.ca-filling-copy input').val();
+                        }
                     }
                 });
-                fillCellsField(ca.cells, t);
+
+                if (Object.keys(fillRandom).length) {
+                    fillCellsField(ca.cells, fillRandom);
+                }
+                if (Object.keys(fillCopy).length) {
+                    ca.cells.copyBitPlane(fillCopy);
+                }
+
+                ca.cells.draw();
 
                 $this.dialog('close');
             },

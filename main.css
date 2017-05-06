@@ -54,6 +54,10 @@ html {
     border-radius: 0;
 }
 
+.ui-button, .ui-spinner-input {
+    line-height: calc(1em + 2px);
+}
+
 .content {
     margin: 0 auto;
     padding: 0 10px;
@@ -86,7 +90,7 @@ html {
 
 .ca-options-table td,
 .ca-options-table th {
-    padding: 10px 15px;
+    padding: 10px 0 10px 15px;
     vertical-align: middle;
 }
 
@@ -101,6 +105,36 @@ html {
 
 .ca-options-table .ca-filling-plane {
     text-align: right;
+}
+
+.ca-filling-options .ca-filling-options-note {
+    display: inline-block;
+    width: 5em;
+    vertical-align: middle;
+}
+.ca-filling-method {
+    height: 2em;
+}
+.ca-filling-method,
+.ca-filling-copy > input {
+    padding: .375em .4em;
+    margin: 0 .4em;
+    vertical-align: middle;
+}
+.ca-filling-options .ui-spinner-input {
+    padding: .375em .4em;
+    margin: 0;
+    margin-right: 2em;
+}
+.ca-filling-copy > input[type="text"] {
+    width: 4.5em;
+    line-height: calc(1em + 2px);
+}
+.ca-filling-random > .ui-spinner {
+    margin: 0 .4em;
+}
+.ca-filling-random > .ui-spinner > input {
+    width: 2.5em;
 }
 
 .ca-options-table input.jscolor {
@@ -155,7 +189,6 @@ button, input, textarea, select {
 
 .ui-button {
     padding: 6px 6px 4px 6px;
-    line-height: 18px;
 }
 
 #skip > input {
