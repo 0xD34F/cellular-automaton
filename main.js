@@ -27,6 +27,16 @@ $.extend($.ui.dialog.prototype.options, {
     resizable: false
 });
 
+$.extend($.ui.autocomplete.prototype.options, {
+    delay: 0,
+    minLength: 0,
+    create: function() {
+        $(this).click(function() {
+            $(this).autocomplete('search');
+        });
+    }
+});
+
 
 $(document).ready(function() {
     var X_SIZE = 256,
@@ -112,8 +122,6 @@ $(document).ready(function() {
 
                 $this.closest('tr').find('.ca-filling-options').find('>').hide().end().find('.ca-filling-' + method).show();
             }).find('select').change().end().find('.ca-filling-copy > input').autocomplete({
-                delay: 0,
-                minLength: 0,
                 source: function(request, response) {
                     var ownPlane = +this.element.closest('tr').find('.ca-filling-plane').text();
 
@@ -126,8 +134,6 @@ $(document).ready(function() {
 
                     response(data);
                 }
-            }).click(function() {
-                $(this).autocomplete('search');
             }).attr('readonly', 'readonly');
         },
         buttons: {
@@ -173,8 +179,6 @@ $(document).ready(function() {
         width: '80%',
         create: function() {
             $(this).find('#predefined-rules').autocomplete({
-                delay: 0,
-                minLength: 0,
                 source: function(request, response) {
                     response(rules.predefined().concat(rules.saved()).map(function(n) {
                         return {
@@ -189,8 +193,6 @@ $(document).ready(function() {
 
                     return false;
                 }
-            }).click(function() {
-                $(this).autocomplete('search');
             }).end().find('#save-rule').button().click(function() {
                 var ruleName = $('#predefined-rules').val(),
                     ruleCode = $('#ca-rule-source').val();
