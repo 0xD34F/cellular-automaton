@@ -24,19 +24,10 @@
 function CellField(x, y, viewOptions) {
     var o = Object.create(CellField.prototype);
 
-    o.xSize = x;
-    o.ySize = y;
+    o.resize(x, y);
+
     o.mode = 'edit';
     o.view = viewOptions instanceof Object ? viewOptions : {};
-
-    var t = o.data = new Array(x);
-    for (var i = 0; i < x; i++) {
-        t[i] = new Array(y);
-    }
-
-    o.fill(function() {
-        return 0;
-    });
 
     if (o.view.wrapper instanceof HTMLElement) {
         o.view.cellSide = o.view.cellSide << 0;
@@ -224,6 +215,19 @@ CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
             c.fillRect(n[i] * sideFull + border, n[i + 1] * sideFull + border, side, side);
         }
     }
+};
+CellField.prototype.resize = function(x, y) {
+    this.xSize = x;
+    this.ySize = y;
+
+    this.data = new Array(x);
+    for (var i = 0; i < x; i++) {
+        this.data[i] = new Array(y);
+    }
+
+    this.fill(function() {
+        return 0;
+    });
 };
 CellField.prototype.resizeView = function(cellSide, border) {
     if (!this.view.canvas || isNaN(cellSide) || cellSide < 1) {

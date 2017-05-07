@@ -176,7 +176,13 @@ html {
     box-sizing: border-box;
 }
 
-#ca-rule-source {
+#ca-rule-name {
+    margin: 0;
+    padding: 4px;
+    line-height: 20px;
+}
+
+#ca-rule-code {
     width: 100%;
     height: 100%;
     min-width: 400px;
@@ -202,10 +208,4 @@ button, input, textarea, select {
 }
 #skip > button {
     margin: -1px;
-}
-
-#predefined-rules {
-    margin: 0;
-    padding: 4px;
-    line-height: 20px;
 }

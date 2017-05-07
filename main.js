@@ -39,6 +39,15 @@ $.extend($.ui.autocomplete.prototype.options, {
 
 
 $(document).ready(function() {
+    var X_SIZE_MIN = 32,
+        Y_SIZE_MIN = 32,
+        X_SIZE_MAX = 256,
+        Y_SIZE_MAX = 256,
+        CELL_SIDE_MIN = 1,
+        CELL_SIDE_MAX = 20,
+        CELL_BORDER_MIN = 0,
+        CELL_BORDER_MAX = 4;
+
     var X_SIZE = 256,
         Y_SIZE = 256;
 
@@ -175,10 +184,55 @@ $(document).ready(function() {
     });
 
 
+    $('#ca-field').dialog({
+        create: function() {
+            [
+                [ '#ca-field-width',       X_SIZE_MIN,      X_SIZE_MAX ],
+                [ '#ca-field-height',      Y_SIZE_MIN,      Y_SIZE_MAX ],
+                [ '#ca-field-cell-side',   CELL_SIDE_MIN,   CELL_SIDE_MAX ],
+                [ '#ca-field-cell-border', CELL_BORDER_MIN, CELL_BORDER_MAX ]
+            ].forEach((function(n) {
+                this.find(n[0]).spinner({
+                    min: n[1],
+                    max: n[2],
+                    step: 1
+                });
+            }).bind($(this)));
+        },
+        open: function() {
+            $(this)
+                .find('#ca-field-width').val(ca.cells.xSize).end()
+                .find('#ca-field-height').val(ca.cells.ySize).end()
+                .find('#ca-field-cell-side').val(ca.cells.view.cellSide).end()
+                .find('#ca-field-cell-border').val(ca.cells.view.border);
+        },
+        buttons: {
+            'OK': function() {
+                var $this = $(this),
+                    xSize = +$this.find('#ca-field-width').val(),
+                    ySize = +$this.find('#ca-field-height').val(),
+                    cellSide = +$this.find('#ca-field-cell-side').val(),
+                    border = +$this.find('#ca-field-cell-border').val();
+
+                if (ca.cells.xSize !== xSize || ca.cells.ySize !== ySize) {
+                    ca.cells.resize(xSize, ySize);
+                }
+
+                ca.cells.resizeView(cellSide, border);
+
+                $this.dialog('close');
+            },
+            'Cancel': function() {
+                $(this).dialog('close');
+            }
+        }
+    });
+
+
     $('#ca-rule').dialog({
         width: '80%',
         create: function() {
-            $(this).find('#predefined-rules').autocomplete({
+            $(this).find('#ca-rule-name').autocomplete({
                 source: function(request, response) {
                     response(rules.predefined().concat(rules.saved()).map(function(n) {
                         return {
@@ -189,13 +243,13 @@ $(document).ready(function() {
                 },
                 select: function(e, ui) {
                     $(this).val(ui.item.label);
-                    $('#ca-rule-source').val(ui.item.value);
+                    $('#ca-rule-code').val(ui.item.value);
 
                     return false;
                 }
-            }).end().find('#save-rule').button().click(function() {
-                var ruleName = $('#predefined-rules').val(),
-                    ruleCode = $('#ca-rule-source').val();
+            }).end().find('#ca-rule-save').button().click(function() {
+                var ruleName = $('#ca-rule-name').val(),
+                    ruleCode = $('#ca-rule-code').val();
 
                 if (!ruleName || !ruleCode) {
                     var errMess = [];
@@ -212,10 +266,10 @@ $(document).ready(function() {
                 if (rules.add(ruleName, ruleCode)) {
                     toastr.success('rule "' + ruleName + '" saved');
                 } else {
-                    toastr.error('rule "' + ruleName + '" can not be rewrite');
+                    toastr.error('rule "' + ruleName + '" can not be rewrited');
                 }
-            }).end().find('#delete-rule').button().click(function() {
-                var ruleName = $('#predefined-rules').val();
+            }).end().find('#ca-rule-delete').button().click(function() {
+                var ruleName = $('#ca-rule-name').val();
                 if (!ruleName) {
                     toastr.error('no rule name');
                     return;
@@ -237,12 +291,12 @@ $(document).ready(function() {
             });
         },
         open: function() {
-            $('#ca-rule-source').val(ca.rule);
+            $('#ca-rule-code').val(ca.rule);
         },
         buttons: {
             'OK': function() {
                 try {
-                    ca.rule = $('#ca-rule-source').val();
+                    ca.rule = $('#ca-rule-code').val();
                     $(this).dialog('close');
                 } catch (e) {
                     toastr.error(e.message);

@@ -19,6 +19,7 @@
         <div class="controls">
             <button id="start"><span class="ui-icon ui-icon-play"></span></button>
             <span id="skip" class="ui-spinner ui-corner-all ui-widget ui-widget-content"><input class="ui-spinner-input" maxlength="5"><button><span class="ui-icon ui-icon-seek-next"></span></button></span>
+            <button id="field" data-dialog="ca-field">Field...</button>
             <button id="brush" data-dialog="ca-brush">Brush...</button>
             <button id="colors" data-dialog="ca-colors">Colors...</button>
             <button id="fill" data-dialog="ca-filling">Fill...</button>
@@ -30,11 +31,11 @@
 
     <div id="ca-rule" title="Rule">
         <div class="controls">
-            <input id="predefined-rules">
-            <button id="save-rule"><span class="ui-icon ui-icon-disk"></span></button>
-            <button id="delete-rule"><span class="ui-icon ui-icon-trash"></span></button>
+            <input id="ca-rule-name">
+            <button id="ca-rule-save"><span class="ui-icon ui-icon-disk"></span></button>
+            <button id="ca-rule-delete"><span class="ui-icon ui-icon-trash"></span></button>
         </div>
-        <textarea id="ca-rule-source"></textarea>
+        <textarea id="ca-rule-code"></textarea>
     </div>
     <div id="ca-brush" title="Brush">
         <div class="cells-field-wrapper"></div>
@@ -46,6 +47,14 @@
         <table class="ca-options-table">
             <tr><td>Steps per stroke</td><td><input id="steps-per-stroke" type="text" maxlength="3"></td></tr>
             <tr><td>Stroke duration, ms</td><td><input id="stroke-duration" type="text" maxlength="4"></td></tr>
+        </table>
+    </div>
+    <div id="ca-field" title="Cells field settings">
+        <table class="ca-options-table">
+            <tr><td>Field width</td><td><input id="ca-field-width" type="text" maxlength="3"></td></tr>
+            <tr><td>Field height</td><td><input id="ca-field-height" type="text" maxlength="3"></td></tr>
+            <tr><td>Cell side</td><td><input id="ca-field-cell-side" type="text" maxlength="2"></td></tr>
+            <tr><td>Cell border width</td><td><input id="ca-field-cell-border" type="text" maxlength="1"></td></tr>
         </table>
     </div>
 </body>
