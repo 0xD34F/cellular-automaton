@@ -58,10 +58,6 @@ html {
     border-radius: 0;
 }
 
-.ui-button, .ui-spinner-input {
-    line-height: calc(1em + 2px);
-}
-
 .content {
     margin: 0 auto;
     padding: 0 10px;
@@ -116,17 +112,13 @@ html {
     width: 5em;
     vertical-align: middle;
 }
-.ca-filling-method {
-    height: 2em;
-}
-.ca-filling-method,
 .ca-filling-copy > input {
-    padding: .375em .4em;
+    padding: 6px 6px 4px 6px;
     margin: 0 .4em;
     vertical-align: middle;
 }
 .ca-filling-options .ui-spinner-input {
-    padding: .375em .4em;
+    padding: 6px 6px 4px 6px;
     margin: 0;
     margin-right: 2em;
 }
@@ -196,7 +188,7 @@ html {
     background-color: #eee;
 }
 
-button, input, textarea, select {
+button, input, textarea, select, .ui-selectmenu-button {
     outline: 0;
     border: 1px solid rgb(197, 197, 197);
 }

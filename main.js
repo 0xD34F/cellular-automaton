@@ -125,12 +125,11 @@ $(document).ready(function() {
                     step: 1,
                     numberFormat: 'n'
                 });
-            }).end().on('change', 'select', function() {
-                var $this = $(this),
-                    method = $this.val();
-
-                $this.closest('tr').find('.ca-filling-options').find('>').hide().end().find('.ca-filling-' + method).show();
-            }).find('select').change().end().find('.ca-filling-copy > input').autocomplete({
+            }).end().find('select').selectmenu({
+                width: 100
+            }).on('selectmenuchange', function(e, ui) {
+                $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find('.ca-filling-' + (ui ? ui.item.value : this.value)).show();
+            }).trigger('selectmenuchange').end().find('.ca-filling-copy > input').autocomplete({
                 source: function(request, response) {
                     var ownPlane = +this.element.closest('tr').find('.ca-filling-plane').text();
 
