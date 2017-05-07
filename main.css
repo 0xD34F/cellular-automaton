@@ -192,6 +192,10 @@ html {
     resize: none;
 }
 
+.predefined-rule {
+    background-color: #eee;
+}
+
 button, input, textarea, select {
     outline: 0;
     border: 1px solid rgb(197, 197, 197);

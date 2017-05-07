@@ -90,7 +90,10 @@ function main(n) {\n\
     var newState = s === 7 || s === 4 || s === 0 ? 0 : 1;\n\
     return newState | n.center;\n\
 }'
-    } ];
+    } ].map(function(n) {
+        n.predefined = true;
+        return n;
+    });
 
     var savedRules = null;
     try {

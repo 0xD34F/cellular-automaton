@@ -237,7 +237,8 @@ $(document).ready(function() {
                     response(rules.predefined().concat(rules.saved()).map(function(n) {
                         return {
                             label: n.name,
-                            value: n.code
+                            value: n.code,
+                            predefined: n.predefined
                         };
                     }));
                 },
@@ -247,7 +248,16 @@ $(document).ready(function() {
 
                     return false;
                 }
-            }).end().find('#ca-rule-save').button().click(function() {
+            }).data('ui-autocomplete')._renderItem = function(ul, item) {
+                var $item = $('<div></div>').text(item.label);
+                if (item.predefined) {
+                    $item.addClass('predefined-rule');
+                }
+
+                return $('<li></li>').data('item.autocomplete', item).append($item).appendTo(ul);
+            };
+
+            $(this).find('#ca-rule-save').button().click(function() {
                 var ruleName = $('#ca-rule-name').val(),
                     ruleCode = $('#ca-rule-code').val();
 
