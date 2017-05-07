@@ -115,7 +115,7 @@ $(document).ready(function() {
 
             var html = '<tr><th>Bit plane</th><th>Method</th><th></th><th>Fill</th></tr>';
             for (var i = 0; i < bitPlanes; i++) {
-                html += '<tr><td class="ca-filling-plane">' + i + '</td><td><select class="ca-filling-method" dir="rtl"><option value="random">Random</option><option value="copy">Copy</option></select></td><td class="ca-filling-options"><div class="ca-filling-random"><span class="ca-filling-options-note">density, ‰</span><input type="text"></div><div class="ca-filling-copy"><span class="ca-filling-options-note">from plane</span><input type="text"></div></td><td><input type="checkbox" class="ca-filling-fill" checked=checked"></td></tr>';
+                html += '<tr><td class="ca-filling-plane">' + i + '</td><td><select class="ca-filling-method" dir="rtl"><option value="random">Random</option><option value="copy">Copy</option></select></td><td class="ca-filling-options"><div class="ca-filling-random"><span class="ca-filling-options-note">density, ‰</span><input type="text"></div><div class="ca-filling-copy"><span class="ca-filling-options-note">from plane</span><input type="text"></div></td><td><input type="checkbox" id="ca-filling-fill-plane-' + i + '" class="ca-filling-fill"><label for="ca-filling-fill-plane-' + i + '"></label></td></tr>';
             }
 
             $(this).append('<table class="ca-options-table">' + html + '</table>').find('.ca-filling-random > input').each(function() {
@@ -142,7 +142,7 @@ $(document).ready(function() {
 
                     response(data);
                 }
-            }).attr('readonly', 'readonly');
+            }).attr('readonly', 'readonly').end().find('.ca-filling-fill').checkboxradio().attr('checked', 'checked').change();
         },
         buttons: {
             'OK': function() {
