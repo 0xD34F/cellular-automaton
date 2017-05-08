@@ -124,7 +124,6 @@ html {
 }
 .ca-filling-copy > input[type="text"] {
     width: 4.5em;
-    line-height: calc(1em + 2px);
 }
 .ca-filling-random > .ui-spinner {
     margin: 0 .4em;
@@ -170,8 +169,7 @@ html {
 
 #ca-rule-name {
     margin: 0;
-    padding: 4px;
-    line-height: 20px;
+    padding: 5px;
 }
 
 #ca-rule-code {
@@ -179,6 +177,7 @@ html {
     height: 100%;
     min-width: 400px;
     min-height: 300px;
+    padding: 5px;
     font-family: monospace;
     box-sizing: border-box;
     resize: none;
@@ -195,6 +194,12 @@ button, input, textarea, select, .ui-selectmenu-button {
 
 .ui-button {
     padding: 6px 6px 4px 6px;
+}
+
+.ui-autocomplete {
+    max-height: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 #skip > input {
