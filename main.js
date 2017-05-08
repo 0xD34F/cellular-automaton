@@ -406,16 +406,23 @@ $(document).ready(function() {
             $('#' + $(this).attr('data-dialog')).dialog('open');
         });
 
+    $('#cell-field-data').buttonset().find('#clear').click(function() {
+        ca.cells.fill(function() {
+            return 0;
+        });
+        ca.cells.draw();
+    });
+
     $(document).on({
         'ca-start': function() {
             $('#start .ui-icon').removeClass('ui-icon-play').addClass('ui-icon-pause');
-            $('#skip, #fill, #rule').addClass('ui-state-disabled');
+            $('#skip, #fill, #rule, #field, #clear').addClass('ui-state-disabled');
         },
         'ca-stop': function() {
             $('#start .ui-icon').removeClass('ui-icon-pause').addClass('ui-icon-play');
-            $('#skip, #fill, #rule').removeClass('ui-state-disabled');
+            $('#skip, #fill, #rule, #field, #clear').removeClass('ui-state-disabled');
         }
-    })
+    });
 
     $('#start').click(function() {
         if (ca.isStarted()) {

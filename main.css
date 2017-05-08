@@ -202,6 +202,13 @@ button, input, textarea, select, .ui-selectmenu-button {
     overflow-y: auto;
 }
 
+.controls > .ui-controlgroup {
+    margin-right: 2px;
+}
+.controls > .ui-controlgroup > .ui-controlgroup-item {
+    margin-right: -1px;
+}
+
 #skip > input {
     margin: 0;
     padding: 4px;
