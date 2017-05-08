@@ -3,6 +3,19 @@
     return Math.floor(Math.random() * (max - min)) + min;
 }
 
+function limitation(val, min, max) {
+    val = val >> 0;
+
+    if (val < min) {
+        val = min;
+    }
+    if (val > max) {
+        val = max;
+    }
+
+    return val;
+}
+
 // fillingMap - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
 function fillCellsField(field, fillingMap) {
     field.fill(function(x, y, value) {
@@ -186,8 +199,8 @@ $(document).ready(function() {
     $('#ca-field').dialog({
         create: function() {
             [
-                [ '#ca-field-width',       X_SIZE_MIN,      X_SIZE_MAX ],
-                [ '#ca-field-height',      Y_SIZE_MIN,      Y_SIZE_MAX ],
+                [ '#ca-field-x-size',      X_SIZE_MIN,      X_SIZE_MAX ],
+                [ '#ca-field-y-size',      Y_SIZE_MIN,      Y_SIZE_MAX ],
                 [ '#ca-field-cell-side',   CELL_SIDE_MIN,   CELL_SIDE_MAX ],
                 [ '#ca-field-cell-border', CELL_BORDER_MIN, CELL_BORDER_MAX ]
             ].forEach((function(n) {
@@ -200,18 +213,18 @@ $(document).ready(function() {
         },
         open: function() {
             $(this)
-                .find('#ca-field-width').val(ca.cells.xSize).end()
-                .find('#ca-field-height').val(ca.cells.ySize).end()
+                .find('#ca-field-x-size').val(ca.cells.xSize).end()
+                .find('#ca-field-y-size').val(ca.cells.ySize).end()
                 .find('#ca-field-cell-side').val(ca.cells.view.cellSide).end()
                 .find('#ca-field-cell-border').val(ca.cells.view.border);
         },
         buttons: {
             'OK': function() {
                 var $this = $(this),
-                    xSize = +$this.find('#ca-field-width').val(),
-                    ySize = +$this.find('#ca-field-height').val(),
-                    cellSide = +$this.find('#ca-field-cell-side').val(),
-                    border = +$this.find('#ca-field-cell-border').val();
+                    xSize = limitation($this.find('#ca-field-x-size').val(), X_SIZE_MIN, X_SIZE_MAX),
+                    ySize = limitation($this.find('#ca-field-y-size').val(), Y_SIZE_MIN, Y_SIZE_MAX),
+                    cellSide = limitation($this.find('#ca-field-cell-side').val(), CELL_SIDE_MIN, CELL_SIDE_MAX),
+                    border = limitation($this.find('#ca-field-cell-border').val(), CELL_BORDER_MIN, CELL_BORDER_MAX);
 
                 if (ca.cells.xSize !== xSize || ca.cells.ySize !== ySize) {
                     ca.cells.resize(xSize, ySize);
