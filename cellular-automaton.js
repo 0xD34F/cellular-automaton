@@ -488,6 +488,15 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
         );
     }
 
+    function elementary(ruleNumber) {
+        ruleNumber = limitation(ruleNumber, 0, 255);
+
+        return function(n) {
+            var t = ((n.n_west & 1) << 2) + ((n.north & 1) << 1) + (n.n_east & 1);
+            return ((ruleNumber & (1 << t)) ? 1 : 0) | n.center;
+        };
+    }
+
 
     function newGeneration(n) {
         if (isNaN(n) || n < 1) {

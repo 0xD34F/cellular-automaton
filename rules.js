@@ -134,18 +134,13 @@ function main(n) {\n\
 }'
     }, {
         name: '30',
-        code: 'function main(n) {\n\
-    var s = (n.n_west << 2) + (n.north << 1) + n.n_east;\n\
-    var newState = s > 4 || s === 0 ? 0 : 1;\n\
-    return newState | n.center;\n\
-}'
+        code: 'var main = elementary(30);'
     }, {
         name: '110',
-        code: 'function main(n) {\n\
-    var s = (n.n_west << 2) + (n.north << 1) + n.n_east;\n\
-    var newState = s === 7 || s === 4 || s === 0 ? 0 : 1;\n\
-    return newState | n.center;\n\
-}'
+        code: 'var main = elementary(110);'
+    }, {
+        name: '126',
+        code: 'var main = elementary(126);'
     } ].map(function(n) {
         n.predefined = true;
         return n;
