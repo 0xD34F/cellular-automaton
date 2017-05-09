@@ -246,8 +246,13 @@ $(document).ready(function() {
         create: function() {
             $(this).find('#ca-rule-name').autocomplete({
                 source: function(request, response) {
-                    response(rules.predefined().concat(rules.saved()).map(function(n) {
+                    var term = request.term.toLowerCase();
+
+                    response(rules.predefined().concat(rules.saved()).filter(function(n) {
+                        return !!n.name.toLowerCase().match(term);
+                    }).map(function(n) {
                         return {
+                            matched: n.name.replace(new RegExp('(' + request.term + ')', 'i'), '<span class="matched-text">$1</span>'),
                             label: n.name,
                             value: n.code,
                             predefined: n.predefined
@@ -261,7 +266,7 @@ $(document).ready(function() {
                     return false;
                 }
             }).data('ui-autocomplete')._renderItem = function(ul, item) {
-                var $item = $('<div></div>').text(item.label);
+                var $item = $('<div></div>').html(item.matched);
                 if (item.predefined) {
                     $item.addClass('predefined-rule');
                 }

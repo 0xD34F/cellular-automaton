@@ -187,6 +187,11 @@ html {
     background-color: #eee;
 }
 
+.matched-text {
+    text-decoration: underline;
+    font-weight: bold;
+}
+
 button, input, textarea, select, .ui-selectmenu-button {
     outline: 0;
     border: 1px solid rgb(197, 197, 197);
