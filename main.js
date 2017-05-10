@@ -420,21 +420,23 @@ $(document).ready(function() {
 
     $(document).on({
         'ca-start': function() {
-            $('#start .ui-icon').removeClass('ui-icon-play').addClass('ui-icon-pause');
-            $('#skip, #fill, #rule, #field, #clear').addClass('ui-state-disabled');
+            $('.ca-start-disable').addClass('ui-state-disabled');
+            $('.ca-start-hide').hide();
+            $('.ca-start-show').show();
         },
         'ca-stop': function() {
-            $('#start .ui-icon').removeClass('ui-icon-pause').addClass('ui-icon-play');
-            $('#skip, #fill, #rule, #field, #clear').removeClass('ui-state-disabled');
+            $('.ca-start-disable').removeClass('ui-state-disabled');
+            $('.ca-start-hide').show();
+            $('.ca-start-show').hide();
         }
-    });
+    }).trigger('ca-stop');
 
     $('#start').click(function() {
-        if (ca.isStarted()) {
-            ca.stop();
-        } else {
-            ca.start();
-        }
+        ca.start();
+    });
+
+    $('#stop').click(function() {
+        ca.stop();
     });
 
     $('#skip').find('button').click(function() {

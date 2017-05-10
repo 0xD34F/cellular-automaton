@@ -17,17 +17,18 @@
 <body class="hidden">
     <div class="content">
         <div class="controls">
-            <button id="start"><span class="ui-icon ui-icon-play"></span></button>
-            <span id="skip" class="ui-spinner ui-corner-all ui-widget ui-widget-content" title="Skip generations"><input class="ui-spinner-input" maxlength="5"><button><span class="ui-icon ui-icon-seek-next"></span></button></span>
-            <button id="field" data-dialog="ca-field" title="Cells field settings">Field...</button>
+            <button id="start" class="ca-start-hide"><span class="ui-icon ui-icon-play"></span></button>
+            <button id="stop" class="ca-start-show"><span class="ui-icon ui-icon-pause"></span></button>
+            <span id="skip" class="ca-start-disable ui-spinner ui-corner-all ui-widget ui-widget-content" title="Skip generations"><input class="ui-spinner-input" maxlength="5"><button><span class="ui-icon ui-icon-seek-next"></span></button></span>
+            <button id="field" data-dialog="ca-field" class="ca-start-disable" title="Cells field settings">Field...</button>
             <button id="brush" data-dialog="ca-brush">Brush...</button>
             <button id="colors" data-dialog="ca-colors">Colors...</button>
             <div id="cell-field-data">
-                <button id="fill" data-dialog="ca-filling" title="Cells field filling">Fill...</button>
-                <button id="clear" title="Cells field clear">Clear</button>
+                <button id="fill" data-dialog="ca-filling" class="ca-start-disable" title="Cells field filling">Fill...</button>
+                <button id="clear" class="ca-start-disable" title="Cells field clear">Clear</button>
             </div>
             <button id="speed" data-dialog="ca-speed">Speed...</button>
-            <button id="rule" data-dialog="ca-rule">Rule...</button>
+            <button id="rule" data-dialog="ca-rule" class="ca-start-disable">Rule...</button>
         </div>
         <div id="cells-wrapper" class="cells-field-wrapper"></div>
     </div>
