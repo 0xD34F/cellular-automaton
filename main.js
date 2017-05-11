@@ -316,6 +316,22 @@ $(document).ready(function() {
                     toastr.error('rule "' + ruleName + '" is not exists');
                 }
             });
+
+            $(this).find('#ca-rule-code').keydown(function(e) {
+                if (e.keyCode === 9) {
+                    var start = this.selectionStart,
+                        end = this.selectionEnd,
+                        $this = $(this),
+                        value = $this.val(),
+                        tab = '    ';
+
+                    $this.val(value.substring(0, start) + tab + value.substring(end));
+
+                    this.selectionStart = this.selectionEnd = start + tab.length;
+
+                    e.preventDefault();
+                }
+            });
         },
         open: function() {
             $('#ca-rule-code').val(ca.rule);
