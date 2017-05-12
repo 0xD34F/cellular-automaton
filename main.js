@@ -16,24 +16,6 @@ function limitation(val, min, max) {
     return val;
 }
 
-// fillingMap - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
-function fillCellsField(field, fillingMap) {
-    field.fill(function(x, y, value) {
-        for (var i in fillingMap) {
-            var mask = (1 << i);
-
-            if (random(1000) < fillingMap[i]) {
-                value |= mask;
-            } else {
-                value &= ~mask;
-            }
-        }
-
-        return value;
-    })
-    field.draw();
-}
-
 $.extend($.ui.dialog.prototype.options, {
     modal: true,
     autoOpen: false,
@@ -179,7 +161,7 @@ $(document).ready(function() {
                 });
 
                 if (Object.keys(fillRandom).length) {
-                    fillCellsField(ca.cells, fillRandom);
+                    ca.cells.fillRandom(fillRandom);
                 }
                 if (Object.keys(fillCopy).length) {
                     ca.cells.copyBitPlane(fillCopy);

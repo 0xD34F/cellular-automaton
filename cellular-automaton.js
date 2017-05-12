@@ -154,6 +154,7 @@ CellField.prototype.copy = function(cells, _x, _y, options) {
         }
     }
 };
+// o - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости> }
 CellField.prototype.copyBitPlane = function(o) {
     this.fill(function(x, y, val) {
         var newVal = val;
@@ -163,6 +164,22 @@ CellField.prototype.copyBitPlane = function(o) {
         }
 
         return newVal;
+    });
+};
+// o - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
+CellField.prototype.fillRandom = function(o) {
+    this.fill(function(x, y, value) {
+        for (var i in o) {
+            var mask = (1 << i);
+
+            if (random(1000) < o[i]) {
+                value |= mask;
+            } else {
+                value &= ~mask;
+            }
+        }
+
+        return value;
     });
 };
 CellField.prototype.refresh = function() {
