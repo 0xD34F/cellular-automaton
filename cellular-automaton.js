@@ -120,8 +120,7 @@ CellField.prototype.userActions = {
             this.copy(this.brush, x, y, {
                 skipZeros: true,
                 setZeros: e.buttons === 2
-            });
-            this.draw(x, y, this.brush.xSize, this.brush.ySize);
+            }).draw(x, y, this.brush.xSize, this.brush.ySize);
         } else {
             if (e.buttons === 1) {
                 this.data[x][y] = (this.data[x][y] + 1) & 3;
@@ -133,9 +132,18 @@ CellField.prototype.userActions = {
         }
     },
     shift: function(e, x, y, prevX, prevY) {
-        this.shift(x - prevX, y - prevY);
-        this.draw();
+        this.shift(x - prevX, y - prevY).draw();
     }
+};
+CellField.prototype.dispatchEvent = function(eventName, data) {
+    data = data instanceof Object ? data : {};
+    data.cellField = this;
+
+    document.dispatchEvent(new CustomEvent(eventName, {
+        detail: data
+    }));
+
+    return this;
 };
 Object.defineProperty(CellField.prototype, 'mode', {
     get: function() {
@@ -144,11 +152,9 @@ Object.defineProperty(CellField.prototype, 'mode', {
     set: function(value) {
         this._mode = value;
 
-        document.dispatchEvent(new CustomEvent('ca-mode', {
-            detail: {
-                mode: value
-            }
-        }));
+        this.dispatchEvent('ca-mode', {
+            mode: value
+        });
     }
 });
 CellField.prototype.fill = function(f) {
@@ -287,7 +293,7 @@ CellField.prototype.resize = function(x, y) {
 
     return this.fill(function() {
         return 0;
-    });
+    }).dispatchEvent('ca-resize');
 };
 CellField.prototype.resizeView = function(cellSide, border) {
     if (!this.view.canvas || isNaN(cellSide) || cellSide < 1) {
@@ -312,7 +318,7 @@ CellField.prototype.resizeView = function(cellSide, border) {
     c.fillStyle = this.colors.background;
     c.fillRect(0, 0, c.width, c.height);
 
-    return this.draw();
+    return this.draw().dispatchEvent('ca-resize-view');
 };
 CellField.prototype.colors = {
     background: '#888888',

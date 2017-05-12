@@ -437,8 +437,8 @@ $(document).ready(function() {
             $('.ca-start-hide').show();
             $('.ca-start-show').hide();
         },
-        'ca-mode': function(e, data) {
-            $('#cell-field-mode').find('[for="mode-' + data.mode + '"]').click();
+        'ca-mode': function(e) {
+            $('#cell-field-mode').find('[for="mode-' + e.detail.mode + '"]').click();
         }
     }).trigger('ca-stop');
 
