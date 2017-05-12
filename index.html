@@ -21,6 +21,10 @@
             <button id="stop" class="ca-start-show"><span class="ui-icon ui-icon-pause"></span></button>
             <span id="skip" class="ca-start-disable ui-spinner ui-corner-all ui-widget ui-widget-content" title="Skip generations"><input class="ui-spinner-input" maxlength="5"><button><span class="ui-icon ui-icon-seek-next"></span></button></span>
             <button id="field" data-dialog="ca-field" class="ca-start-disable" title="Cells field settings">Field...</button>
+            <div id="cell-field-mode">
+                <input id="mode-edit" type="radio" name="mode" value="edit"><label for="mode-edit" class="ca-start-disable" title="Edit"><span class="ui-icon ui-icon-pencil"></span></label>
+                <input id="mode-shift" type="radio" name="mode" value="shift"><label for="mode-shift" class="ca-start-disable" title="Shift"><span class="ui-icon ui-icon-arrow-4"></span></label>
+            </div>
             <button id="brush" data-dialog="ca-brush">Brush...</button>
             <button id="colors" data-dialog="ca-colors">Colors...</button>
             <div id="cell-field-data">

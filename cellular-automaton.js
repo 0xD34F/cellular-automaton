@@ -26,7 +26,7 @@ function CellField(x, y, viewOptions) {
 
     o.resize(x, y);
 
-    o.mode = 'edit';
+    o._mode = 'edit';
     o.view = viewOptions instanceof Object ? viewOptions : {};
 
     if (o.view.wrapper instanceof HTMLElement) {
@@ -116,6 +116,18 @@ CellField.prototype.userActions = {
         this.draw();
     }
 };
+Object.defineProperty(CellField.prototype, 'mode', {
+    get: function() {
+        return this._mode;
+    },
+    set: function(value) {
+        this._mode = value;
+
+        $(document).trigger('ca-mode', {
+            mode: value
+        });
+    }
+});
 CellField.prototype.fill = function(f) {
     for (var x = 0; x < this.xSize; x++) {
         for (var y = 0; y < this.ySize; y++) {
