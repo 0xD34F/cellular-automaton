@@ -340,13 +340,15 @@ $(document).ready(function() {
             }).join('');
 
             $(this).append('<table class="ca-options-table">' + html + '</table>').find('.jscolor').each(function() {
-                this.jscolor = new jscolor(this);
+                this.jscolor = new jscolor(this, {
+                    hash: true
+                });
             });
         },
         open: function() {
             $(this).find('.jscolor').each(function() {
                 var $this = $(this);
-                $this.val(CellField.prototype.colors[$this.attr('color-name')].slice(1));
+                $this.val(CellField.prototype.colors[$this.attr('color-name')]);
                 this.jscolor.importColor();
             });
         },
@@ -354,7 +356,7 @@ $(document).ready(function() {
             'OK': function() {
                 $(this).find('.jscolor').each(function() {
                     var $this = $(this);
-                    CellField.prototype.colors[$this.attr('color-name')] = '#' + $this.val();
+                    CellField.prototype.colors[$this.attr('color-name')] = $this.val();
                 });
 
                 ca.cells.refresh();
