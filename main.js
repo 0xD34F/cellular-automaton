@@ -80,8 +80,7 @@ $(document).ready(function() {
             }).height(caBrush.view.canvas.height);
         },
         open: function() {
-            caBrush.copy(ca.cells.brush);
-            caBrush.refresh();
+            caBrush.copy(ca.cells.brush).refresh();
 
             $(this).find('.ca-state-select').html($.map(CellField.prototype.colors, function(n, i) {
                 if (isNaN(i)) {
@@ -412,8 +411,7 @@ $(document).ready(function() {
     $('#cell-field-data').buttonset().find('#clear').click(function() {
         ca.cells.fill(function() {
             return 0;
-        });
-        ca.cells.draw();
+        }).draw();
     });
 
     $(document).on({

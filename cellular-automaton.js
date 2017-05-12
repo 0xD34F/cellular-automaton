@@ -122,6 +122,8 @@ CellField.prototype.fill = function(f) {
             this.data[x][y] = f(x, y, this.data[x][y]);
         }
     }
+
+    return this;
 };
 CellField.prototype.shift = function(_x, _y) {
     _x = _x || 0;
@@ -131,6 +133,8 @@ CellField.prototype.shift = function(_x, _y) {
     for (var i = 0; i < this.xSize; i++) {
         shiftArray(this.data[i], _y);
     }
+
+    return this;
 };
 CellField.prototype.copy = function(cells, _x, _y, options) {
     _x = _x || 0;
@@ -153,10 +157,12 @@ CellField.prototype.copy = function(cells, _x, _y, options) {
             }
         }
     }
+
+    return this;
 };
 // o - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости> }
 CellField.prototype.copyBitPlane = function(o) {
-    this.fill(function(x, y, val) {
+    return this.fill(function(x, y, val) {
         var newVal = val;
 
         for (var i in o) {
@@ -168,7 +174,7 @@ CellField.prototype.copyBitPlane = function(o) {
 };
 // o - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
 CellField.prototype.fillRandom = function(o) {
-    this.fill(function(x, y, value) {
+    return this.fill(function(x, y, value) {
         for (var i in o) {
             var mask = (1 << i);
 
@@ -188,7 +194,7 @@ CellField.prototype.refresh = function() {
     c.fillStyle = this.colors.background;
     c.fillRect(0, 0, c.width, c.height);
 
-    this.draw();
+    return this.draw();
 };
 CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
     _x = _x || 0;
@@ -232,6 +238,8 @@ CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
             c.fillRect(n[i] * sideFull + border, n[i + 1] * sideFull + border, side, side);
         }
     }
+
+    return this;
 };
 CellField.prototype.resize = function(x, y) {
     this.xSize = x;
@@ -242,7 +250,7 @@ CellField.prototype.resize = function(x, y) {
         this.data[i] = new Array(y);
     }
 
-    this.fill(function() {
+    return this.fill(function() {
         return 0;
     });
 };
@@ -269,7 +277,7 @@ CellField.prototype.resizeView = function(cellSide, border) {
     c.fillStyle = this.colors.background;
     c.fillRect(0, 0, c.width, c.height);
 
-    this.draw();
+    return this.draw();
 };
 CellField.prototype.colors = {
     background: '#888888',
