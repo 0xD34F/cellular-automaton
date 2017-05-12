@@ -1,4 +1,25 @@
-﻿function shiftArray(array, shift) {
+﻿(function() {
+    if (typeof window.CustomEvent === 'function') {
+        return;
+    }
+
+    function CustomEvent (event, params) {
+        params = params || {
+            bubbles: false,
+            cancelable: false,
+            detail: undefined
+        };
+
+        var e = document.createEvent('CustomEvent');
+        e.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+        return e;
+    }
+    CustomEvent.prototype = window.Event.prototype;
+
+    window.CustomEvent = CustomEvent;
+})();
+
+function shiftArray(array, shift) {
     var from = 0,
         val = array[from];
         group = 1;
@@ -123,9 +144,11 @@ Object.defineProperty(CellField.prototype, 'mode', {
     set: function(value) {
         this._mode = value;
 
-        $(document).trigger('ca-mode', {
-            mode: value
-        });
+        document.dispatchEvent(new CustomEvent('ca-mode', {
+            detail: {
+                mode: value
+            }
+        }));
     }
 });
 CellField.prototype.fill = function(f) {
@@ -450,7 +473,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
                 cells.draw(null, null, null, null, steps === 1 ? newCells.data : null);
             }, timer.delay);
 
-            $(document).trigger('ca-start');
+            document.dispatchEvent(new CustomEvent('ca-start'));
 
             return true;
         },
@@ -463,7 +486,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
             clearInterval(timer.intervalID);
             timer.intervalID = null;
 
-            $(document).trigger('ca-stop');
+            document.dispatchEvent(new CustomEvent('ca-stop'));
 
             return true;
         }
