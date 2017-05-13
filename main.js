@@ -32,6 +32,42 @@ $.extend($.ui.autocomplete.prototype.options, {
     }
 });
 
+var templates = {
+    fieldFilling:
+'<table class="ca-options-table">\
+    <tr><th>Bit plane</th><th>Method</th><th></th><th>Fill</th></tr>\
+    {{#.}}\
+    <tr>\
+        <td class="ca-filling-plane">{{.}}</td>\
+        <td>\
+            <select class="ca-filling-method" dir="rtl">\
+                <option value="random">Random</option>\
+                <option value="copy">Copy</option>\
+            </select>\
+        </td>\
+        <td class="ca-filling-options">\
+            <div class="ca-filling-random"><span class="ca-filling-options-note">density, ‰</span><input type="text"></div>\
+            <div class="ca-filling-copy"><span class="ca-filling-options-note">from plane</span><input type="text" readonly="readonly"></div>\
+        </td>\
+        <td>\
+            <input type="checkbox" id="ca-filling-fill-plane-{{.}}" class="ca-filling-fill"><label for="ca-filling-fill-plane-{{.}}"></label>\
+        </td>\
+    </tr>\
+    {{/.}}\
+</table>',
+    colorSetting:
+'<table class="ca-options-table">\
+    {{#.}}\
+    <tr><td>{{username}}</td><td><input type="text" class="jscolor" color-name="{{sysname}}" readonly="readonly"></td></tr>\
+    {{/.}}\
+</table>',
+    brushColorSelect:
+'{{#.}}\
+<div class="ca-state" ca-state="{{state}}"><span class="ca-state-name">state {{state}}</span><span class="ca-state-color" style="background-color: {{color}}"></span></div>\
+{{/.}}'
+};
+
+
 
 $(document).ready(function() {
     var X_SIZE_MIN = 32,
@@ -82,13 +118,12 @@ $(document).ready(function() {
         open: function() {
             caBrush.copy(ca.cells.brush).refresh();
 
-            $(this).find('.ca-state-select').html($.map(CellField.prototype.colors, function(n, i) {
-                if (isNaN(i)) {
-                    return null;
-                }
-
-                return '<div class="ca-state" ca-state="' + i + '"><span class="ca-state-name">state ' + i + '</span><span class="ca-state-color" style="background-color: ' + n + '"></span></div>';
-            }).join('')).find('[ca-state="' + caBrush.brush.data[0][0] + '"]').addClass('ui-state-active');
+            $(this).find('.ca-state-select').html(Mustache.render(templates.brushColorSelect, $.map(CellField.prototype.colors, function(n, i) {
+                return isNaN(i) ? null : {
+                    state: i,
+                    color: n
+                };
+            }))).find('[ca-state="' + caBrush.brush.data[0][0] + '"]').addClass('ui-state-active');
         },
         buttons: {
             'OK': function() {
@@ -105,14 +140,11 @@ $(document).ready(function() {
     $('#ca-filling').dialog({
         width: 500,
         create: function() {
-            var bitPlanes = 2;
+            var bitPlanes = 2,
+                planesList = $.map(new Array(bitPlanes), function(n, i) { return '' + i; }),
+                planesHTML = Mustache.render(templates.fieldFilling, planesList);
 
-            var html = '<tr><th>Bit plane</th><th>Method</th><th></th><th>Fill</th></tr>';
-            for (var i = 0; i < bitPlanes; i++) {
-                html += '<tr><td class="ca-filling-plane">' + i + '</td><td><select class="ca-filling-method" dir="rtl"><option value="random">Random</option><option value="copy">Copy</option></select></td><td class="ca-filling-options"><div class="ca-filling-random"><span class="ca-filling-options-note">density, ‰</span><input type="text"></div><div class="ca-filling-copy"><span class="ca-filling-options-note">from plane</span><input type="text"></div></td><td><input type="checkbox" id="ca-filling-fill-plane-' + i + '" class="ca-filling-fill"><label for="ca-filling-fill-plane-' + i + '"></label></td></tr>';
-            }
-
-            $(this).append('<table class="ca-options-table">' + html + '</table>').find('.ca-filling-random > input').each(function() {
+            $(this).append(planesHTML).find('.ca-filling-random > input').each(function() {
                 $(this).val(500).spinner({
                     min: 0,
                     max: 1000,
@@ -125,18 +157,13 @@ $(document).ready(function() {
                 $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find('.ca-filling-' + (ui ? ui.item.value : this.value)).show();
             }).trigger('selectmenuchange').end().find('.ca-filling-copy > input').autocomplete({
                 source: function(request, response) {
-                    var ownPlane = +this.element.closest('tr').find('.ca-filling-plane').text();
+                    var ownPlane = this.element.closest('tr').find('.ca-filling-plane').text();
 
-                    var data = [];
-                    for (var i = 0; i < bitPlanes; i++) {
-                        if (i !== ownPlane) {
-                            data.push('' + i);
-                        }
-                    }
-
-                    response(data);
+                    response(planesList.filter(function(n) {
+                        return n !== ownPlane;
+                    }));
                 }
-            }).attr('readonly', 'readonly').end().find('.ca-filling-fill').checkboxradio().attr('checked', 'checked').change();
+            }).end().find('.ca-filling-fill').checkboxradio().attr('checked', 'checked').change();
         },
         buttons: {
             'OK': function() {
@@ -335,11 +362,12 @@ $(document).ready(function() {
 
     $('#ca-colors').dialog({
         create: function() {
-            var html = $.map(CellField.prototype.colors, function(n, i) {
-                return '<tr><td>' + (isNaN(i) ? i : ('state ' + i)) + '</td><td><input type="text" class="jscolor" color-name="' + i + '" readonly="readonly"></td></tr>';
-            }).join('');
-
-            $(this).append('<table class="ca-options-table">' + html + '</table>').find('.jscolor').each(function() {
+            $(this).append(Mustache.render(templates.colorSetting, $.map(CellField.prototype.colors, function(n, i) {
+                return {
+                    sysname: i,
+                    username: isNaN(i) ? i : ('state ' + i)
+                }
+            }))).find('.jscolor').each(function() {
                 this.jscolor = new jscolor(this, {
                     hash: true
                 });
