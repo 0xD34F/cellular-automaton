@@ -491,6 +491,17 @@ $(document).ready(function() {
         ca.cells.refresh();
     }).end().find('input').val('1');
 
+    $(ca.cells.view.canvas).parent().on('mousewheel', function(e) {
+        var oldCellSide = ca.cells.view.cellSide,
+            newCellSide = limitation(oldCellSide + (e.originalEvent.deltaY > 0 ? -1 : 1), CELL_SIDE_MIN, CELL_SIDE_MAX);
+
+        if (oldCellSide !== newCellSide) {
+            ca.cells.resizeView(newCellSide);
+        }
+
+        return false;
+    });
+
     ca.cells.mode = 'edit';
 
     $('body').removeClass('hidden');

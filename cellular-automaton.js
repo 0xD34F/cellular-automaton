@@ -313,6 +313,7 @@ CellField.prototype.resizeView = function(cellSide, border) {
         parent.classList.add('scrollable');
     } else {
         parent.classList.remove('scrollable');
+        parent.scrollTop = 0;
     }
 
     c.fillStyle = this.colors.background;
