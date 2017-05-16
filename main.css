@@ -70,13 +70,14 @@ html {
 }
 
 .controls {
-    padding: 20px 0;
+    padding: 15px 0;
     width: 100%;
     box-sizing: border-box;
 }
 
-.controls > button {
+.controls > * {
     vertical-align: top;
+    margin: 5px 1px 5px 0;
 }
 
 .cells-field-wrapper {
@@ -168,7 +169,6 @@ html {
 }
 
 #ca-rule-name {
-    margin: 0;
     padding: 5px;
 }
 
@@ -218,9 +218,6 @@ button, input, textarea, select, .ui-selectmenu-button {
     background-image: url(lib/jquery-ui/images/ui-icons_ffffff_256x240.png);
 }
 
-.controls > .ui-controlgroup {
-    margin-right: 2px;
-}
 .controls > .ui-controlgroup > .ui-controlgroup-item {
     margin-right: -1px;
 }
