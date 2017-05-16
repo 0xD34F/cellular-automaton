@@ -134,13 +134,13 @@ function main(n) {\n\
 }'
     }, {
         name: '30',
-        code: 'var main = elementary(30);'
+        code: 'var main = rules.elementary(30);'
     }, {
         name: '110',
-        code: 'var main = elementary(110);'
+        code: 'var main = rules.elementary(110);'
     }, {
         name: '126',
-        code: 'var main = elementary(126);'
+        code: 'var main = rules.elementary(126);'
     } ].map(function(n) {
         n.predefined = true;
         return n;
@@ -161,6 +161,14 @@ function main(n) {\n\
     }
 
     return {
+        elementary: function(ruleNumber) {
+            ruleNumber = limitation(ruleNumber, 0, 255);
+
+            return function(n) {
+                var t = ((n.n_west & 1) << 2) + ((n.north & 1) << 1) + (n.n_east & 1);
+                return ((ruleNumber & (1 << t)) ? 1 : 0) | n.center;
+            };
+        },
         add: function(name, code) {
             for (var i = 0; i < predefinedRules.length; i++) {
                 if (predefinedRules[i].name === name) {
