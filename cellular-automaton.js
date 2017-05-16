@@ -454,16 +454,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
             return timer._delay;
         },
         set delay(value) {
-            value = value << 0;
-
-            if (value < this.MIN_DELAY) {
-                value = this.MIN_DELAY;
-            }
-            if (value > this.MAX_DELAY) {
-                value = this.MAX_DELAY;
-            }
-
-            timer._delay = value;
+            timer._delay = limitation(value, this.MIN_DELAY, this.MAX_DELAY);
             if (timer.intervalID) {
                 timer.stop();
                 timer.start();
@@ -612,16 +603,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
             return steps;
         },
         set stepsPerStroke(value) {
-            value = value << 0;
-
-            if (value < MIN_STEPS) {
-                value = MIN_STEPS;
-            }
-            if (value > MAX_STEPS) {
-                value = MAX_STEPS;
-            }
-
-            steps = value;
+            steps = limitation(value, MIN_STEPS, MAX_STEPS);
         },
         get strokeDuration() {
             return timer.delay;
