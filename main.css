@@ -212,7 +212,7 @@ button, input, textarea, select, .ui-selectmenu-button {
 }
 
 [role="toolbar"] .ui-checkboxradio-label.ui-state-active, [role="toolbar"] .ui-checkboxradio-label.ui-state-active:hover {
-    z-index: 9999;
+    z-index: 99;
 }
 [role="toolbar"] .ui-checkboxradio-label.ui-state-active .ui-icon, [role="toolbar"] .ui-checkboxradio-label.ui-state-active:hover .ui-icon {
     background-image: url(lib/jquery-ui/images/ui-icons_ffffff_256x240.png);
