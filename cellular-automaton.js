@@ -333,16 +333,16 @@ var CellularAutomaton = function(xSize, ySize, viewOptions) {
     var neighborhoodSize = {};
 
     var newGenerationCode = {
-        tableProcBegin: '(function(table, main) {\
+        tableProc: '(function(table, calcNewState) {\
 for (var i = 0; i < table.length; i++) {\
     var shift = 0;\
     var n = {};\
-    n.center = (i & (3 << (neighborhoodSize.main + neighborhoodSize.extra))) >> (neighborhoodSize.main + neighborhoodSize.extra);',
-        tableProcEnd: '\
-    table[i] = main(n) & 3;\
+    n.center = (i & (3 << (neighborhoodSize.main + neighborhoodSize.extra))) >> (neighborhoodSize.main + neighborhoodSize.extra);\
+    {{.}}\
+    table[i] = calcNewState(n) & 3;\
 }\
     })',
-        indexProcBegin: '(function(d, newD, xSize, ySize) {\
+        indexProc: '(function(d, newD, xSize, ySize) {\
 for (var x = 0; x < xSize; x++) {\
     for (var y = 0; y < ySize; y++) {\
         var xPrev = x === 0 ? xSize - 1 : x - 1,\
@@ -350,8 +350,8 @@ for (var x = 0; x < xSize; x++) {\
             yPrev = y === 0 ? ySize - 1 : y - 1,\
             yNext = y === ySize - 1 ? 0 : y + 1,\
             index = d[x][y] & 3;\
-',
-        indexProcEnd: '\
+\
+        {{.}}\
         newD[x][y] = newStatesTable[index];\
     }\
 }\
@@ -532,18 +532,14 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
             neighborhoodSize.extra += t.size;
         }
 
-        newStateTableInner = eval(
-            newGenerationCode.tableProcBegin +
+        newStateTableInner = eval(newGenerationCode.tableProc.replace('{{.}}',
             newGenerationCode.main[o.main].tableCode +
-            newStateTableProcCode +
-            newGenerationCode.tableProcEnd
-        );
-        newGenerationInner = eval(
-            newGenerationCode.indexProcBegin +
+            newStateTableProcCode
+        ));
+        newGenerationInner = eval(newGenerationCode.indexProc.replace('{{.}}',
             newGenerationCode.main[o.main].indexCode +
-            newGenerationProcCode +
-            newGenerationCode.indexProcEnd
-        );
+            newGenerationProcCode
+        ));
     }
 
 
