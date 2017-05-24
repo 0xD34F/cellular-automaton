@@ -140,8 +140,7 @@ $(document).ready(function() {
     $('#ca-filling').dialog({
         width: 500,
         create: function() {
-            var bitPlanes = 2,
-                planesList = $.map(new Array(bitPlanes), function(n, i) { return '' + i; }),
+            var planesList = $.map(new Array(ca.cells.numPlanes), function(n, i) { return '' + i; }),
                 planesHTML = Mustache.render(templates.fieldFilling, planesList);
 
             $(this).append(planesHTML).find('.ca-filling-random > input').each(function() {

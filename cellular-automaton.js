@@ -49,6 +49,7 @@ function CellField(x, y, viewOptions) {
 
     o._mode = 'edit';
     o.view = viewOptions instanceof Object ? viewOptions : {};
+    o.view.showPlanes = o.view.hasOwnProperty('showPlanes') ? o.view.showPlanes : 3;
 
     if (o.view.wrapper instanceof HTMLElement) {
         o.view.cellSide = o.view.cellSide << 0;
@@ -107,6 +108,7 @@ function CellField(x, y, viewOptions) {
 
     return o;
 }
+CellField.prototype.numPlanes = 2;
 CellField.prototype.userActions = {
     edit: function(e, x, y, prevX, prevY) {
         if (x >= this.xSize || y >= this.ySize || x < 0 || y < 0) {
@@ -243,11 +245,12 @@ CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
     _xSize = _xSize || this.xSize;
     _ySize = _ySize || this.ySize;
 
-    var numStates = 4,
+    var numStates = Math.pow(2, this.numPlanes),
         border = this.view.border,
         side = this.view.cellSide,
         sideFull = side + border,
-        c = this.view.context;
+        c = this.view.context,
+        m = this.view.showPlanes;
 
     var g = [];
     for (var i = 0; i < numStates; i++) {
@@ -265,8 +268,8 @@ CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
                 y = 0;
             }
 
-            var t = d[x][y];
-            if (!(prevStates && prevStates[x][y] === t)) {
+            var t = d[x][y] & m;
+            if (!(prevStates && (prevStates[x][y] & m) === t)) {
                 g[t].push(x, y);
             }
         }
