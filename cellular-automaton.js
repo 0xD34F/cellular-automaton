@@ -440,7 +440,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
 
     var cells = CellField(xSize, ySize, viewOptions),
         newCells = CellField(xSize, ySize),
-        rule = 'function main(n) { return n.center; }',
+        rule = rules.get('Conway\'s Life') || 'function(n) { return n.center; }',
         newStatesTable = getNewStatesTable(rule),
         time = 0;
 

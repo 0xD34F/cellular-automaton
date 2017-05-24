@@ -178,6 +178,17 @@ function main(n) {\n\
                 return ((ruleNumber & (1 << t)) ? 1 : 0) | n.center;
             };
         },
+        get: function(name) {
+            var rules = predefinedRules.concat(savedRules);
+
+            for (var i = 0; i < rules.length; i++) {
+                if (rules[i].name === name) {
+                    return rules[i].code;
+                }
+            }
+
+            return null;
+        },
         add: function(name, code) {
             for (var i = 0; i < predefinedRules.length; i++) {
                 if (predefinedRules[i].name === name) {
