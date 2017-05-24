@@ -6,6 +6,15 @@
     return s === 3 ? 1 : (s === 2 ? n.center : 0);\n\
 }'
     }, {
+        name: 'Conway\'s Life (trace)',
+        code: 'function main(n) {\n\
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,\n\
+        p0 = s === 3 ? 1 : (s === 2 ? n.center : 0),\n\
+        p1 = (+!!n.center) | p0;\n\
+\n\
+    return p0 | (p1 << 1);\n\
+}'
+    }, {
         name: 'Brian\'s brain',
         code: 'function ready(n) {\n\
     return n.center === 0 ? 1 : 0;\n\
