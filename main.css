@@ -192,7 +192,7 @@ html {
     font-weight: bold;
 }
 
-button, input, textarea, select, .ui-selectmenu-button {
+button, input, textarea, select, li, .ui-selectmenu-button {
     outline: 0;
     border: 1px solid rgb(197, 197, 197);
 }
@@ -206,8 +206,25 @@ button, input, textarea, select, .ui-selectmenu-button {
     overflow-x: hidden;
     overflow-y: auto;
 }
+.ui-autocomplete li {
+    border: 0;
+}
 
-.ui-visual-focus {
+.ui-tabs.ui-widget.ui-widget-content {
+    border: 0;
+}
+.ui-tabs .ui-tabs-nav {
+    border: 0;
+    background-color: transparent;
+}
+.ui-tabs .ui-tabs-panel {
+    border-top-width: 1px;
+}
+.ui-tabs .ui-tabs-nav .ui-tabs-anchor {
+    padding: .2em .4em;
+}
+
+.ui-visual-focus, .ui-state-focus {
     box-shadow: none;
 }
 

@@ -21,13 +21,12 @@
             <button id="start" class="ca-start-hide"><span class="ui-icon ui-icon-play"></span></button>
             <button id="stop" class="ca-start-show"><span class="ui-icon ui-icon-pause"></span></button>
             <div id="skip" class="ca-start-disable ui-controlgroup ui-corner-all ui-widget ui-widget-content" title="Skip generations"><input class="ui-spinner-input" maxlength="5"><button><span class="ui-icon ui-icon-seek-next"></span></button></div>
-            <button id="field" data-dialog="ca-field" class="ca-start-disable" title="Cells field settings">Field...</button>
+            <button id="view" data-dialog="ca-view" class="ca-start-disable" title="Cells field settings">View...</button>
             <div id="cell-field-mode">
                 <input id="mode-edit" type="radio" name="mode" value="edit"><label for="mode-edit" class="ca-start-disable" title="Edit"><span class="ui-icon ui-icon-pencil"></span></label>
                 <input id="mode-shift" type="radio" name="mode" value="shift"><label for="mode-shift" class="ca-start-disable" title="Shift"><span class="ui-icon ui-icon-arrow-4"></span></label>
             </div>
             <button id="brush" data-dialog="ca-brush">Brush...</button>
-            <button id="colors" data-dialog="ca-colors">Colors...</button>
             <div id="cell-field-data">
                 <button id="fill" data-dialog="ca-filling" class="ca-start-disable" title="Cells field filling">Fill...</button>
                 <button id="clear" class="ca-start-disable" title="Cells field clear">Clear</button>
@@ -58,13 +57,23 @@
             <tr><td>Stroke duration, ms</td><td><input id="stroke-duration" type="text" maxlength="4"></td></tr>
         </table>
     </div>
-    <div id="ca-field" title="Cells field settings">
-        <table class="ca-options-table">
-            <tr><td>Field width</td><td><input id="ca-field-x-size" type="text" maxlength="3"></td></tr>
-            <tr><td>Field height</td><td><input id="ca-field-y-size" type="text" maxlength="3"></td></tr>
-            <tr><td>Cell side</td><td><input id="ca-field-cell-side" type="text" maxlength="2"></td></tr>
-            <tr><td>Cell border width</td><td><input id="ca-field-cell-border" type="text" maxlength="1"></td></tr>
-        </table>
+    <div id="ca-view" title="View">
+        <div id="ca-view-settings">
+            <ul>
+                <li><a href="#ca-view-field">Cells field</a></li>
+                <li><a href="#ca-view-colors">Colors</a></li>
+            </ul>
+            <div id="ca-view-field">
+                <table class="ca-options-table">
+                    <tr><td>Field width</td><td><input id="ca-field-x-size" type="text" maxlength="3"></td></tr>
+                    <tr><td>Field height</td><td><input id="ca-field-y-size" type="text" maxlength="3"></td></tr>
+                    <tr><td>Cell side</td><td><input id="ca-field-cell-side" type="text" maxlength="2"></td></tr>
+                    <tr><td>Cell border width</td><td><input id="ca-field-cell-border" type="text" maxlength="1"></td></tr>
+                </table>
+            </div>
+            <div id="ca-view-colors">
+            </div>
+        </div>
     </div>
 </body>
 </html>

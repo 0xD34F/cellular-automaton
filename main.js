@@ -202,9 +202,14 @@ $(document).ready(function() {
         }
     });
 
+    $('#ca-view-settings').tabs();
 
-    $('#ca-field').dialog({
+    $('#ca-view').dialog({
+        width: 350,
+        height: 430,
         create: function() {
+            var $this = $(this);
+
             [
                 [ '#ca-field-x-size',      X_SIZE_MIN,      X_SIZE_MAX ],
                 [ '#ca-field-y-size',      Y_SIZE_MIN,      Y_SIZE_MAX ],
@@ -216,14 +221,31 @@ $(document).ready(function() {
                     max: n[2],
                     step: 1
                 });
-            }).bind($(this)));
+            }).bind($this));
+
+
+            $this.find('#ca-view-colors').append(Mustache.render(templates.colorSetting, $.map(CellField.prototype.colors, function(n, i) {
+                return {
+                    sysname: i,
+                    username: isNaN(i) ? i : ('state ' + i)
+                }
+            }))).find('.jscolor').each(function() {
+                this.jscolor = new jscolor(this, {
+                    hash: true
+                });
+            });
         },
         open: function() {
             $(this)
                 .find('#ca-field-x-size').val(ca.cells.xSize).end()
                 .find('#ca-field-y-size').val(ca.cells.ySize).end()
                 .find('#ca-field-cell-side').val(ca.cells.view.cellSide).end()
-                .find('#ca-field-cell-border').val(ca.cells.view.border);
+                .find('#ca-field-cell-border').val(ca.cells.view.border).end()
+                .find('.jscolor').each(function() {
+                    var $this = $(this);
+                    $this.val(CellField.prototype.colors[$this.attr('color-name')]);
+                    this.jscolor.importColor();
+                });
         },
         buttons: {
             'OK': function() {
@@ -236,6 +258,11 @@ $(document).ready(function() {
                 if (ca.cells.xSize !== xSize || ca.cells.ySize !== ySize) {
                     ca.cells.resize(xSize, ySize);
                 }
+
+                $(this).find('.jscolor').each(function() {
+                    var $this = $(this);
+                    CellField.prototype.colors[$this.attr('color-name')] = $this.val();
+                });
 
                 ca.cells.resizeView(cellSide, border);
 
@@ -351,44 +378,6 @@ $(document).ready(function() {
                 } catch (e) {
                     toastr.error(e.message);
                 }
-            },
-            'Cancel': function() {
-                $(this).dialog('close');
-            }
-        }
-    });
-
-
-    $('#ca-colors').dialog({
-        create: function() {
-            $(this).append(Mustache.render(templates.colorSetting, $.map(CellField.prototype.colors, function(n, i) {
-                return {
-                    sysname: i,
-                    username: isNaN(i) ? i : ('state ' + i)
-                }
-            }))).find('.jscolor').each(function() {
-                this.jscolor = new jscolor(this, {
-                    hash: true
-                });
-            });
-        },
-        open: function() {
-            $(this).find('.jscolor').each(function() {
-                var $this = $(this);
-                $this.val(CellField.prototype.colors[$this.attr('color-name')]);
-                this.jscolor.importColor();
-            });
-        },
-        buttons: {
-            'OK': function() {
-                $(this).find('.jscolor').each(function() {
-                    var $this = $(this);
-                    CellField.prototype.colors[$this.attr('color-name')] = $this.val();
-                });
-
-                ca.cells.refresh();
-
-                $(this).dialog('close');
             },
             'Cancel': function() {
                 $(this).dialog('close');
