@@ -20,7 +20,10 @@
         <div class="controls">
             <button id="start" class="ca-start-hide"><span class="ui-icon ui-icon-play"></span></button>
             <button id="stop" class="ca-start-show"><span class="ui-icon ui-icon-pause"></span></button>
-            <div id="skip" class="ca-start-disable ui-controlgroup ui-corner-all ui-widget ui-widget-content" title="Skip generations"><input class="ui-spinner-input" maxlength="5"><button><span class="ui-icon ui-icon-seek-next"></span></button></div>
+            <div class="input-with-button ca-start-disable ui-controlgroup ui-corner-all ui-widget ui-widget-content" title="Skip generations">
+                <input class="ui-spinner-input" maxlength="5">
+                <button id="skip"><span class="ui-icon ui-icon-seek-next"></span></button>
+            </div>
             <button id="view" data-dialog="ca-view" title="Cells field settings">View...</button>
             <div id="cell-field-mode">
                 <input id="mode-edit" type="radio" name="mode" value="edit"><label for="mode-edit" class="ca-start-disable" title="Edit"><span class="ui-icon ui-icon-pencil"></span></label>
@@ -39,7 +42,10 @@
 
     <div id="ca-rule" title="Rule">
         <div class="controls">
-            <input id="ca-rule-name" placeholder="enter rule name...">
+            <div class="input-with-button ui-controlgroup ui-corner-all ui-widget ui-widget-content">
+                <input id="ca-rule-name" class="ui-spinner-input" placeholder="enter rule name...">
+                <button id="ca-rule-name-clear" class="ui-button"><span class="ui-icon ui-icon-close" title="Clear rule name"></span></button>
+            </div>
             <button id="ca-rule-save" title="Save rule into localStorage"><span class="ui-icon ui-icon-disk"></span></button>
             <button id="ca-rule-delete" title="Delete rule from localStorage"><span class="ui-icon ui-icon-trash"></span></button>
         </div>

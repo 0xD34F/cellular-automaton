@@ -228,6 +228,10 @@ button, input, textarea, select, li, .ui-selectmenu-button {
     box-shadow: none;
 }
 
+.ui-controlgroup[role="toolbar"] {
+    margin-right: 3px;
+}
+
 [role="toolbar"] .ui-checkboxradio-label.ui-state-active, [role="toolbar"] .ui-checkboxradio-label.ui-state-active:hover {
     z-index: 99;
 }
@@ -239,11 +243,17 @@ button, input, textarea, select, li, .ui-selectmenu-button {
     margin-right: -1px;
 }
 
-#skip > input {
+.input-with-button {
+    margin-right: 2px;
+}
+.input-with-button > input {
     margin: 0;
     padding: 4px;
-    width: 3em;
 }
-#skip > button {
-    margin: -1px;
+.input-with-button > button,
+.input-with-button > button:hover,
+.input-with-button > button:focus {
+    margin: 0;
+    border-width: 0;
+    border-left-width: 1px;
 }

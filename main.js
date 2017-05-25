@@ -279,7 +279,13 @@ $(document).ready(function() {
     $('#ca-rule').dialog({
         width: '80%',
         create: function() {
-            $(this).find('#ca-rule-name').autocomplete({
+            var $this = $(this);
+
+            $this.find('#ca-rule-name-clear').click(function() {
+                $(this).parent().find('input').val('');
+            });
+
+            $this.find('#ca-rule-name').width(200).autocomplete({
                 source: function(request, response) {
                     var term = request.term.toLowerCase();
 
@@ -309,7 +315,7 @@ $(document).ready(function() {
                 return $('<li></li>').data('item.autocomplete', item).append($item).appendTo(ul);
             };
 
-            $(this).find('#ca-rule-save').button().click(function() {
+            $this.find('#ca-rule-save').button().click(function() {
                 var ruleName = $('#ca-rule-name').val(),
                     ruleCode = $('#ca-rule-code').val();
 
@@ -352,7 +358,7 @@ $(document).ready(function() {
                 }
             });
 
-            $(this).find('#ca-rule-code').keydown(function(e) {
+            $this.find('#ca-rule-code').keydown(function(e) {
                 if (e.keyCode === 9) {
                     var start = this.selectionStart,
                         end = this.selectionEnd,
@@ -459,7 +465,7 @@ $(document).ready(function() {
         ca.stop();
     });
 
-    $('#skip').find('button').click(function() {
+    $('#skip').click(function() {
         var $steps = $(this).parent().find('input'),
             steps = $steps.val() >> 0;
 
@@ -470,7 +476,7 @@ $(document).ready(function() {
 
         ca.newGeneration(steps);
         ca.cells.refresh();
-    }).end().find('input').val('1');
+    }).parent().find('input').width(50).val('1');
 
     $(ca.cells.view.canvas).parent().on('mousewheel', function(e) {
         var oldCellSide = ca.cells.view.cellSide,
