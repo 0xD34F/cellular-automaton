@@ -222,6 +222,7 @@ $(document).ready(function() {
                     step: 1
                 });
             }).bind($this));
+            $this.find('#ca-field-x-size, #ca-field-y-size').parent().addClass('ca-start-disable');
 
 
             $this.find('#ca-view-colors').append(Mustache.render(templates.colorSetting, $.map(CellField.prototype.colors, function(n, i) {
