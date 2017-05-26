@@ -160,7 +160,7 @@ $(document).ready(function() {
     $('#ca-filling').dialog({
         width: 480,
         create: function() {
-            var planesList = $.map(new Array(ca.cells.numPlanes), function(n, i) { return '' + i; }),
+            var planesList = ca.cells.getBitPlanes(),
                 planesHTML = Mustache.render(templates.fieldFilling, planesList);
 
             $(this).append(planesHTML).find('.ca-filling-random > input').each(function() {
@@ -252,8 +252,9 @@ $(document).ready(function() {
             });
 
 
-            var planesList = $.map(new Array(ca.cells.numPlanes), function(n, i) { return '' + i; });
-            $this.find('#ca-view-planes').append(Mustache.render(templates.bitPlanesShow, planesList)).find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
+            $this
+                .find('#ca-view-planes').append(Mustache.render(templates.bitPlanesShow, ca.cells.getBitPlanes()))
+                .find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
         open: function() {
             $(this)
@@ -267,7 +268,7 @@ $(document).ready(function() {
                     this.jscolor.importColor();
                 }).end()
                 .find('.ca-bit-plane-cb').each(function(i) {
-                    this.checked = !!(ca.cells.view.showPlanes & (1 << i));
+                    this.checked = !!(ca.cells.view.showBitPlanes & (1 << i));
                     $(this).change();
                 });
         },
@@ -291,7 +292,7 @@ $(document).ready(function() {
                 this.find('.ca-bit-plane-cb').each(function(i) {
                     t |= this.checked ? (1 << i) : 0;
                 });
-                ca.cells.view.showPlanes = t;
+                ca.cells.view.showBitPlanes = t;
 
                 ca.cells.resizeView(cellSide, border);
             }),

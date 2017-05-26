@@ -49,7 +49,7 @@ function CellField(x, y, viewOptions) {
 
     o._mode = 'edit';
     o.view = viewOptions instanceof Object ? viewOptions : {};
-    o.view.showPlanes = o.view.hasOwnProperty('showPlanes') ? o.view.showPlanes : 3;
+    o.view.showBitPlanes = isNaN(+o.view.showBitPlanes) ? 3 : +o.view.showPlanes;
 
     if (o.view.wrapper instanceof HTMLElement) {
         o.view.cellSide = o.view.cellSide << 0;
@@ -108,7 +108,15 @@ function CellField(x, y, viewOptions) {
 
     return o;
 }
-CellField.prototype.numPlanes = 2;
+CellField.prototype.numBitPlanes = 2;
+CellField.prototype.getBitPlanes = function() {
+    var planes = [];
+    for (var i = 0; i < this.numBitPlanes; i++) {
+        planes.push(i);
+    }
+
+    return planes;
+};
 CellField.prototype.userActions = {
     edit: function(e, x, y, prevX, prevY) {
         if (x >= this.xSize || y >= this.ySize || x < 0 || y < 0) {
@@ -245,12 +253,12 @@ CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
     _xSize = _xSize || this.xSize;
     _ySize = _ySize || this.ySize;
 
-    var numStates = Math.pow(2, this.numPlanes),
+    var numStates = Math.pow(2, this.numBitPlanes),
         border = this.view.border,
         side = this.view.cellSide,
         sideFull = side + border,
         c = this.view.context,
-        m = this.view.showPlanes;
+        m = this.view.showBitPlanes;
 
     var g = [];
     for (var i = 0; i < numStates; i++) {
