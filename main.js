@@ -51,7 +51,7 @@ var templates = {
     <tr><th>Bit plane</th><th>Method</th><th></th><th>Fill</th></tr>\
     {{#.}}\
     <tr>\
-        <td class="ca-filling-plane">{{.}}</td>\
+        <td class="ca-bit-plane">{{.}}</td>\
         <td>\
             <select class="ca-filling-method" dir="rtl">\
                 <option value="random">Random</option>\
@@ -62,8 +62,8 @@ var templates = {
             <div class="ca-filling-random"><span class="ca-filling-options-note">density, ‰</span><input type="text"></div>\
             <div class="ca-filling-copy"><span class="ca-filling-options-note">from plane</span><input type="text" readonly="readonly"></div>\
         </td>\
-        <td>\
-            <input type="checkbox" id="ca-filling-fill-plane-{{.}}" class="ca-filling-fill"><label for="ca-filling-fill-plane-{{.}}"></label>\
+        <td class="ca-bit-plane">\
+            <input type="checkbox" id="ca-filling-fill-plane-{{.}}" class="ca-bit-plane-cb"><label for="ca-filling-fill-plane-{{.}}"></label>\
         </td>\
     </tr>\
     {{/.}}\
@@ -72,6 +72,16 @@ var templates = {
 '<table class="ca-options-table">\
     {{#.}}\
     <tr><td>{{username}}</td><td><input type="text" class="jscolor" color-name="{{sysname}}" readonly="readonly"></td></tr>\
+    {{/.}}\
+</table>',
+    bitPlanesShow:
+'<table class="ca-options-table">\
+    <tr><th>Bit plane</th><th>Show</th></tr>\
+    {{#.}}\
+    <tr>\
+        <td class="ca-bit-plane">{{.}}</td>\
+        <td class="ca-bit-plane"><input type="checkbox" id="ca-show-plane-{{.}}" class="ca-bit-plane-cb"><label for="ca-show-plane-{{.}}"></label></td>\
+    </tr>\
     {{/.}}\
 </table>',
     brushColorSelect:
@@ -148,7 +158,7 @@ $(document).ready(function() {
 
 
     $('#ca-filling').dialog({
-        width: 500,
+        width: 480,
         create: function() {
             var planesList = $.map(new Array(ca.cells.numPlanes), function(n, i) { return '' + i; }),
                 planesHTML = Mustache.render(templates.fieldFilling, planesList);
@@ -166,13 +176,13 @@ $(document).ready(function() {
                 $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find('.ca-filling-' + (ui ? ui.item.value : this.value)).show();
             }).trigger('selectmenuchange').end().find('.ca-filling-copy > input').autocomplete({
                 source: function(request, response) {
-                    var ownPlane = this.element.closest('tr').find('.ca-filling-plane').text();
+                    var ownPlane = this.element.closest('tr').find('td:eq(0)').text();
 
                     response(planesList.filter(function(n) {
                         return n !== ownPlane;
                     }));
                 }
-            }).end().find('.ca-filling-fill').checkboxradio().attr('checked', 'checked').change();
+            }).end().find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
         buttons: {
             'OK': closeDialog(function() {
@@ -181,7 +191,7 @@ $(document).ready(function() {
                 var fillRandom = {},
                     fillCopy = {};
 
-                $options.find('.ca-filling-fill').each(function(i) {
+                $options.find('.ca-bit-plane-cb').each(function(i) {
                     if (this.checked) {
                         var $tr = $(this).closest('tr'),
                             method = $tr.find('.ca-filling-method').val();
@@ -210,8 +220,8 @@ $(document).ready(function() {
     $('#ca-view-settings').tabs();
 
     $('#ca-view').dialog({
-        width: 350,
-        height: 430,
+        width: 320,
+        height: 420,
         create: function() {
             var $this = $(this);
 
@@ -240,6 +250,10 @@ $(document).ready(function() {
                     hash: true
                 });
             });
+
+
+            var planesList = $.map(new Array(ca.cells.numPlanes), function(n, i) { return '' + i; });
+            $this.find('#ca-view-planes').append(Mustache.render(templates.bitPlanesShow, planesList)).find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
         open: function() {
             $(this)
@@ -251,6 +265,10 @@ $(document).ready(function() {
                     var $this = $(this);
                     $this.val(CellField.prototype.colors[$this.attr('color-name')]);
                     this.jscolor.importColor();
+                }).end()
+                .find('.ca-bit-plane-cb').each(function(i) {
+                    this.checked = !!(ca.cells.view.showPlanes & (1 << i));
+                    $(this).change();
                 });
         },
         buttons: {
@@ -268,6 +286,12 @@ $(document).ready(function() {
                     var $this = $(this);
                     CellField.prototype.colors[$this.attr('color-name')] = $this.val();
                 });
+
+                var t = 0;
+                this.find('.ca-bit-plane-cb').each(function(i) {
+                    t |= this.checked ? (1 << i) : 0;
+                });
+                ca.cells.view.showPlanes = t;
 
                 ca.cells.resizeView(cellSide, border);
             }),

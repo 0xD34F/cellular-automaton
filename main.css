@@ -89,6 +89,10 @@ html {
     overflow: auto;
 }
 
+.ca-options-table {
+    width: 100%;
+}
+
 .ca-options-table td,
 .ca-options-table th {
     padding: 10px 0 10px 15px;
@@ -104,8 +108,8 @@ html {
     height: 16px;
 }
 
-.ca-options-table .ca-filling-plane {
-    text-align: right;
+.ca-options-table .ca-bit-plane {
+    text-align: center;
 }
 
 .ca-filling-options .ca-filling-options-note {
@@ -134,7 +138,7 @@ html {
 }
 
 .ca-options-table input.jscolor {
-    width: 7em;
+    width: 6em;
     text-align: right;
     font-family: "Lucida Console", monospace;
     font-size: 1.2em;
