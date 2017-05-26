@@ -516,5 +516,9 @@ $(document).ready(function() {
 
     ca.cells.mode = 'edit';
 
+    var defaultRule = 'Conway\'s Life';
+    ca.rule = rules.get(defaultRule);
+    $('#ca-rule-name').val(defaultRule);
+
     $('body').removeClass('hidden');
 });
