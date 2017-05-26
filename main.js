@@ -50,7 +50,7 @@ var templates = {
 '<table class="ca-options-table">\
     <tr><th>Bit plane</th><th>Method</th><th></th><th>Fill</th></tr>\
     {{#.}}\
-    <tr>\
+    <tr data-bit-plane="{{.}}">\
         <td class="ca-bit-plane">{{.}}</td>\
         <td>\
             <select class="ca-filling-method" dir="rtl">\
@@ -176,10 +176,15 @@ $(document).ready(function() {
                 $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find('.ca-filling-' + (ui ? ui.item.value : this.value)).show();
             }).trigger('selectmenuchange').end().find('.ca-filling-copy > input').autocomplete({
                 source: function(request, response) {
-                    var ownPlane = this.element.closest('tr').find('td:eq(0)').text();
+                    var ownPlane = +this.element.closest('tr').attr('data-bit-plane');
 
                     response(planesList.filter(function(n) {
                         return n !== ownPlane;
+                    }).map(function(n) {
+                        return {
+                            label: n,
+                            value: n
+                        };
                     }));
                 }
             }).end().find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
