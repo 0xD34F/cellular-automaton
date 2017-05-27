@@ -47,8 +47,8 @@ function closeDialog(f) {
 
 var templates = {
     fieldFilling:
-'<table class="ca-options-table">\
-    <tr><th>Bit plane</th><th>Method</th><th></th><th>Fill</th></tr>\
+'<table class="ca-options-table" style="table-layout: fixed;">\
+    <tr><th width="65px">Bit plane</th><th width="100px">Method</th><th width="185px"></th><th width="35px">Fill</th></tr>\
     {{#.}}\
     <tr data-bit-plane="{{.}}">\
         <td class="ca-bit-plane">{{.}}</td>\
@@ -56,6 +56,8 @@ var templates = {
             <select class="ca-filling-method" dir="rtl">\
                 <option value="random">Random</option>\
                 <option value="copy">Copy</option>\
+                <option value="all1">All 1</option>\
+                <option value="all0">All 0</option>\
             </select>\
         </td>\
         <td class="ca-filling-options">\
@@ -191,20 +193,18 @@ $(document).ready(function() {
         },
         buttons: {
             'OK': closeDialog(function() {
-                var $options = this.closest('.ui-dialog').find('.ca-options-table');
-
                 var fillRandom = {},
                     fillCopy = {};
 
-                $options.find('.ca-bit-plane-cb').each(function(i) {
+                this.find('.ca-bit-plane-cb').each(function(i) {
                     if (this.checked) {
-                        var $tr = $(this).closest('tr'),
-                            method = $tr.find('.ca-filling-method').val();
+                        var $tr = $(this).closest('tr');
 
-                        if (method === 'random') {
-                            fillRandom[i] = $tr.find('.ca-filling-random input').val();
-                        } else if (method === 'copy') {
-                            fillCopy[i] = $tr.find('.ca-filling-copy input').val();
+                        switch ($tr.find('.ca-filling-method').val()) {
+                            case   'all1': fillRandom[i] = 1000; break;
+                            case   'all0': fillRandom[i] =    0; break;
+                            case 'random': fillRandom[i] = $tr.find('.ca-filling-random input').val(); break;
+                            case   'copy': fillCopy[i] = $tr.find('.ca-filling-copy input').val(); break;
                         }
                     }
                 });

@@ -210,7 +210,7 @@ button, input, textarea, select, li, .ui-selectmenu-button {
     overflow-x: hidden;
     overflow-y: auto;
 }
-.ui-autocomplete li {
+.ui-menu li, .ui-menu .ui-menu-item-wrapper {
     border: 0;
 }
 
