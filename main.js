@@ -519,7 +519,16 @@ $(document).ready(function() {
             newCellSide = limitation(oldCellSide + (e.originalEvent.deltaY > 0 ? -1 : 1), CELL_SIDE_MIN, CELL_SIDE_MAX);
 
         if (oldCellSide !== newCellSide) {
+            var oldScrollX = this.scrollLeft,
+                oldScrollY = this.scrollTop,
+                border = ca.cells.view.border,
+                cellX = e.originalEvent.offsetX / (oldCellSide + border),
+                cellY = e.originalEvent.offsetY / (oldCellSide + border);
+
             ca.cells.resizeView(newCellSide);
+
+            this.scrollLeft = cellX * (newCellSide - oldCellSide) + oldScrollX;
+            this.scrollTop  = cellY * (newCellSide - oldCellSide) + oldScrollY;
         }
 
         return false;
