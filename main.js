@@ -190,6 +190,11 @@ $(document).ready(function() {
                     }));
                 }
             }).end().find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
+
+            // временно, пока используется только две битовые плоскости
+            [ 1, 0 ].forEach((function(n, i) {
+                this.find('[data-bit-plane="' + n + '"] .ca-filling-copy input').addClass('ui-state-disabled').val(i);
+            }).bind($(this)));
         },
         buttons: {
             'OK': closeDialog(function() {
