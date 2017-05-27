@@ -165,10 +165,11 @@ $(document).ready(function() {
             var planesList = ca.cells.getBitPlanes(),
                 planesHTML = Mustache.render(templates.fieldFilling, planesList);
 
+            var max = ca.cells.randomFillDensityDescritization;
             $(this).append(planesHTML).find('.ca-filling-random > input').each(function() {
-                $(this).val(500).spinner({
+                $(this).val(max / 2).spinner({
                     min: 0,
-                    max: 1000,
+                    max: max,
                     step: 1,
                     numberFormat: 'n'
                 });
@@ -206,8 +207,8 @@ $(document).ready(function() {
                         var $tr = $(this).closest('tr');
 
                         switch ($tr.find('.ca-filling-method').val()) {
-                            case   'all1': fillRandom[i] = 1000; break;
-                            case   'all0': fillRandom[i] =    0; break;
+                            case   'all1': fillRandom[i] = ca.cells.randomFillDensityDescritization; break;
+                            case   'all0': fillRandom[i] = 0; break;
                             case 'random': fillRandom[i] = $tr.find('.ca-filling-random input').val(); break;
                             case   'copy': fillCopy[i] = $tr.find('.ca-filling-copy input').val(); break;
                         }

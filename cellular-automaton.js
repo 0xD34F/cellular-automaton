@@ -170,7 +170,7 @@ Object.defineProperty(CellField.prototype, 'mode', {
 CellField.prototype.fill = function(f) {
     for (var x = 0; x < this.xSize; x++) {
         for (var y = 0; y < this.ySize; y++) {
-            this.data[x][y] = f(x, y, this.data[x][y]);
+            this.data[x][y] = f.call(this, x, y, this.data[x][y]);
         }
     }
 
@@ -223,13 +223,14 @@ CellField.prototype.copyBitPlane = function(o) {
         return newVal;
     });
 };
+CellField.prototype.randomFillDensityDescritization = 1000;
 // o - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
 CellField.prototype.fillRandom = function(o) {
     return this.fill(function(x, y, value) {
         for (var i in o) {
             var mask = (1 << i);
 
-            if (random(1000) < o[i]) {
+            if (random(this.randomFillDensityDescritization) < o[i]) {
                 value |= mask;
             } else {
                 value &= ~mask;
@@ -435,7 +436,7 @@ index <<= 2; index |= time & 3;'
             hv: {
                 size: 2,
                 tableCode: '\
-n.horz = (i & (1 <<  shift))      >>  shift,\
+n.horz = (i & (1 <<  shift))      >>  shift;\
 n.vert = (i & (1 << (shift + 1))) >> (shift + 1);',
                 indexCode: '\
 index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
