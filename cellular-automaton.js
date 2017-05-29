@@ -51,6 +51,9 @@ function CellField(x, y, viewOptions) {
     o.view = viewOptions instanceof Object ? viewOptions : {};
     o.view.showBitPlanes = isNaN(+o.view.showBitPlanes) ? 3 : +o.view.showPlanes;
 
+    if (typeof o.view.wrapper === 'string') {
+        o.view.wrapper = document.querySelectorAll(o.view.wrapper)[0];
+    }
     if (o.view.wrapper instanceof HTMLElement) {
         o.view.cellSide = o.view.cellSide << 0;
         o.view.border = o.view.border << 0;

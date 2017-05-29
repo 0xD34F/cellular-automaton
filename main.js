@@ -105,7 +105,7 @@ $(document).ready(function() {
         CELL_BORDER_MAX = 4;
 
     var ca = window.ca = CellularAutomaton(X_SIZE_MAX, Y_SIZE_MAX, {
-        wrapper: $('#cells-wrapper')[0],
+        wrapper: '#cells-wrapper',
         cellSide: 2,
         border: 1
     });
