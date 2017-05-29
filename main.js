@@ -102,7 +102,8 @@ $(document).ready(function() {
         CELL_SIDE_MIN = 1,
         CELL_SIDE_MAX = 20,
         CELL_BORDER_MIN = 0,
-        CELL_BORDER_MAX = 4;
+        CELL_BORDER_MAX = 4,
+        BRUSH_SIZE = 11;
 
     var ca = window.ca = CellularAutomaton(X_SIZE_MAX, Y_SIZE_MAX, {
         wrapper: '#cells-wrapper',
@@ -110,26 +111,19 @@ $(document).ready(function() {
         border: 1
     });
 
-    var BRUSH_SIZE = 11;
-
     ca.cells.brush = CellField(BRUSH_SIZE, BRUSH_SIZE);
     ca.cells.brush.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
 
-    var caBrush = null;
+    var caBrush = CellField(BRUSH_SIZE, BRUSH_SIZE, {
+        wrapper: '#brush-wrapper',
+        cellSide: 12,
+        border: 1
+    });
+    caBrush.brush = CellField(1, 1);
+    caBrush.brush.data[0][0] = 1;
 
     $('#ca-brush').dialog({
         create: function() {
-            var side = 12,
-                border = 1;
-
-            caBrush = CellField(BRUSH_SIZE, BRUSH_SIZE, {
-                wrapper: $(this).find('.cells-field-wrapper')[0],
-                cellSide: side,
-                border: border
-            });
-            caBrush.brush = CellField(1, 1);
-            caBrush.brush.data[0][0] = 1;
-
             $(this).find('.ca-state-select').on('click', '.ca-state', function() {
                 var $this = $(this);
                 $this.parent().find('.ui-state-active').removeClass('ui-state-active');
