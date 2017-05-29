@@ -104,10 +104,7 @@ $(document).ready(function() {
         CELL_BORDER_MIN = 0,
         CELL_BORDER_MAX = 4;
 
-    var X_SIZE = 256,
-        Y_SIZE = 256;
-
-    var ca = window.ca = CellularAutomaton(X_SIZE, Y_SIZE, {
+    var ca = window.ca = CellularAutomaton(X_SIZE_MAX, Y_SIZE_MAX, {
         wrapper: $('#cells-wrapper')[0],
         cellSide: 2,
         border: 1
@@ -285,15 +282,6 @@ $(document).ready(function() {
         },
         buttons: {
             'OK': closeDialog(function() {
-                var xSize = limitation(this.find('#ca-field-x-size').val(), X_SIZE_MIN, X_SIZE_MAX),
-                    ySize = limitation(this.find('#ca-field-y-size').val(), Y_SIZE_MIN, Y_SIZE_MAX),
-                    cellSide = limitation(this.find('#ca-field-cell-side').val(), CELL_SIDE_MIN, CELL_SIDE_MAX),
-                    border = limitation(this.find('#ca-field-cell-border').val(), CELL_BORDER_MIN, CELL_BORDER_MAX);
-
-                if (ca.cells.xSize !== xSize || ca.cells.ySize !== ySize) {
-                    ca.cells.resize(xSize, ySize);
-                }
-
                 this.find('.jscolor').each(function() {
                     var $this = $(this);
                     CellField.prototype.colors[$this.attr('color-name')] = $this.val();
@@ -305,7 +293,12 @@ $(document).ready(function() {
                 });
                 ca.cells.view.showBitPlanes = t;
 
-                ca.cells.resizeView(cellSide, border);
+                ca.resize({
+                    xSize: limitation(this.find('#ca-field-x-size').val(), X_SIZE_MIN, X_SIZE_MAX),
+                    ySize: limitation(this.find('#ca-field-y-size').val(), Y_SIZE_MIN, Y_SIZE_MAX),
+                    cellSide: limitation(this.find('#ca-field-cell-side').val(), CELL_SIDE_MIN, CELL_SIDE_MAX),
+                    cellBorder: limitation(this.find('#ca-field-cell-border').val(), CELL_BORDER_MIN, CELL_BORDER_MAX)
+                });
             }),
             'Cancel': closeDialog()
         }

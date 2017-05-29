@@ -597,6 +597,18 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
 
     return {
         cells: cells,
+        resize: function(o) {
+            o = o instanceof Object ? o : {};
+
+            if (!isNaN(o.xSize) && !isNaN(o.ySize)) {
+                if (cells.xSize !== o.xSize || cells.ySize !== o.ySize) {
+                    cells.resize(o.xSize, o.ySize);
+                    newCells.resize(o.xSize, o.ySize);
+                }
+            }
+
+            cells.resizeView(o.cellSide, o.cellBorder);
+        },
         newGeneration: newGeneration,
         get stepsPerStroke() {
             return steps;
