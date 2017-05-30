@@ -169,6 +169,23 @@ function main(n) {\n\
         }
     }
 
+    function isPredefined(name) {
+        for (var i = 0; i < predefinedRules.length; i++) {
+            if (predefinedRules[i].name === name) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function result(status, message) {
+        return {
+            status: status,
+            message: message
+        }
+    }
+
     return {
         elementary: function(ruleNumber) {
             ruleNumber = limitation(ruleNumber, 0, 255);
@@ -189,11 +206,19 @@ function main(n) {\n\
 
             return null;
         },
-        add: function(name, code) {
-            for (var i = 0; i < predefinedRules.length; i++) {
-                if (predefinedRules[i].name === name) {
-                    return false;
+        save: function(name, code) {
+            if (!name || !code) {
+                var m = [];
+                if (!name) {
+                    m.push('no rule name');
                 }
+                if (!code) {
+                    m.push('no rule code');
+                }
+                return result(false, m.join('<br>'));
+            }
+            if (isPredefined(name)) {
+                return result(false, 'predefined rule ("' + name +'") can not be rewritten');
             }
 
             for (i = 0; i < savedRules.length; i++) {
@@ -210,18 +235,25 @@ function main(n) {\n\
 
             save();
 
-            return true;
+            return result(true, 'rule "' + name + '" saved');
         },
         del: function(name) {
+            if (!name) {
+                return result(false, 'no rule name');
+            }
+            if (isPredefined(name)) {
+                return result(false, 'predefined rule ("' + name +'") can not be deleted');
+            }
+
             for (var i = 0; i < savedRules.length; i++) {
                 if (savedRules[i].name === name) {
                     savedRules.splice(i, 1);
                     save();
-                    return true;
+                    return result(true, 'rule "' + name + '" deleted');
                 }
             }
 
-            return false;
+            return result(false, 'rule "' + name + '" not found');
         },
         saved: function() {
             return savedRules;

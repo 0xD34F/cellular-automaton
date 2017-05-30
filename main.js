@@ -339,46 +339,11 @@ $(document).ready(function() {
             };
 
             $this.find('#ca-rule-save').button().click(function() {
-                var ruleName = $('#ca-rule-name').val(),
-                    ruleCode = $('#ca-rule-code').val();
-
-                if (!ruleName || !ruleCode) {
-                    var errMess = [];
-                    if (!ruleName) {
-                        errMess.push('no rule name');
-                    }
-                    if (!ruleCode) {
-                        errMess.push('no rule code');
-                    }
-                    toastr.error(errMess.join('<br>'));
-                    return;
-                }
-
-                if (rules.add(ruleName, ruleCode)) {
-                    toastr.success('rule "' + ruleName + '" saved');
-                } else {
-                    toastr.error('rule "' + ruleName + '" can not be rewrited');
-                }
+                var result = rules.save($('#ca-rule-name').val(), $('#ca-rule-code').val());
+                toastr[result.status ? 'success' : 'error'](result.message);
             }).end().find('#ca-rule-delete').button().click(function() {
-                var ruleName = $('#ca-rule-name').val();
-                if (!ruleName) {
-                    toastr.error('no rule name');
-                    return;
-                }
-
-                var predefined = rules.predefined();
-                for (var i = 0; i < predefined.length; i++) {
-                    if (predefined[i].name === ruleName) {
-                        toastr.error('rule "' + ruleName + '" can not be deleted');
-                        return;
-                    }
-                }
-
-                if (rules.del(ruleName)) {
-                    toastr.success('rule "' + ruleName + '" deleted');
-                } else {
-                    toastr.error('rule "' + ruleName + '" is not exists');
-                }
+                var result = rules.del($('#ca-rule-name').val());
+                toastr[result.status ? 'success' : 'error'](result.message);
             });
 
             $this.find('#ca-rule-code').keydown(function(e) {
