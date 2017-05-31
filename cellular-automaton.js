@@ -168,6 +168,10 @@ Object.defineProperty(CellField.prototype, 'mode', {
         this.dispatchEvent('ca-mode', {
             mode: value
         });
+
+        if (this.view.canvas) {
+            this.view.canvas.setAttribute('data-mode', value);
+        }
     }
 });
 CellField.prototype.fill = function(f) {

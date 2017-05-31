@@ -89,6 +89,13 @@ html {
     overflow: auto;
 }
 
+.cells-field-wrapper > canvas[data-mode="edit"] {
+    cursor: default;
+}
+.cells-field-wrapper > canvas[data-mode="shift"] {
+    cursor: move;
+}
+
 .ca-options-table {
     width: 100%;
 }
