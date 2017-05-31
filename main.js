@@ -414,7 +414,7 @@ $(document).ready(function() {
         if (mode && ca.cells.mode !== mode) {
             ca.cells.mode = mode;
         }
-    });
+    }).find('[for="mode-' + ca.cells.mode + '"]').click();
 
 
     $('.content > .controls')
@@ -483,8 +483,6 @@ $(document).ready(function() {
 
         return false;
     });
-
-    ca.cells.mode = 'edit';
 
     var defaultRule = 'Conway\'s Life';
     ca.rule = rules.get(defaultRule);

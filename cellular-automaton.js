@@ -47,7 +47,6 @@ function CellField(x, y, viewOptions) {
 
     o.resize(x, y);
 
-    o._mode = 'edit';
     o.view = viewOptions instanceof Object ? viewOptions : {};
     o.view.showBitPlanes = isNaN(+o.view.showBitPlanes) ? 3 : +o.view.showPlanes;
 
@@ -105,6 +104,8 @@ function CellField(x, y, viewOptions) {
     if (!isNaN(o.view.cellSide)) {
         o.resizeView(o.view.cellSide);
     }
+
+    o.mode = 'edit';
 
     return o;
 }
