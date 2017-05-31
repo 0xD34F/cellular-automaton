@@ -473,14 +473,12 @@ $(document).ready(function() {
         if (oldCellSide !== newCellSide) {
             var oldScrollX = this.scrollLeft,
                 oldScrollY = this.scrollTop,
-                border = ca.cells.view.border,
-                cellX = e.originalEvent.offsetX / (oldCellSide + border),
-                cellY = e.originalEvent.offsetY / (oldCellSide + border);
+                coord = ca.cells.detectEventCoord(e);
 
             ca.cells.resizeView(newCellSide);
 
-            this.scrollLeft = cellX * (newCellSide - oldCellSide) + oldScrollX;
-            this.scrollTop  = cellY * (newCellSide - oldCellSide) + oldScrollY;
+            this.scrollLeft = coord.x * (newCellSide - oldCellSide) + oldScrollX;
+            this.scrollTop  = coord.y * (newCellSide - oldCellSide) + oldScrollY;
         }
 
         return false;

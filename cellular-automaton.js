@@ -76,27 +76,24 @@ function CellField(x, y, viewOptions) {
     if (o.view.canvas) {
         var that = o;
 
-        var lastCoord = [];
+        var lastCoord = {};
         o.view.canvas.onmouseup = function() {
-            lastCoord = [];
+            lastCoord = {};
         };
         o.view.canvas.onmousedown = o.view.canvas.onmousemove = function(e) {
             if (e.buttons !== 1 && e.buttons !== 2) {
                 return;
             }
 
-            var _b = that.view.border,
-                _t = Math.round(_b / 2),
-                x = Math.floor((e.offsetX - _t) / (that.view.cellSide + _b)),
-                y = Math.floor((e.offsetY - _t) / (that.view.cellSide + _b));
+            var coord = that.detectEventCoord(e);
 
-            if (lastCoord[0] === x && lastCoord[1] === y) {
+            if (lastCoord.x === coord.x && lastCoord.y === coord.y) {
                 return;
             }
 
             if (that.mode in that.userActions) {
-                if (that.userActions[that.mode].call(that, e, x, y, lastCoord[0], lastCoord[1]) !== false) {
-                    lastCoord = [ x, y ];
+                if (that.userActions[that.mode].call(that, e, coord.x, coord.y, lastCoord.x, lastCoord.y) !== false) {
+                    lastCoord = coord;
                 }
             }
         };
@@ -147,6 +144,15 @@ CellField.prototype.userActions = {
     shift: function(e, x, y, prevX, prevY) {
         this.shift(x - prevX, y - prevY).draw();
     }
+};
+CellField.prototype.detectEventCoord = function(e) {
+    var b = this.view.border,
+        t = Math.round(b / 2);
+
+    return {
+        x: Math.floor((e.offsetX - t) / (this.view.cellSide + b)),
+        y: Math.floor((e.offsetY - t) / (this.view.cellSide + b))
+    };
 };
 CellField.prototype.dispatchEvent = function(eventName, data) {
     data = data instanceof Object ? data : {};
