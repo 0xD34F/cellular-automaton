@@ -254,6 +254,11 @@ CellField.prototype.fillRandom = function(o) {
         return value;
     });
 };
+CellField.prototype.clear = function() {
+    return this.fill(function() {
+        return 0;
+    });
+};
 CellField.prototype.refresh = function() {
     var c = this.view.context;
 
@@ -317,9 +322,7 @@ CellField.prototype.resize = function(x, y) {
         this.data[i] = new Array(y);
     }
 
-    return this.fill(function() {
-        return 0;
-    }).dispatchEvent('ca-resize');
+    return this.clear().dispatchEvent('ca-resize');
 };
 CellField.prototype.resizeView = function(cellSide, border) {
     if (!this.view.canvas || isNaN(cellSide) || cellSide < 1) {

@@ -424,9 +424,7 @@ $(document).ready(function() {
         });
 
     $('#cell-field-data').buttonset().find('#clear').click(function() {
-        ca.cells.fill(function() {
-            return 0;
-        }).draw();
+        ca.cells.clear().draw();
     });
 
     $(document).on({
