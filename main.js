@@ -483,7 +483,9 @@ $(document).ready(function() {
             $('.ca-start-show').hide();
         },
         'ca-mode': function(e) {
-            $('#cell-field-mode').find('[for="mode-' + e.detail.mode + '"]').click();
+            if (e.originalEvent.detail.cellField === ca.cells) {
+                $('#cell-field-mode').find('[for="mode-' + e.detail.mode + '"]').click();
+            }
         }
     }).trigger('ca-stop');
 
