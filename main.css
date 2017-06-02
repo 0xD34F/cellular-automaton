@@ -95,6 +95,9 @@ html {
 .cells-field-wrapper > canvas[data-mode="shift"] {
     cursor: move;
 }
+.cells-field-wrapper > canvas[data-mode="scale"] {
+    cursor: zoom-in;
+}
 
 .ca-options-table {
     width: 100%;

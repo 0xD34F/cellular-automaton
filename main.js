@@ -478,11 +478,17 @@ $(document).ready(function() {
             $('.ca-start-disable').addClass('ui-state-disabled');
             $('.ca-start-hide').hide();
             $('.ca-start-show').show();
+
+            if (ca.cells.mode === 'edit') {
+                ca.cells.mode = 'shift';
+            }
         },
         'ca-stop': function() {
             $('.ca-start-disable').removeClass('ui-state-disabled');
             $('.ca-start-hide').show();
             $('.ca-start-show').hide();
+
+            ca.cells.mode = 'edit';
         },
         'ca-mode': function(e) {
             if (e.originalEvent.detail.cellField === ca.cells) {

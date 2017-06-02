@@ -134,13 +134,10 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
                 return false;
             }
 
-            cells.mode = 'shift';
             timer.intervalID = setInterval(function() {
                 newGeneration(steps);
                 cells.draw(null, null, null, null, steps === 1 ? newCells.data : null);
             }, timer.delay);
-
-            document.dispatchEvent(new CustomEvent('ca-start'));
 
             return true;
         },
@@ -149,11 +146,8 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
                 return false;
             }
 
-            cells.mode = 'edit';
             clearInterval(timer.intervalID);
             timer.intervalID = null;
-
-            document.dispatchEvent(new CustomEvent('ca-stop'));
 
             return true;
         }
@@ -289,7 +283,21 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
         isStarted: function() {
             return !!timer.intervalID;
         },
-        start: timer.start,
-        stop: timer.stop
+        start: function() {
+            var result = timer.start();
+            if (result) {
+                document.dispatchEvent(new CustomEvent('ca-start'));
+            }
+
+            return result;
+        },
+        stop: function() {
+            var result = timer.stop();
+            if (result) {
+                document.dispatchEvent(new CustomEvent('ca-stop'));
+            }
+
+            return result;
+        }
     };
 };
