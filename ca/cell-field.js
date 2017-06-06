@@ -29,31 +29,14 @@
     }
 
     if (o.view.canvas) {
-        var that = o;
+        o.view.oldEventCoord = {};
 
-        var oldCoord = {};
-        o.view.canvas.onmouseup = function() {
-            oldCoord = {};
-        };
-        o.view.canvas.onmousedown = o.view.canvas.onmousemove = function(e) {
-            if (e.buttons !== 1 && e.buttons !== 2) {
-                return;
+        for (var i = 0; i < o.eventHandlers.length; i++) {
+            var eh = o.eventHandlers[i];
+            for (var j = 0; j < eh.events.length; j++) {
+                o.view.canvas[eh.events[j]] = eh.handler.bind(o);
             }
-
-            var newCoord = that.detectEventCoord(e);
-            if (newCoord.x === oldCoord.x && newCoord.y === oldCoord.y) {
-                return;
-            }
-
-            if (that.mode in that.userActions) {
-                if (that.userActions[that.mode].call(that, e, newCoord, oldCoord) !== false) {
-                    oldCoord = newCoord;
-                }
-            }
-        };
-        o.view.canvas.oncontextmenu = function() {
-            return false;
-        };
+        }
     }
 
     if (!isNaN(o.view.cellSide)) {
@@ -73,6 +56,39 @@ CellField.prototype.getBitPlanes = function() {
 
     return planes;
 };
+CellField.prototype.eventHandlers = [ {
+    events: [ 'oncontextmenu' ],
+    handler: function(e) {
+        return false;
+    }
+}, {
+    events: [ 'onmouseup', 'onmouseleave' ],
+    handler: function(e) {
+        this.view.oldEventCoord = {};
+        this.dispatchEvent('ca-' + this.mode + '-ended');
+    }
+}, {
+    events: [ 'onmousedown', 'onmousemove' ],
+    handler: function(e) {
+        if (e.buttons !== 1 && e.buttons !== 2) {
+            return;
+        }
+
+        var oldCoord = this.view.oldEventCoord,
+            newCoord = this.detectEventCoord(e);
+
+        if (newCoord.x === oldCoord.x && newCoord.y === oldCoord.y) {
+            return;
+        }
+
+        var actionHandler = this.userActions[this.mode];
+        if (actionHandler instanceof Function &&
+            actionHandler.call(this, e, newCoord, oldCoord) !== false) {
+
+            this.view.oldEventCoord = newCoord;
+        }
+    }
+} ];
 CellField.prototype.userActions = {
     edit: function(e, newCoord, oldCoord) {
         var x = newCoord.x,
