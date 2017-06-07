@@ -65,7 +65,7 @@ CellField.prototype.eventHandlers = [ {
     events: [ 'mouseup', 'mouseleave' ],
     handler: function(e) {
         this.view.oldEventCoord = {};
-        this.dispatchEvent('ca-' + this.mode + '-ended');
+        this.dispatchEvent('cell-field-' + this.mode + '-ended');
     }
 }, {
     events: [ 'mousedown', 'mousemove' ],
@@ -159,9 +159,7 @@ Object.defineProperty(CellField.prototype, 'mode', {
     set: function(value) {
         this._mode = value;
 
-        this.dispatchEvent('ca-mode', {
-            mode: value
-        });
+        this.dispatchEvent('cell-field-mode');
 
         if (this.view.canvas) {
             this.view.canvas.setAttribute('data-mode', value);
@@ -175,7 +173,9 @@ CellField.prototype.fill = function(f) {
         }
     }
 
-    return this;
+    return this.dispatchEvent('cell-field-fill', {
+        filled: f
+    });
 };
 CellField.prototype.shift = function(_x, _y) {
     _x = _x || 0;
@@ -186,7 +186,12 @@ CellField.prototype.shift = function(_x, _y) {
         shiftArray(this.data[i], _y);
     }
 
-    return this;
+    return this.dispatchEvent('cell-field-shift', {
+        shifted: {
+            x: _x,
+            y: _y
+        }
+    });
 };
 CellField.prototype.copy = function(cells, _x, _y, options) {
     _x = _x || 0;
@@ -309,7 +314,7 @@ CellField.prototype.resize = function(x, y) {
         this.data[i] = new Array(y);
     }
 
-    return this.clear().dispatchEvent('ca-resize');
+    return this.clear().dispatchEvent('cell-field-resize');
 };
 CellField.prototype.resizeView = function(cellSide, border) {
     if (!this.view.canvas || isNaN(cellSide) || cellSide < 1) {
@@ -335,7 +340,7 @@ CellField.prototype.resizeView = function(cellSide, border) {
     c.fillStyle = this.colors.background;
     c.fillRect(0, 0, c.width, c.height);
 
-    return this.draw().dispatchEvent('ca-resize-view');
+    return this.draw().dispatchEvent('cell-field-resize-view');
 };
 CellField.prototype.changeScale = function(change, coord) {
     var c = this.view.canvas;

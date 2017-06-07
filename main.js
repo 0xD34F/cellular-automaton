@@ -490,9 +490,10 @@ $(document).ready(function() {
 
             ca.cells.mode = 'edit';
         },
-        'ca-mode': function(e) {
-            if (e.originalEvent.detail.cellField === ca.cells) {
-                $('#cell-field-mode').find('[for="mode-' + e.detail.mode + '"]').click();
+        'cell-field-mode': function(e) {
+            var cf = e.originalEvent.detail.cellField;
+            if (cf === ca.cells) {
+                $('#cell-field-mode').find('[for="mode-' + cf.mode + '"]').click();
             }
         }
     }).trigger('ca-stop');
