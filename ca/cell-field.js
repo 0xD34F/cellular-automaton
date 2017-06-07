@@ -34,7 +34,7 @@
         for (var i = 0; i < o.eventHandlers.length; i++) {
             var eh = o.eventHandlers[i];
             for (var j = 0; j < eh.events.length; j++) {
-                o.view.canvas[eh.events[j]] = eh.handler.bind(o);
+                o.view.canvas['on' + eh.events[j]] = eh.handler.bind(o);
             }
         }
     }
@@ -57,18 +57,18 @@ CellField.prototype.getBitPlanes = function() {
     return planes;
 };
 CellField.prototype.eventHandlers = [ {
-    events: [ 'oncontextmenu' ],
+    events: [ 'contextmenu' ],
     handler: function(e) {
         return false;
     }
 }, {
-    events: [ 'onmouseup', 'onmouseleave' ],
+    events: [ 'mouseup', 'mouseleave' ],
     handler: function(e) {
         this.view.oldEventCoord = {};
         this.dispatchEvent('ca-' + this.mode + '-ended');
     }
 }, {
-    events: [ 'onmousedown', 'onmousemove' ],
+    events: [ 'mousedown', 'mousemove' ],
     handler: function(e) {
         if (e.buttons !== 1 && e.buttons !== 2) {
             return;
@@ -81,50 +81,56 @@ CellField.prototype.eventHandlers = [ {
             return;
         }
 
-        var actionHandler = this.userActions[this.mode];
-        if (actionHandler instanceof Function &&
-            actionHandler.call(this, e, newCoord, oldCoord) !== false) {
+        var action = this.userActions[this.mode] || {};
+        if (action.events.indexOf(e.type) !== -1 &&
+            action.handler instanceof Function &&
+            action.handler.call(this, e, newCoord, oldCoord) !== false) {
 
             this.view.oldEventCoord = newCoord;
         }
     }
 } ];
 CellField.prototype.userActions = {
-    edit: function(e, newCoord, oldCoord) {
-        var x = newCoord.x,
-            y = newCoord.y;
+    edit: {
+        events: [ 'mousedown', 'mousemove' ],
+        handler: function(e, newCoord, oldCoord) {
+            var x = newCoord.x,
+                y = newCoord.y;
 
-        if (x >= this.xSize || y >= this.ySize || x < 0 || y < 0) {
-            return false;
-        }
-
-        if (this.brush instanceof CellField) {
-            x = (x - Math.floor(this.brush.xSize / 2) + this.xSize) % this.xSize;
-            y = (y - Math.floor(this.brush.ySize / 2) + this.ySize) % this.ySize;
-
-            this.copy(this.brush, x, y, {
-                skipZeros: true,
-                setZeros: e.buttons === 2
-            }).draw(x, y, this.brush.xSize, this.brush.ySize);
-        } else {
-            if (e.buttons === 1) {
-                this.data[x][y] = (this.data[x][y] + 1) & 3;
-            } else if (e.buttons === 2) {
-                this.data[x][y] = (this.data[x][y] - 1) & 3;
+            if (x >= this.xSize || y >= this.ySize || x < 0 || y < 0) {
+                return false;
             }
 
-            this.draw(x, y, 1, 1);
-        }
-    },
-    shift: function(e, newCoord, oldCoord) {
-        this.shift(newCoord.x - oldCoord.x, newCoord.y - oldCoord.y).draw();
-    },
-    scale: function(e, newCoord, oldCoord) {
-        if (e.type !== 'mousedown') {
-            return;
-        }
+            if (this.brush instanceof CellField) {
+                x = (x - Math.floor(this.brush.xSize / 2) + this.xSize) % this.xSize;
+                y = (y - Math.floor(this.brush.ySize / 2) + this.ySize) % this.ySize;
 
-        this.changeScale(e.button === 2 ? -1 : 1, e);
+                this.copy(this.brush, x, y, {
+                    skipZeros: true,
+                    setZeros: e.buttons === 2
+                }).draw(x, y, this.brush.xSize, this.brush.ySize);
+            } else {
+                if (e.buttons === 0) {
+                    this.data[x][y] = (this.data[x][y] + 1) & 3;
+                } else if (e.buttons === 2) {
+                    this.data[x][y] = (this.data[x][y] - 1) & 3;
+                }
+
+                this.draw(x, y, 1, 1);
+            }
+        }
+    },
+    shift: {
+        events: [ 'mousemove' ],
+        handler: function(e, newCoord, oldCoord) {
+            this.shift(newCoord.x - oldCoord.x, newCoord.y - oldCoord.y).draw();
+        }
+    },
+    scale: {
+        events: [ 'mousedown' ],
+        handler: function(e, newCoord, oldCoord) {
+            this.changeScale(e.button === 2 ? -1 : 1, e);
+        }
     }
 };
 CellField.prototype.detectEventCoord = function(e) {
