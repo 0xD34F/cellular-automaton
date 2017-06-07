@@ -193,6 +193,9 @@ CellField.prototype.shift = function(_x, _y) {
         }
     });
 };
+CellField.prototype.clone = function() {
+    return CellField(this.xSize, this.ySize).copy(this);
+};
 CellField.prototype.copy = function(cells, _x, _y, options) {
     _x = _x || 0;
     _y = _y || 0;
