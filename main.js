@@ -154,7 +154,7 @@ $(document).ready(function() {
         cellSideMin: CELL_SIDE_MIN,
         cellSideMax: CELL_SIDE_MAX,
         cellSide: 2,
-        border: 1
+        cellBorder: 1
     });
 
     ca.cells.brush = CellField(BRUSH_SIZE, BRUSH_SIZE);
@@ -163,7 +163,7 @@ $(document).ready(function() {
     var caBrush = CellField(BRUSH_SIZE, BRUSH_SIZE, {
         wrapper: '#brush-wrapper',
         cellSide: 12,
-        border: 1
+        cellBorder: 1
     });
     caBrush.brush = CellField(1, 1);
     caBrush.brush.data[0][0] = 1;
@@ -259,7 +259,7 @@ $(document).ready(function() {
                     ca.cells.copyBitPlane(fillCopy);
                 }
 
-                ca.cells.draw();
+                ca.cells.draw(true);
             }),
             'Cancel': closeDialog()
         }
@@ -309,7 +309,7 @@ $(document).ready(function() {
                 .find('#ca-field-x-size').val(ca.cells.xSize).end()
                 .find('#ca-field-y-size').val(ca.cells.ySize).end()
                 .find('#ca-field-cell-side').val(ca.cells.view.cellSide).end()
-                .find('#ca-field-cell-border').val(ca.cells.view.border).end()
+                .find('#ca-field-cell-border').val(ca.cells.view.cellBorder).end()
                 .find('.jscolor').each(function() {
                     var $this = $(this);
                     $this.val(CellField.prototype.colors[$this.attr('color-name')]);
@@ -470,7 +470,7 @@ $(document).ready(function() {
         });
 
     $('#cell-field-data').buttonset().find('#clear').click(function() {
-        ca.cells.clear().draw();
+        ca.cells.clear().draw(true);
     });
 
     $(document).on({

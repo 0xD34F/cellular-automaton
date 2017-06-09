@@ -11,13 +11,13 @@
     }
     if (o.view.wrapper instanceof HTMLElement) {
         o.view.cellSide = o.view.cellSide << 0;
-        o.view.border = o.view.border << 0;
+        o.view.cellBorder = o.view.cellBorder << 0;
 
         if (!o.view.width) {
-            o.view.width = x * (o.view.cellSide + o.view.border) + o.view.border;
+            o.view.width = x * (o.view.cellSide + o.view.cellBorder) + o.view.cellBorder;
         }
         if (!o.view.height) {
-            o.view.height = y * (o.view.cellSide + o.view.border) + o.view.border;
+            o.view.height = y * (o.view.cellSide + o.view.cellBorder) + o.view.cellBorder;
         }
 
         o.view.wrapper.style.width = o.view.width + 'px';
@@ -47,6 +47,7 @@
 
     return o;
 }
+
 CellField.prototype.numBitPlanes = 2;
 CellField.prototype.getBitPlanes = function() {
     var planes = [];
@@ -56,6 +57,7 @@ CellField.prototype.getBitPlanes = function() {
 
     return planes;
 };
+
 CellField.prototype.eventHandlers = [ {
     events: [ 'contextmenu' ],
     handler: function(e) {
@@ -90,6 +92,7 @@ CellField.prototype.eventHandlers = [ {
         }
     }
 } ];
+
 CellField.prototype.userActions = {
     edit: {
         events: [ 'mousedown', 'mousemove' ],
@@ -108,7 +111,7 @@ CellField.prototype.userActions = {
                 this.copy(this.brush, x, y, {
                     skipZeros: true,
                     setZeros: e.buttons === 2
-                }).draw(x, y, this.brush.xSize, this.brush.ySize);
+                }).draw({ x: x, y: y, xSize: this.brush.xSize, ySize: this.brush.ySize });
             } else {
                 if (e.buttons === 0) {
                     this.data[x][y] = (this.data[x][y] + 1) & 3;
@@ -116,7 +119,7 @@ CellField.prototype.userActions = {
                     this.data[x][y] = (this.data[x][y] - 1) & 3;
                 }
 
-                this.draw(x, y, 1, 1);
+                this.draw({ x: x, y: y, xSize: 1, ySize: 1 });
             }
         }
     },
@@ -133,8 +136,9 @@ CellField.prototype.userActions = {
         }
     }
 };
+
 CellField.prototype.detectEventCoord = function(e) {
-    var b = this.view.border,
+    var b = this.view.cellBorder,
         t = Math.round(b / 2);
 
     return {
@@ -142,6 +146,7 @@ CellField.prototype.detectEventCoord = function(e) {
         y: Math.floor((e.offsetY - t) / (this.view.cellSide + b))
     };
 };
+
 CellField.prototype.dispatchEvent = function(eventName, data) {
     data = data instanceof Object ? data : {};
     data.cellField = this;
@@ -152,6 +157,7 @@ CellField.prototype.dispatchEvent = function(eventName, data) {
 
     return this;
 };
+
 Object.defineProperty(CellField.prototype, 'mode', {
     get: function() {
         return this._mode;
@@ -166,6 +172,7 @@ Object.defineProperty(CellField.prototype, 'mode', {
         }
     }
 });
+
 CellField.prototype.fill = function(f) {
     for (var x = 0; x < this.xSize; x++) {
         for (var y = 0; y < this.ySize; y++) {
@@ -177,6 +184,7 @@ CellField.prototype.fill = function(f) {
         filled: f
     });
 };
+
 CellField.prototype.shift = function(_x, _y) {
     _x = _x || 0;
     _y = _y || 0;
@@ -193,9 +201,11 @@ CellField.prototype.shift = function(_x, _y) {
         }
     });
 };
+
 CellField.prototype.clone = function() {
     return CellField(this.xSize, this.ySize).copy(this);
 };
+
 CellField.prototype.copy = function(cells, _x, _y, options) {
     _x = _x || 0;
     _y = _y || 0;
@@ -220,6 +230,7 @@ CellField.prototype.copy = function(cells, _x, _y, options) {
 
     return this;
 };
+
 // o - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости> }
 CellField.prototype.copyBitPlane = function(o) {
     return this.fill(function(x, y, val) {
@@ -232,6 +243,7 @@ CellField.prototype.copyBitPlane = function(o) {
         return newVal;
     });
 };
+
 CellField.prototype.randomFillDensityDescritization = 1000;
 // o - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
 CellField.prototype.fillRandom = function(o) {
@@ -249,27 +261,32 @@ CellField.prototype.fillRandom = function(o) {
         return value;
     });
 };
+
 CellField.prototype.clear = function() {
     return this.fill(function() {
         return 0;
     });
 };
+
 CellField.prototype.refresh = function() {
     var c = this.view.context;
 
     c.fillStyle = this.colors.background;
     c.fillRect(0, 0, c.width, c.height);
 
-    return this.draw();
+    return this.draw(true);
 };
-CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
-    _x = _x || 0;
-    _y = _y || 0;
-    _xSize = _xSize || this.xSize;
-    _ySize = _ySize || this.ySize;
+
+CellField.prototype.draw = function(coord, prevStates) {
+    coord = coord === true ? {
+        x: 0,
+        y: 0,
+        xSize: this.xSize,
+        ySize: this.ySize
+    } : coord || this.detectViewCoord();
 
     var numStates = Math.pow(2, this.numBitPlanes),
-        border = this.view.border,
+        border = this.view.cellBorder,
         side = this.view.cellSide,
         sideFull = side + border,
         c = this.view.context,
@@ -281,12 +298,12 @@ CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
     }
 
     var d = this.data;
-    for (var i = 0, x = _x; i < _xSize; i++, x++) {
+    for (var i = 0, x = coord.x; i < coord.xSize; i++, x++) {
         if (x === this.xSize) {
             x = 0;
         }
 
-        for (var j = 0, y = _y; j < _ySize; j++, y++) {
+        for (var j = 0, y = coord.y; j < coord.ySize; j++, y++) {
             if (y === this.ySize) {
                 y = 0;
             }
@@ -308,6 +325,7 @@ CellField.prototype.draw = function(_x, _y, _xSize, _ySize, prevStates) {
 
     return this;
 };
+
 CellField.prototype.resize = function(x, y) {
     this.xSize = x;
     this.ySize = y;
@@ -319,7 +337,8 @@ CellField.prototype.resize = function(x, y) {
 
     return this.clear().dispatchEvent('cell-field-resize');
 };
-CellField.prototype.resizeView = function(cellSide, border) {
+
+CellField.prototype.resizeView = function(cellSide, cellBorder) {
     if (!this.view.canvas || isNaN(cellSide) || cellSide < 1) {
         return;
     }
@@ -327,7 +346,7 @@ CellField.prototype.resizeView = function(cellSide, border) {
     var c = this.view.context = this.view.canvas.getContext('2d');
 
     var s = this.view.cellSide = cellSide,
-        b = this.view.border = (arguments.length === 1 ? this.view.border : border) || 0;
+        b = this.view.cellBorder = (arguments.length === 1 ? this.view.cellBorder : cellBorder) || 0;
 
     this.view.canvas.width  = c.width  = this.xSize * (s + b) + b;
     this.view.canvas.height = c.height = this.ySize * (s + b) + b;
@@ -342,9 +361,13 @@ CellField.prototype.resizeView = function(cellSide, border) {
 
     c.fillStyle = this.colors.background;
     c.fillRect(0, 0, c.width, c.height);
+    setTimeout(function() {
+        this.draw(true);
+    }.bind(this));
 
-    return this.draw().dispatchEvent('cell-field-resize-view');
+    return this.dispatchEvent('cell-field-resize-view');
 };
+
 CellField.prototype.changeScale = function(change, coord) {
     var c = this.view.canvas;
     if (!c) {
@@ -375,6 +398,23 @@ CellField.prototype.changeScale = function(change, coord) {
 
     return this;
 };
+
+CellField.prototype.detectViewCoord = function() {
+    var v = this.view,
+        p = this.view.canvas.parentNode,
+        t = p.classList.contains('scrollable'),
+        s = v.cellSide + v.cellBorder,
+        x = Math.floor(p.scrollLeft / s),
+        y = Math.floor(p.scrollTop  / s);
+
+    return {
+        x: t ? x : 0,
+        y: t ? y : 0,
+        xSize: t ? x + Math.floor(p.clientWidth  / s) : this.xSize,
+        ySize: t ? y + Math.floor(p.clientHeight / s) : this.ySize,
+    };
+};
+
 CellField.prototype.colors = {
     background: '#888888',
     0: '#000000',

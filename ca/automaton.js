@@ -136,7 +136,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
 
             timer.intervalID = setInterval(function() {
                 newGeneration(steps);
-                cells.draw(null, null, null, null, steps === 1 ? newCells.data : null);
+                cells.draw(null, steps === 1 ? newCells.data : null);
             }, timer.delay);
 
             return true;
