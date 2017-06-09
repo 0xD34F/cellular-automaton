@@ -154,7 +154,8 @@ $(document).ready(function() {
         cellSideMin: CELL_SIDE_MIN,
         cellSideMax: CELL_SIDE_MAX,
         cellSide: 2,
-        cellBorder: 1
+        cellBorder: 1,
+        grid: true
     });
 
     ca.cells.brush = CellField(BRUSH_SIZE, BRUSH_SIZE);

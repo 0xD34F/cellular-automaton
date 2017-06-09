@@ -361,6 +361,28 @@ CellField.prototype.resizeView = function(cellSide, cellBorder) {
 
     c.fillStyle = this.colors.background;
     c.fillRect(0, 0, c.width, c.height);
+
+    if (this.view.grid) {
+        c.lineWidth = this.view.cellBorder;
+        c.strokeStyle = this.colors.grid;
+
+        var linePosFix = Math.floor(c.lineWidth / 2),
+            gridSize = 8;
+
+        for (var i = gridSize; i < this.xSize; i += gridSize) {
+            c.beginPath();
+            c.moveTo(i * (s + b) + linePosFix,        0);
+            c.lineTo(i * (s + b) + linePosFix, c.height);
+            c.stroke();
+        }
+        for (i = gridSize; i < this.ySize; i += gridSize) {
+            c.beginPath();
+            c.moveTo(      0, i * (s + b) + linePosFix);
+            c.lineTo(c.width, i * (s + b) + linePosFix);
+            c.stroke();
+        }
+    }
+
     setTimeout(function() {
         this.draw(true);
     }.bind(this));
@@ -416,9 +438,10 @@ CellField.prototype.detectViewCoord = function() {
 };
 
 CellField.prototype.colors = {
-    background: '#888888',
+    background: '#505050',
+    grid: '#707070',
     0: '#000000',
     1: '#FFFFFF',
-    2: '#444444',
-    3: '#CCCCCC'
+    2: '#666666',
+    3: '#A8A8A8'
 };
