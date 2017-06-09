@@ -68,6 +68,10 @@ CellField.prototype.eventHandlers = [ {
     handler: function(e) {
         this.view.oldEventCoord = {};
         this.dispatchEvent('cell-field-' + this.mode + '-ended');
+
+        if (this.mode === 'shift') {
+            this.draw(true);
+        }
     }
 }, {
     events: [ 'mousedown', 'mousemove' ],
