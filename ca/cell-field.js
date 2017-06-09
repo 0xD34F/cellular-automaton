@@ -268,15 +268,6 @@ CellField.prototype.clear = function() {
     });
 };
 
-CellField.prototype.refresh = function() {
-    var c = this.view.context;
-
-    c.fillStyle = this.colors.background;
-    c.fillRect(0, 0, c.width, c.height);
-
-    return this.draw(true);
-};
-
 CellField.prototype.draw = function(coord, prevStates) {
     coord = coord === true ? {
         x: 0,

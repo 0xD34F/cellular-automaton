@@ -179,7 +179,7 @@ $(document).ready(function() {
             }).height(caBrush.view.canvas.height);
         },
         open: function() {
-            caBrush.copy(ca.cells.brush).refresh();
+            caBrush.copy(ca.cells.brush).draw();
 
             $(this).find('.ca-state-select').html(Mustache.render(templates.brushColorSelect, $.map(CellField.prototype.colors, function(n, i) {
                 return isNaN(i) ? null : {
@@ -517,7 +517,7 @@ $(document).ready(function() {
         $steps.val(steps);
 
         ca.newGeneration(steps);
-        ca.cells.refresh();
+        ca.cells.draw(true);
     }).parent().find('input').width(50).val('1');
 
     $(ca.cells.view.canvas).parent().on('mousewheel', function(e) {
