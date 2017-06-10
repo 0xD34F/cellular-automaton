@@ -154,8 +154,7 @@ $(document).ready(function() {
         cellSideMin: CELL_SIDE_MIN,
         cellSideMax: CELL_SIDE_MAX,
         cellSide: 2,
-        cellBorder: 1,
-        grid: true
+        cellBorder: 1
     });
 
     ca.cells.brush = CellField(BRUSH_SIZE, BRUSH_SIZE);
@@ -179,7 +178,7 @@ $(document).ready(function() {
             }).height(caBrush.view.canvas.height);
         },
         open: function() {
-            caBrush.copy(ca.cells.brush).draw();
+            caBrush.copy(ca.cells.brush).render();
 
             $(this).find('.ca-state-select').html(Mustache.render(templates.brushColorSelect, $.map(CellField.prototype.colors, function(n, i) {
                 return isNaN(i) ? null : {
@@ -260,7 +259,7 @@ $(document).ready(function() {
                     ca.cells.copyBitPlane(fillCopy);
                 }
 
-                ca.cells.draw(true);
+                ca.cells.render();
             }),
             'Cancel': closeDialog()
         }
@@ -471,7 +470,7 @@ $(document).ready(function() {
         });
 
     $('#cell-field-data').buttonset().find('#clear').click(function() {
-        ca.cells.clear().draw(true);
+        ca.cells.clear().render();
     });
 
     $(document).on({
@@ -517,7 +516,7 @@ $(document).ready(function() {
         $steps.val(steps);
 
         ca.newGeneration(steps);
-        ca.cells.draw(true);
+        ca.cells.render();
     }).parent().find('input').width(50).val('1');
 
     $(ca.cells.view.canvas).parent().on('mousewheel', function(e) {

@@ -34,7 +34,8 @@
         for (var i = 0; i < o.eventHandlers.length; i++) {
             var eh = o.eventHandlers[i];
             for (var j = 0; j < eh.events.length; j++) {
-                o.view.canvas['on' + eh.events[j]] = eh.handler.bind(o);
+                var elem = eh.wrapper ? o.view.canvas.parentNode : o.view.canvas;
+                elem['on' + eh.events[j]] = eh.handler.bind(o);
             }
         }
     }
@@ -68,10 +69,6 @@ CellField.prototype.eventHandlers = [ {
     handler: function(e) {
         this.view.oldEventCoord = {};
         this.dispatchEvent('cell-field-' + this.mode + '-ended');
-
-        if (this.mode === 'shift') {
-            this.draw(true);
-        }
     }
 }, {
     events: [ 'mousedown', 'mousemove' ],
@@ -95,6 +92,18 @@ CellField.prototype.eventHandlers = [ {
             this.view.oldEventCoord = newCoord;
         }
     }
+}, {
+    wrapper: true,
+    events: [ 'scroll' ],
+    handler: function(e) {
+        var s = this.view.cellSide + this.view.cellBorder,
+            p = this.view.canvas.parentNode;
+
+        p.scrollLeft = Math.round(p.scrollLeft / s) * s;
+        p.scrollTop  = Math.round(p.scrollTop  / s) * s;
+
+        setTimeout(this.render.bind(this));
+    }
 } ];
 
 CellField.prototype.userActions = {
@@ -115,22 +124,22 @@ CellField.prototype.userActions = {
                 this.copy(this.brush, x, y, {
                     skipZeros: true,
                     setZeros: e.buttons === 2
-                }).draw({ x: x, y: y, xSize: this.brush.xSize, ySize: this.brush.ySize });
+                }).renderPartial({ x: x, y: y, xSize: this.brush.xSize, ySize: this.brush.ySize });
             } else {
-                if (e.buttons === 0) {
+                if (e.buttons === 1) {
                     this.data[x][y] = (this.data[x][y] + 1) & 3;
                 } else if (e.buttons === 2) {
                     this.data[x][y] = (this.data[x][y] - 1) & 3;
                 }
 
-                this.draw({ x: x, y: y, xSize: 1, ySize: 1 });
+                this.renderPartial({ x: x, y: y, xSize: 1, ySize: 1 });
             }
         }
     },
     shift: {
         events: [ 'mousemove' ],
         handler: function(e, newCoord, oldCoord) {
-            this.shift(newCoord.x - oldCoord.x, newCoord.y - oldCoord.y).draw();
+            this.shift(newCoord.x - oldCoord.x, newCoord.y - oldCoord.y).render();
         }
     },
     scale: {
@@ -272,7 +281,7 @@ CellField.prototype.clear = function() {
     });
 };
 
-CellField.prototype.draw = function(coord, prevStates) {
+CellField.prototype.renderPartial = function(coord) {
     coord = coord === true ? {
         x: 0,
         y: 0,
@@ -303,20 +312,66 @@ CellField.prototype.draw = function(coord, prevStates) {
                 y = 0;
             }
 
-            var t = d[x][y] & m;
-            if (!(prevStates && (prevStates[x][y] & m) === t)) {
-                g[t].push(x, y);
-            }
+            g[d[x][y] & m].push(x, y);
         }
     }
 
     for (var state = 0; state < numStates; state++) {
         c.fillStyle = this.colors[state];
 
-        for (var n = g[state], i = 0; i < n.length; i += 2) {
-            c.fillRect(n[i] * sideFull + border, n[i + 1] * sideFull + border, side, side);
+        for (var n = g[state], p = 0; p < n.length; p += 2) {
+            c.fillRect(n[p] * sideFull + border, n[p + 1] * sideFull + border, side, side);
         }
     }
+
+    return this;
+};
+
+CellField.prototype.render = function(prevStates) {
+    var coord = this.detectViewCoord();
+
+    var numStates = Math.pow(2, this.numBitPlanes),
+        border = this.view.cellBorder,
+        side = this.view.cellSide,
+        sideFull = side + border,
+        c = this.view.context,
+        m = this.view.showBitPlanes;
+
+    var g = [];
+    for (var i = 0; i < numStates; i++) {
+        g.push([]);
+    }
+
+    var d = this.data,
+        maxX = limitation(coord.x + coord.xSize, 0, this.xSize),
+        maxY = limitation(coord.y + coord.ySize, 0, this.ySize);
+
+    for (var i = 0, x = coord.x; x < maxX; x++, i++) {
+        for (var j = 0, y = coord.y; y < maxY; y++, j++) {
+            var t = d[x][y] & m;
+            if (!(prevStates && (prevStates[x][y] & m) === t)) {
+                g[t].push(i, j);
+            }
+        }
+    }
+
+    var t = this.view.data,
+        w = this.view.imageData.width;
+
+    for (var state = 0; state < numStates; state++) {
+        var color = parseInt(this.colors[state].slice(1), 16) | (255 << 24);
+
+        for (var n = g[state], p = 0; p < n.length; p += 2) {
+            for (x = n[p] * sideFull + border, i = 0; i < side; i++, x++) {
+                for (y = n[p + 1] * sideFull + border, j = 0; j < side; j++, y++) {
+                    t[x + y * w] = color;
+                }
+            }
+        }
+    }
+
+    this.view.imageData.data.set(this.view.buf8);
+    c.putImageData(this.view.imageData, coord.x * sideFull, coord.y * sideFull);
 
     return this;
 };
@@ -354,33 +409,18 @@ CellField.prototype.resizeView = function(cellSide, cellBorder) {
         parent.scrollTop = 0;
     }
 
-    c.fillStyle = this.colors.background;
-    c.fillRect(0, 0, c.width, c.height);
+    var w = Math.ceil(parseInt(parent.style.width,  10) / (s + b)) * (s + b),
+        h = Math.ceil(parseInt(parent.style.height, 10) / (s + b)) * (s + b);
 
-    if (this.view.grid) {
-        c.lineWidth = this.view.cellBorder;
-        c.strokeStyle = this.colors.grid;
-
-        var linePosFix = Math.floor(c.lineWidth / 2),
-            gridSize = 8;
-
-        for (var i = gridSize; i < this.xSize; i += gridSize) {
-            c.beginPath();
-            c.moveTo(i * (s + b) + linePosFix,        0);
-            c.lineTo(i * (s + b) + linePosFix, c.height);
-            c.stroke();
-        }
-        for (i = gridSize; i < this.ySize; i += gridSize) {
-            c.beginPath();
-            c.moveTo(      0, i * (s + b) + linePosFix);
-            c.lineTo(c.width, i * (s + b) + linePosFix);
-            c.stroke();
-        }
+    this.view.imageData = c.createImageData(w, h);
+    var buf = new ArrayBuffer(this.view.imageData.data.length);
+    this.view.buf8 = new Uint8ClampedArray(buf);
+    var d = this.view.data = new Uint32Array(buf),
+        color = parseInt(this.colors.background.slice(1), 16) | (255 << 24);
+    for (var i = 0; i < d.length; i++) {
+        d[i] = color;
     }
-
-    setTimeout(function() {
-        this.draw(true);
-    }.bind(this));
+    this.render();
 
     return this.dispatchEvent('cell-field-resize-view');
 };
@@ -418,23 +458,20 @@ CellField.prototype.changeScale = function(change, coord) {
 
 CellField.prototype.detectViewCoord = function() {
     var v = this.view,
-        p = this.view.canvas.parentNode,
+        p = v.canvas.parentNode,
         t = p.classList.contains('scrollable'),
-        s = v.cellSide + v.cellBorder,
-        x = Math.floor(p.scrollLeft / s),
-        y = Math.floor(p.scrollTop  / s);
+        s = v.cellSide + v.cellBorder;
 
     return {
-        x: t ? x : 0,
-        y: t ? y : 0,
-        xSize: t ? x + Math.floor(p.clientWidth  / s) : this.xSize,
-        ySize: t ? y + Math.floor(p.clientHeight / s) : this.ySize,
+        x: t ? Math.floor(p.scrollLeft / s) : 0,
+        y: t ? Math.floor(p.scrollTop  / s) : 0,
+        xSize: t ? Math.ceil(p.clientWidth  / s) : this.xSize,
+        ySize: t ? Math.ceil(p.clientHeight / s) : this.ySize,
     };
 };
 
 CellField.prototype.colors = {
     background: '#505050',
-    grid: '#707070',
     0: '#000000',
     1: '#FFFFFF',
     2: '#666666',
