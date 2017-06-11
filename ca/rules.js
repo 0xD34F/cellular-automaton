@@ -76,6 +76,12 @@ function main(n) {\n\
     main: \'Moore-thick\'\n\
 });\n\
 \n\
+setColors({\n\
+    1: \'FF0000\',\n\
+    2: \'00FF00\',\n\
+    3: \'FFFF00\'\n\
+});\n\
+\n\
 function sum(n, p) {\n\
     return (\n\
         !!(n.center & p) + !!(n.north & p) + !!(n.south & p) + !!(n.west & p) + !!(n.east & p) +\n\

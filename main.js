@@ -178,9 +178,10 @@ $(document).ready(function() {
             }).height(caBrush.view.canvas.height);
         },
         open: function() {
+            var colors = caBrush.colors = ca.cells.colors;
             caBrush.copy(ca.cells.brush).render();
 
-            $(this).find('.ca-state-select').html(Mustache.render(templates.brushColorSelect, $.map(CellField.prototype.colors, function(n, i) {
+            $(this).find('.ca-state-select').html(Mustache.render(templates.brushColorSelect, $.map(colors, function(n, i) {
                 return isNaN(i) ? null : {
                     state: i,
                     color: n
@@ -312,7 +313,7 @@ $(document).ready(function() {
                 .find('#ca-field-cell-border').val(ca.cells.view.cellBorder).end()
                 .find('.jscolor').each(function() {
                     var $this = $(this);
-                    $this.val(CellField.prototype.colors[$this.attr('color-name')]);
+                    $this.val(ca.cells.colors[$this.attr('color-name')]);
                     this.jscolor.importColor();
                 }).end()
                 .find('.ca-bit-plane-cb').each(function(i) {
@@ -322,10 +323,12 @@ $(document).ready(function() {
         },
         buttons: {
             'OK': closeDialog(function() {
+                var newColors = {};
                 this.find('.jscolor').each(function() {
                     var $this = $(this);
-                    CellField.prototype.colors[$this.attr('color-name')] = $this.val();
+                    newColors[$this.attr('color-name')] = $this.val();
                 });
+                ca.cells.colors = newColors;
 
                 var t = 0;
                 this.find('.ca-bit-plane-cb').each(function(i) {

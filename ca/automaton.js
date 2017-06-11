@@ -205,6 +205,23 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
         ));
     }
 
+    function setColors(colors) {
+        var oldColors = cells.colors,
+            newColors = {};
+
+        for (var i in oldColors) {
+            var color = colors[i] || oldColors[i];
+            if (color[0] !== '#') {
+                color = '#' + color;
+            }
+
+            newColors[i] = color;
+        }
+
+        cells.colors = newColors;
+        cells.render();
+    }
+
 
     function newGeneration(n) {
         if (isNaN(n) || n < 1) {
