@@ -71,6 +71,25 @@ function main(n) {\n\
     return s > 5 || s === 4 ? 1 : 0;\n\
 }'
     }, {
+        name: 'Anneal x 2',
+        code: 'setNeighborhoods({\n\
+    main: \'Moore-thick\'\n\
+});\n\
+\n\
+function sum(n, p) {\n\
+    return (\n\
+        !!(n.center & p) + !!(n.north & p) + !!(n.south & p) + !!(n.west & p) + !!(n.east & p) +\n\
+        !!(n.n_west & p) + !!(n.s_west & p) + !!(n.n_east & p) + !!(n.s_east & p)\n\
+    );\n\
+}\n\
+\n\
+function main(n) {\n\
+    var s0 = sum(n, 1),\n\
+        s1 = sum(n, 2);\n\
+\n\
+    return (s0 > 5 || s0 === 4 ? 1 : 0) | ((s1 > 5 || s1 === 4 ? 1 : 0) << 1);\n\
+}',
+    }, {
         name: 'Rand anneal',
         code: 'setNeighborhoods({\n\
     main: \'Neumann\'\n\
