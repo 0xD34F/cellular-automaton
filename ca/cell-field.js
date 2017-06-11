@@ -355,22 +355,27 @@ CellField.prototype.render = function(prevStates) {
         }
     }
 
-    var t = this.view.data,
+    var t = this.view.imageData.data,
         w = this.view.imageData.width;
 
     for (var state = 0; state < numStates; state++) {
-        var color = parseInt(this.colors[state].slice(1), 16) | (255 << 24);
+        var _r = parseInt(this.colors[state].slice(1, 3), 16),
+            _g = parseInt(this.colors[state].slice(3, 5), 16),
+            _b = parseInt(this.colors[state].slice(5, 7), 16);
 
         for (var n = g[state], p = 0; p < n.length; p += 2) {
             for (x = n[p] * sideFull + border, i = 0; i < side; i++, x++) {
                 for (y = n[p + 1] * sideFull + border, j = 0; j < side; j++, y++) {
-                    t[x + y * w] = color;
+                    var k = 4 * x + 4 * y * w;
+                    t[k + 0] = _r;
+                    t[k + 1] = _g;
+                    t[k + 2] = _b;
+                    t[k + 3] = 255;
                 }
             }
         }
     }
 
-    this.view.imageData.data.set(this.view.buf8);
     c.putImageData(this.view.imageData, coord.x * sideFull, coord.y * sideFull);
 
     return this;
@@ -413,12 +418,17 @@ CellField.prototype.resizeView = function(cellSide, cellBorder) {
         h = Math.ceil(parseInt(parent.style.height, 10) / (s + b)) * (s + b);
 
     this.view.imageData = c.createImageData(w, h);
-    var buf = new ArrayBuffer(this.view.imageData.data.length);
-    this.view.buf8 = new Uint8ClampedArray(buf);
-    var d = this.view.data = new Uint32Array(buf),
-        color = parseInt(this.colors.background.slice(1), 16) | (255 << 24);
-    for (var i = 0; i < d.length; i++) {
-        d[i] = color;
+
+    var d = this.view.imageData.data,
+        _r = parseInt(this.colors.background.slice(1, 3), 16),
+        _g = parseInt(this.colors.background.slice(3, 5), 16),
+        _b = parseInt(this.colors.background.slice(5, 7), 16);
+
+    for (var i = 0; i < d.length; i += 4) {
+        d[i + 0] = _r;
+        d[i + 1] = _g;
+        d[i + 2] = _b;
+        d[i + 3] = 255;
     }
     this.render();
 
