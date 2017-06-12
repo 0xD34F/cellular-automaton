@@ -21,7 +21,7 @@
 
 function shiftArray(array, shift) {
     var from = 0,
-        val = array[from];
+        val = array[from],
         group = 1;
 
     for (var i = 0; i < array.length; i++) {

@@ -281,45 +281,45 @@ CellField.prototype.clear = function() {
     });
 };
 
-CellField.prototype.renderPartial = function(coord) {
-    coord = coord === true ? {
-        x: 0,
-        y: 0,
-        xSize: this.xSize,
-        ySize: this.ySize
-    } : coord || this.detectViewCoord();
-
+CellField.prototype._getRenderGroups = function() {
     var numStates = Math.pow(2, this.numBitPlanes),
-        border = this.view.cellBorder,
-        side = this.view.cellSide,
-        sideFull = side + border,
-        c = this.view.context,
-        m = this.view.showBitPlanes;
+        groups = [];
 
-    var g = [];
     for (var i = 0; i < numStates; i++) {
-        g.push([]);
+        groups.push([]);
     }
 
-    var d = this.data;
-    for (var i = 0, x = coord.x; i < coord.xSize; i++, x++) {
+    return groups;
+};
+
+CellField.prototype.renderPartial = function(coord) {
+    var m = this.view.showBitPlanes,
+        rg = this._getRenderGroups(),
+        cells = this.data;
+
+    for (var x = coord.x, i = 0; i < coord.xSize; i++, x++) {
         if (x === this.xSize) {
             x = 0;
         }
 
-        for (var j = 0, y = coord.y; j < coord.ySize; j++, y++) {
+        for (var y = coord.y, j = 0; j < coord.ySize; j++, y++) {
             if (y === this.ySize) {
                 y = 0;
             }
 
-            g[d[x][y] & m].push(x, y);
+            rg[cells[x][y] & m].push(x, y);
         }
     }
 
-    for (var state = 0; state < numStates; state++) {
+    var border = this.view.cellBorder,
+        side = this.view.cellSide,
+        sideFull = side + border,
+        c = this.view.context;
+
+    for (var state = 0; state < rg.length; state++) {
         c.fillStyle = this.colors[state];
 
-        for (var n = g[state], p = 0; p < n.length; p += 2) {
+        for (var n = rg[state], p = 0; p < n.length; p += 2) {
             c.fillRect(n[p] * sideFull + border, n[p + 1] * sideFull + border, side, side);
         }
     }
@@ -328,55 +328,44 @@ CellField.prototype.renderPartial = function(coord) {
 };
 
 CellField.prototype.render = function(prevStates) {
-    var coord = this.detectViewCoord();
-
-    var numStates = Math.pow(2, this.numBitPlanes),
-        border = this.view.cellBorder,
-        side = this.view.cellSide,
-        sideFull = side + border,
-        c = this.view.context,
-        m = this.view.showBitPlanes;
-
-    var g = [];
-    for (var i = 0; i < numStates; i++) {
-        g.push([]);
-    }
-
-    var d = this.data,
+    var coord = this.detectViewCoord(),
+        m = this.view.showBitPlanes,
+        rg = this._getRenderGroups(),
+        cells = this.data,
         maxX = limitation(coord.x + coord.xSize, 0, this.xSize),
         maxY = limitation(coord.y + coord.ySize, 0, this.ySize);
 
     for (var i = 0, x = coord.x; x < maxX; x++, i++) {
         for (var j = 0, y = coord.y; y < maxY; y++, j++) {
-            var t = d[x][y] & m;
-            if (!(prevStates && (prevStates[x][y] & m) === t)) {
-                g[t].push(i, j);
-            }
+            rg[cells[x][y] & m].push(i, j);
         }
     }
 
-    var t = this.view.imageData.data,
+    var border = this.view.cellBorder,
+        side = this.view.cellSide,
+        sideFull = side + border,
+        image = this.view.imageData.data,
         w = this.view.imageData.width;
 
-    for (var state = 0; state < numStates; state++) {
-        var _r = parseInt(this.colors[state].slice(1, 3), 16),
-            _g = parseInt(this.colors[state].slice(3, 5), 16),
-            _b = parseInt(this.colors[state].slice(5, 7), 16);
+    for (var state = 0; state < rg.length; state++) {
+        var r = parseInt(this.colors[state].slice(1, 3), 16),
+            g = parseInt(this.colors[state].slice(3, 5), 16),
+            b = parseInt(this.colors[state].slice(5, 7), 16);
 
-        for (var n = g[state], p = 0; p < n.length; p += 2) {
+        for (var n = rg[state], p = 0; p < n.length; p += 2) {
             for (x = n[p] * sideFull + border, i = 0; i < side; i++, x++) {
                 for (y = n[p + 1] * sideFull + border, j = 0; j < side; j++, y++) {
                     var k = 4 * x + 4 * y * w;
-                    t[k + 0] = _r;
-                    t[k + 1] = _g;
-                    t[k + 2] = _b;
-                    t[k + 3] = 255;
+                    image[k + 0] =   r; // red
+                    image[k + 1] =   g; // green
+                    image[k + 2] =   b; // blue
+                    image[k + 3] = 255; // alpha
                 }
             }
         }
     }
 
-    c.putImageData(this.view.imageData, coord.x * sideFull, coord.y * sideFull);
+    this.view.context.putImageData(this.view.imageData, coord.x * sideFull, coord.y * sideFull);
 
     return this;
 };
@@ -401,23 +390,24 @@ CellField.prototype.resizeView = function(cellSide, cellBorder) {
     var c = this.view.context = this.view.canvas.getContext('2d');
 
     var s = this.view.cellSide = cellSide,
-        b = this.view.cellBorder = (arguments.length === 1 ? this.view.cellBorder : cellBorder) || 0;
+        b = this.view.cellBorder = (arguments.length === 1 ? this.view.cellBorder : cellBorder) || 0,
+        sb = s + b;
 
-    this.view.canvas.width  = c.width  = this.xSize * (s + b) + b;
-    this.view.canvas.height = c.height = this.ySize * (s + b) + b;
+    this.view.canvas.width  = c.width  = this.xSize * sb + b;
+    this.view.canvas.height = c.height = this.ySize * sb + b;
 
-    var parent = this.view.canvas.parentNode;
-    if (c.width > parseInt(parent.style.width) || c.height > parseInt(parent.style.height)) {
+    var parent = this.view.canvas.parentNode,
+        w = parseInt(parent.style.width,  10),
+        h = parseInt(parent.style.height, 10);
+
+    if (c.width > w || c.height > h) {
         parent.classList.add('scrollable');
     } else {
         parent.classList.remove('scrollable');
         parent.scrollTop = 0;
     }
 
-    var w = Math.ceil(parseInt(parent.style.width,  10) / (s + b)) * (s + b),
-        h = Math.ceil(parseInt(parent.style.height, 10) / (s + b)) * (s + b);
-
-    this.view.imageData = c.createImageData(w, h);
+    this.view.imageData = c.createImageData(Math.ceil(w / sb) * sb, Math.ceil(h / sb) * sb);
 
     var d = this.view.imageData.data,
         _r = parseInt(this.colors.background.slice(1, 3), 16),
@@ -430,17 +420,11 @@ CellField.prototype.resizeView = function(cellSide, cellBorder) {
         d[i + 2] = _b;
         d[i + 3] = 255;
     }
-    this.render();
 
-    return this.dispatchEvent('cell-field-resize-view');
+    return this.render().dispatchEvent('cell-field-resize-view');
 };
 
 CellField.prototype.changeScale = function(change, coord) {
-    var c = this.view.canvas;
-    if (!c) {
-        return this;
-    }
-
     var oldCellSide = this.view.cellSide,
         newCellSide = limitation(oldCellSide + change, this.view.cellSideMin, this.view.cellSideMax);
 
@@ -454,13 +438,14 @@ CellField.prototype.changeScale = function(change, coord) {
             coord = this.detectEventCoord(coord);
         }
 
-        var oldScrollX = c.parentNode.scrollLeft,
-            oldScrollY = c.parentNode.scrollTop;
+        var p = this.view.canvas.parentNode,
+            oldScrollX = p.scrollLeft,
+            oldScrollY = p.scrollTop;
 
         this.resizeView(newCellSide);
 
-        c.parentNode.scrollLeft = coord.x * (newCellSide - oldCellSide) + oldScrollX;
-        c.parentNode.scrollTop  = coord.y * (newCellSide - oldCellSide) + oldScrollY;
+        p.scrollLeft = coord.x * (newCellSide - oldCellSide) + oldScrollX;
+        p.scrollTop  = coord.y * (newCellSide - oldCellSide) + oldScrollY;
     }
 
     return this;
