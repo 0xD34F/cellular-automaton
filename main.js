@@ -157,16 +157,16 @@ $(document).ready(function() {
         cellBorder: 1
     });
 
-    var caBrush = CellField(BRUSH_SIZE, BRUSH_SIZE, {
+    var caBrush = CellFieldView(CellField(BRUSH_SIZE, BRUSH_SIZE), {
         wrapper: '#brush-wrapper',
         cellSide: 12,
         cellBorder: 1
     });
-    caBrush.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
-    caBrush.brush = CellField(1, 1);
-    caBrush.brush.data[0][0] = 1;
+    caBrush.field.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
+    caBrush.field.brush = CellField(1, 1);
+    caBrush.field.brush.data[0][0] = 1;
 
-    ca.cells.brush = caBrush.clone();
+    ca.cells.brush = caBrush.field.clone();
 
     $('#ca-brush').dialog({
         create: function() {
@@ -174,23 +174,24 @@ $(document).ready(function() {
                 var $this = $(this);
                 $this.parent().find('.ui-state-active').removeClass('ui-state-active');
                 $this.addClass('ui-state-active');
-                caBrush.brush.data[0][0] = $this.attr('ca-state');
-            }).height(caBrush.view.canvas.height);
+                caBrush.field.brush.data[0][0] = $this.attr('ca-state');
+            }).height(caBrush.canvas.height);
         },
         open: function() {
-            var colors = caBrush.colors = ca.cells.colors;
-            caBrush.copy(ca.cells.brush).render();
+            var colors = caBrush.colors = ca.view.colors;
+            caBrush.field.copy(ca.cells.brush);
+            caBrush.render();
 
             $(this).find('.ca-state-select').html(Mustache.render(templates.brushColorSelect, $.map(colors, function(n, i) {
                 return isNaN(i) ? null : {
                     state: i,
                     color: n
                 };
-            }))).find('[ca-state="' + caBrush.brush.data[0][0] + '"]').addClass('ui-state-active');
+            }))).find('[ca-state="' + caBrush.field.brush.data[0][0] + '"]').addClass('ui-state-active');
         },
         buttons: {
             'OK': closeDialog(function() {
-                ca.cells.brush.copy(caBrush);
+                ca.cells.brush.copy(caBrush.field);
             }),
             'Cancel': closeDialog()
         }
@@ -260,7 +261,7 @@ $(document).ready(function() {
                     ca.cells.copyBitPlane(fillCopy);
                 }
 
-                ca.cells.render();
+                ca.view.render();
             }),
             'Cancel': closeDialog()
         }
@@ -289,7 +290,7 @@ $(document).ready(function() {
             $this.find('#ca-field-x-size, #ca-field-y-size').parent().addClass('ca-start-disable');
 
 
-            $this.find('#ca-view-colors').append(Mustache.render(templates.colorSetting, $.map(CellField.prototype.colors, function(n, i) {
+            $this.find('#ca-view-colors').append(Mustache.render(templates.colorSetting, $.map(CellFieldView.prototype.colors, function(n, i) {
                 return {
                     sysname: i,
                     username: isNaN(i) ? i : ('state ' + i)
@@ -309,15 +310,15 @@ $(document).ready(function() {
             $(this)
                 .find('#ca-field-x-size').val(ca.cells.xSize).end()
                 .find('#ca-field-y-size').val(ca.cells.ySize).end()
-                .find('#ca-field-cell-side').val(ca.cells.view.cellSide).end()
-                .find('#ca-field-cell-border').val(ca.cells.view.cellBorder).end()
+                .find('#ca-field-cell-side').val(ca.view.cellSide).end()
+                .find('#ca-field-cell-border').val(ca.view.cellBorder).end()
                 .find('.jscolor').each(function() {
                     var $this = $(this);
-                    $this.val(ca.cells.colors[$this.attr('color-name')]);
+                    $this.val(ca.view.colors[$this.attr('color-name')]);
                     this.jscolor.importColor();
                 }).end()
                 .find('.ca-bit-plane-cb').each(function(i) {
-                    this.checked = !!(ca.cells.view.showBitPlanes & (1 << i));
+                    this.checked = !!(ca.view.showBitPlanes & (1 << i));
                     $(this).change();
                 });
         },
@@ -328,13 +329,13 @@ $(document).ready(function() {
                     var $this = $(this);
                     newColors[$this.attr('color-name')] = $this.val();
                 });
-                ca.cells.colors = newColors;
+                ca.view.colors = newColors;
 
                 var t = 0;
                 this.find('.ca-bit-plane-cb').each(function(i) {
                     t |= this.checked ? (1 << i) : 0;
                 });
-                ca.cells.view.showBitPlanes = t;
+                ca.view.showBitPlanes = t;
 
                 ca.resize({
                     xSize: limitation(this.find('#ca-field-x-size').val(), X_SIZE_MIN, X_SIZE_MAX),
@@ -460,10 +461,10 @@ $(document).ready(function() {
         items: 'input'
     }).find('.ui-checkboxradio-radio-label').removeClass('ui-checkboxradio-radio-label').end().click(function(e) {
         var mode = $(e.target).val();
-        if (mode && ca.cells.mode !== mode) {
-            ca.cells.mode = mode;
+        if (mode && ca.view.mode !== mode) {
+            ca.view.mode = mode;
         }
-    }).find('[for="mode-' + ca.cells.mode + '"]').click();
+    }).find('[for="mode-' + ca.view.mode + '"]').click();
 
 
     $('.content > .controls')
@@ -473,7 +474,8 @@ $(document).ready(function() {
         });
 
     $('#cell-field-data').buttonset().find('#clear').click(function() {
-        ca.cells.clear().render();
+        ca.cells.clear();
+        ca.view.render();
     });
 
     $(document).on({
@@ -482,8 +484,8 @@ $(document).ready(function() {
             $('.ca-start-hide').hide();
             $('.ca-start-show').show();
 
-            if (ca.cells.mode === 'edit') {
-                ca.cells.mode = 'shift';
+            if (ca.view.mode === 'edit') {
+                ca.view.mode = 'shift';
             }
         },
         'ca-stop': function() {
@@ -491,12 +493,12 @@ $(document).ready(function() {
             $('.ca-start-hide').show();
             $('.ca-start-show').hide();
 
-            ca.cells.mode = 'edit';
+            ca.view.mode = 'edit';
         },
         'cell-field-mode': function(e) {
             var cf = e.originalEvent.detail.cellField;
             if (cf === ca.cells) {
-                $('#cell-field-mode').find('[for="mode-' + cf.mode + '"]').click();
+                $('#cell-field-mode').find('[for="mode-' + ca.view.mode + '"]').click();
             }
         }
     }).trigger('ca-stop');
@@ -519,11 +521,11 @@ $(document).ready(function() {
         $steps.val(steps);
 
         ca.newGeneration(steps);
-        ca.cells.render();
+        ca.view.render();
     }).parent().find('input').width(50).val('1');
 
-    $(ca.cells.view.canvas).parent().on('mousewheel', function(e) {
-        ca.cells.changeScale(e.originalEvent.deltaY > 0 ? -1 : 1, e.originalEvent);
+    $(ca.view.canvas).parent().on('mousewheel', function(e) {
+        ca.view.changeScale(e.originalEvent.deltaY > 0 ? -1 : 1, e.originalEvent);
         return false;
     });
 
