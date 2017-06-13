@@ -105,7 +105,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
         newGenerationInner = function() {};
 
     var cells = CellField(xSize, ySize, viewOptions),
-        newCells = CellField(xSize, ySize),
+        newCells = cells.clone(),
         rule = 'function main(n) { return n.center; }',
         newStatesTable = getNewStatesTable(rule),
         time = 0;

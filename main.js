@@ -157,16 +157,16 @@ $(document).ready(function() {
         cellBorder: 1
     });
 
-    ca.cells.brush = CellField(BRUSH_SIZE, BRUSH_SIZE);
-    ca.cells.brush.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
-
     var caBrush = CellField(BRUSH_SIZE, BRUSH_SIZE, {
         wrapper: '#brush-wrapper',
         cellSide: 12,
         cellBorder: 1
     });
+    caBrush.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
     caBrush.brush = CellField(1, 1);
     caBrush.brush.data[0][0] = 1;
+
+    ca.cells.brush = caBrush.clone();
 
     $('#ca-brush').dialog({
         create: function() {
