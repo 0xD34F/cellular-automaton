@@ -206,6 +206,8 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
     }
 
     function setColors(colors) {
+        colors = colors instanceof Object ? colors : CellField.prototype.colors;
+
         var oldColors = cells.colors,
             newColors = {};
 
