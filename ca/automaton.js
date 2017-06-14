@@ -109,6 +109,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
 
     var cells = CellField(xSize, ySize),
         newCells = cells.clone(),
+        initialCells = null,
         rule = 'function main(n) { return n.center; }',
         newStatesTable = getNewStatesTable(rule),
         time = 0;
@@ -280,7 +281,12 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
 
             cellsView.resize(o.cellSide, o.cellBorder);
         },
-        newGeneration: newGeneration,
+        newGeneration: function(n) {
+            if (!this.isStarted()) {
+                initialCells = cells.clone();
+                newGeneration(n);
+            }
+        },
         get stepsPerStroke() {
             return steps;
         },
@@ -307,6 +313,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
             var result = timer.start();
             if (result) {
                 document.dispatchEvent(new CustomEvent('ca-start'));
+                initialCells = cells.clone();
             }
 
             return result;
@@ -318,6 +325,13 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
             }
 
             return result;
+        },
+        back: function() {
+            if (initialCells) {
+                this.stop();
+                cells.copy(initialCells);
+                cellsView.render();
+            }
         }
     };
 };

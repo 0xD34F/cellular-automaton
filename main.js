@@ -524,6 +524,10 @@ $(document).ready(function() {
         ca.view.render();
     }).parent().find('input').width(50).val('1');
 
+    $('#back').click(function() {
+        ca.back();
+    });
+
     $(ca.view.canvas).parent().on('mousewheel', function(e) {
         ca.view.changeScale(e.originalEvent.deltaY > 0 ? -1 : 1, e.originalEvent);
         return false;
