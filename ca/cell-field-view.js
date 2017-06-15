@@ -53,16 +53,18 @@
 
     self.prototype.renderPartial = function(coord) {
         var m = this.showBitPlanes,
-            rg = getRenderGroups(this.field.numBitPlanes),
-            cells = this.field.data;
+            rg = getRenderGroups(this.field),
+            cells = this.field.data,
+            maxX = this.field.xSize,
+            maxY = this.field.ySize;
 
         for (var x = coord.x, i = 0; i < coord.xSize; i++, x++) {
-            if (x === this.xSize) {
+            if (x === maxX) {
                 x = 0;
             }
 
             for (var y = coord.y, j = 0; j < coord.ySize; j++, y++) {
-                if (y === this.ySize) {
+                if (y === maxY) {
                     y = 0;
                 }
 
@@ -87,7 +89,7 @@
     self.prototype.render = function() {
         var coord = this.detectViewCoord(),
             m = this.showBitPlanes,
-            rg = getRenderGroups(this.field.numBitPlanes),
+            rg = getRenderGroups(this.field),
             cells = this.field.data,
             maxX = limitation(coord.x + coord.xSize, 0, this.field.xSize),
             maxY = limitation(coord.y + coord.ySize, 0, this.field.ySize);
@@ -225,8 +227,8 @@
     };
 
 
-    function getRenderGroups(numBitPlanes) {
-        var numStates = Math.pow(2, numBitPlanes),
+    function getRenderGroups(cellField) {
+        var numStates = Math.pow(2, cellField.numBitPlanes),
             groups = [];
 
         for (var i = 0; i < numStates; i++) {
