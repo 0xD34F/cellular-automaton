@@ -167,6 +167,42 @@ function main(n) {\n\
     return p0 | p1;\n\
 }'
     }, {
+        name: 'Critters',
+        code: 'setNeighborhoods({\n\
+    main: \'Margolus\'\n\
+});\n\
+\n\
+function _(val) {\n\
+    return (val & 1) ^ 1;\n\
+}\n\
+\n\
+function main(n) {\n\
+    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1);\n\
+    return ({\n\
+        0: _(n.center),\n\
+        1: _(n.center),\n\
+        2: n.center & 1,\n\
+        3: _(n.opp),\n\
+        4: _(n.center)\n\
+    })[s];\n\
+}'
+    }, {
+        name: 'Tron',
+        code: 'setNeighborhoods({\n\
+    main: \'Margolus\'\n\
+});\n\
+\n\
+function main(n) {\n\
+    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1);\n\
+    return ({\n\
+        0: 1,\n\
+        1: n.center,\n\
+        2: n.center,\n\
+        3: n.center,\n\
+        4: 0\n\
+    })[s];\n\
+}'
+    }, {
         name: '30',
         code: 'var main = rules.elementary(30);'
     }, {

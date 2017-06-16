@@ -13,7 +13,8 @@ for (var i = 0; i < table.length; i++) {\
     })',
         indexProc: '(function(d, newD) {\
 var xSize = d.length,\
-    ySize = d[0].length;\
+    ySize = d[0].length,\
+    t = time & 1;\
 \
 for (var x = 0; x < xSize; x++) {\
     for (var y = 0; y < ySize; y++) {\
@@ -32,41 +33,62 @@ for (var x = 0; x < xSize; x++) {\
 
     var neighborhood = {
         main: {
-            Neumann: [
-                { name: 'north', size: 2, code: 'd[x][yPrev]' },
-                { name: 'south', size: 2, code: 'd[x][yNext]' },
-                { name:  'west', size: 2, code: 'd[xPrev][y]' },
-                { name:  'east', size: 2, code: 'd[xNext][y]' }
-            ],
-            'Moore-thick': [
-                { name:  'north', size: 2, code: 'd[x][yPrev]' },
-                { name:  'south', size: 2, code: 'd[x][yNext]' },
-                { name:   'west', size: 2, code: 'd[xPrev][y]' },
-                { name:   'east', size: 2, code: 'd[xNext][y]' },
-                { name: 'n_west', size: 2, code: 'd[xPrev][yPrev]' },
-                { name: 's_west', size: 2, code: 'd[xPrev][yNext]' },
-                { name: 'n_east', size: 2, code: 'd[xNext][yPrev]' },
-                { name: 's_east', size: 2, code: 'd[xNext][yNext]' }
-            ],
-            'Moore-thin': [
-                { name:  'north', size: 1, code: 'd[x][yPrev]' },
-                { name:  'south', size: 1, code: 'd[x][yNext]' },
-                { name:   'west', size: 1, code: 'd[xPrev][y]' },
-                { name:   'east', size: 1, code: 'd[xNext][y]' },
-                { name: 'n_west', size: 1, code: 'd[xPrev][yPrev]' },
-                { name: 's_west', size: 1, code: 'd[xPrev][yNext]' },
-                { name: 'n_east', size: 1, code: 'd[xNext][yPrev]' },
-                { name: 's_east', size: 1, code: 'd[xNext][yNext]' }
-            ]
+            Neumann: {
+                neighbors: [
+                    { name: 'north', size: 2, code: 'd[x][yPrev]' },
+                    { name: 'south', size: 2, code: 'd[x][yNext]' },
+                    { name:  'west', size: 2, code: 'd[xPrev][y]' },
+                    { name:  'east', size: 2, code: 'd[xNext][y]' }
+                ]
+            },
+            'Moore-thick': {
+                neighbors: [
+                    { name:  'north', size: 2, code: 'd[x][yPrev]' },
+                    { name:  'south', size: 2, code: 'd[x][yNext]' },
+                    { name:   'west', size: 2, code: 'd[xPrev][y]' },
+                    { name:   'east', size: 2, code: 'd[xNext][y]' },
+                    { name: 'n_west', size: 2, code: 'd[xPrev][yPrev]' },
+                    { name: 's_west', size: 2, code: 'd[xPrev][yNext]' },
+                    { name: 'n_east', size: 2, code: 'd[xNext][yPrev]' },
+                    { name: 's_east', size: 2, code: 'd[xNext][yNext]' }
+                ]
+            },
+            'Moore-thin': {
+                neighbors: [
+                    { name:  'north', size: 1, code: 'd[x][yPrev]' },
+                    { name:  'south', size: 1, code: 'd[x][yNext]' },
+                    { name:   'west', size: 1, code: 'd[xPrev][y]' },
+                    { name:   'east', size: 1, code: 'd[xNext][y]' },
+                    { name: 'n_west', size: 1, code: 'd[xPrev][yPrev]' },
+                    { name: 's_west', size: 1, code: 'd[xPrev][yNext]' },
+                    { name: 'n_east', size: 1, code: 'd[xNext][yPrev]' },
+                    { name: 's_east', size: 1, code: 'd[xNext][yNext]' }
+                ]
+            },
+            Margolus: {
+                code: '\
+var h = x & 1,\
+    v = y & 1,\
+    p = h ^ v;',
+                neighbors: [
+                    { name:  'cw', size: 2, code: 't ? d[p ? x : (h ? xNext : xPrev)][p ? (v ? yNext : yPrev) : y] : d[p ? x : (h ? xPrev : xNext)][p ? (v ? yPrev : yNext) : y]' },
+                    { name: 'ccw', size: 2, code: 't ? d[p ? (h ? xNext : xPrev) : x][p ? y : (v ? yNext : yPrev)] : d[p ? (h ? xPrev : xNext) : x][p ? y : (v ? yPrev : yNext)]' },
+                    { name: 'opp', size: 2, code: 't ? d[h ? xNext : xPrev][v ? yNext : yPrev] : d[h ? xPrev : xNext][v ? yPrev : yNext]' }
+                ]
+            }
         },
         extra: {
-            phase: [
-                { name: 'phase', size: 2, code: 'time' }
-            ],
-            hv: [
-                { name: 'horz', size: 1, code: 'x' },
-                { name: 'vert', size: 1, code: 'y' },
-            ]
+            phase: {
+                neighbors: [
+                    { name: 'phase', size: 2, code: 'time' }
+                ]
+            },
+            hv: {
+                neighbors: [
+                    { name: 'horz', size: 1, code: 'x' },
+                    { name: 'vert', size: 1, code: 'y' }
+                ]
+            }
         }
     };
 
@@ -150,16 +172,18 @@ for (var x = 0; x < xSize; x++) {\
             return neighborhood.extra.hasOwnProperty(n);
         });
 
-        var tableProcCode = '',
-            indexProcCode = '';
+        var main = neighborhood.main[o.main];
 
-        neighborhoodSize = Array.prototype.concat.apply(neighborhood.main[o.main], o.extra.map(function(n) {
-            return neighborhood.extra[n];
+        var tableProcCode = '',
+            indexProcCode = main.code || '';
+
+        neighborhoodSize = Array.prototype.concat.apply(main.neighbors, o.extra.map(function(n) {
+            return neighborhood.extra[n].neighbors;
         })).reduce(function(prev, curr) {
             var mask = Math.pow(2, curr.size) - 1;
 
             tableProcCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
-            indexProcCode += 'index |= (' + curr.code + ' & ' + mask + ') << ' + prev + ';';
+            indexProcCode += 'index |= ((' + curr.code + ') & ' + mask + ') << ' + prev + ';';
 
             return prev + curr.size;
         }, 2/* { name: 'center', size: 2, code: 'd[x][y]' } */);
