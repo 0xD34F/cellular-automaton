@@ -195,20 +195,28 @@ function main(n) {\n\
     }
 
     function isPredefined(name) {
-        for (var i = 0; i < predefinedRules.length; i++) {
-            if (predefinedRules[i].name === name) {
-                return true;
-            }
+        return predefinedRules.some(function(n) {
+            return n.name === name;
+        });
+    }
+
+    function deleteSaved(name) {
+        var i = savedRules.findIndex(function(n) {
+            return n.name === name;
+        });
+        if (i === -1) {
+            return false;
         }
 
-        return false;
+        savedRules.splice(i, 1);
+        return true;
     }
 
     function result(status, message) {
         return {
             status: status,
             message: message
-        }
+        };
     }
 
     return {
@@ -232,26 +240,21 @@ function main(n) {\n\
             return null;
         },
         save: function(name, code) {
-            if (!name || !code) {
-                var m = [];
-                if (!name) {
-                    m.push('no rule name');
-                }
-                if (!code) {
-                    m.push('no rule code');
-                }
-                return result(false, m.join('<br>'));
+            var err = [];
+            if (!name) {
+                err.push('no rule name');
+            }
+            if (!code) {
+                err.push('no rule code');
             }
             if (isPredefined(name)) {
-                return result(false, 'predefined rule ("' + name +'") can not be rewritten');
+                err.push('predefined rule ("' + name +'") can not be rewritten');
+            }
+            if (err.length) {
+                return result(false, err.join('<br>'));
             }
 
-            for (i = 0; i < savedRules.length; i++) {
-                if (savedRules[i].name === name) {
-                    savedRules.splice(i, 1);
-                    break;
-                }
-            }
+            deleteSaved(name);
 
             savedRules.push({
                 name: name,
@@ -259,7 +262,6 @@ function main(n) {\n\
             });
 
             save();
-
             return result(true, 'rule "' + name + '" saved');
         },
         del: function(name) {
@@ -270,15 +272,12 @@ function main(n) {\n\
                 return result(false, 'predefined rule ("' + name +'") can not be deleted');
             }
 
-            for (var i = 0; i < savedRules.length; i++) {
-                if (savedRules[i].name === name) {
-                    savedRules.splice(i, 1);
-                    save();
-                    return result(true, 'rule "' + name + '" deleted');
-                }
+            if (!deleteSaved(name)) {
+                return result(false, 'rule "' + name + '" not found');
             }
 
-            return result(false, 'rule "' + name + '" not found');
+            save();
+            return result(true, 'rule "' + name + '" deleted');
         },
         saved: function() {
             return savedRules;
