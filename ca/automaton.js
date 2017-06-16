@@ -97,7 +97,7 @@ var h = x & 1,\
 
     var cells = CellField(xSize, ySize),
         newCells = cells.clone(),
-        initialCells = null,
+        previousConfiguration = null,
         rule = 'function main(n) { return n.center; }',
         newStatesTable = getNewStatesTable(rule),
         time = 0;
@@ -228,6 +228,17 @@ var h = x & 1,\
         }
     }
 
+    function saveConfiguration() {
+        previousConfiguration = {
+            cells: cells.clone(),
+            time: time
+        };
+    }
+
+    function restoreConfiguration() {
+        cells.copy(previousConfiguration.cells);
+        time = previousConfiguration.time;
+    }
 
     function runTimeLog(f, message) {
         return function() {
@@ -264,7 +275,7 @@ var h = x & 1,\
         },
         newGeneration: function(n) {
             if (!this.isStarted()) {
-                initialCells = cells.clone();
+                saveConfiguration();
                 newGeneration(n);
             }
         },
@@ -294,7 +305,7 @@ var h = x & 1,\
             var result = timer.start();
             if (result) {
                 document.dispatchEvent(new CustomEvent('ca-start'));
-                initialCells = cells.clone();
+                saveConfiguration();
             }
 
             return result;
@@ -308,9 +319,9 @@ var h = x & 1,\
             return result;
         },
         back: function() {
-            if (initialCells) {
+            if (previousConfiguration) {
                 this.stop();
-                cells.copy(initialCells);
+                restoreConfiguration();
                 cellsView.render();
             }
         }
