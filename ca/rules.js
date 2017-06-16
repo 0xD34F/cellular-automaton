@@ -76,11 +76,11 @@ function main(n) {\n\
     main: \'Moore-thick\'\n\
 });\n\
 \n\
-setColors({\n\
+view.setColors({\n\
     1: \'FF0000\',\n\
     2: \'00FF00\',\n\
     3: \'FFFF00\'\n\
-});\n\
+}, true);\n\
 \n\
 function sum(n, p) {\n\
     return (\n\

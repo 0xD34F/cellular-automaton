@@ -290,7 +290,7 @@ $(document).ready(function() {
             $this.find('#ca-field-x-size, #ca-field-y-size').parent().addClass('ca-start-disable');
 
 
-            $this.find('#ca-view-colors').append(Mustache.render(templates.colorSetting, $.map(CellFieldView.prototype.colors, function(n, i) {
+            $this.find('#ca-view-colors').append(Mustache.render(templates.colorSetting, $.map(ca.view.colors, function(n, i) {
                 return {
                     sysname: i,
                     username: isNaN(i) ? i : ('state ' + i)

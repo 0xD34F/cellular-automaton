@@ -33,6 +33,7 @@
             });
         });
 
+        o.setColors();
         o.resize(o.cellSide);
 
         o.mode = 'edit';
@@ -87,7 +88,7 @@
     };
 
     self.prototype.render = function() {
-        var coord = this.detectViewCoord(),
+        var coord = detectViewCoord(this),
             m = this.showBitPlanes,
             rg = getRenderGroups(this.field),
             cells = this.field.data,
@@ -181,7 +182,7 @@
                     y: 0
                 };
             } else if (coord instanceof MouseEvent) {
-                coord = this.detectEventCoord(coord);
+                coord = detectEventCoord(this, coord);
             }
 
             var p = this.canvas.parentNode,
@@ -195,35 +196,25 @@
         }
     };
 
-    self.prototype.detectEventCoord = function(e) {
-        var b = this.cellBorder,
-            t = Math.round(b / 2);
+    self.prototype.setColors = function(colors, render) {
+        colors = colors instanceof Object ? colors : defaultColors;
 
-        return {
-            x: Math.floor((e.offsetX - t) / (this.cellSide + b)),
-            y: Math.floor((e.offsetY - t) / (this.cellSide + b))
-        };
-    };
+        var oldColors = this.colors,
+            newColors = {};
 
-    self.prototype.detectViewCoord = function() {
-        var p = this.canvas.parentNode,
-            t = p.classList.contains('scrollable'),
-            s = this.cellSide + this.cellBorder;
+        for (var i in defaultColors) {
+            var color = colors[i] || oldColors[i];
+            if (color[0] !== '#') {
+                color = '#' + color;
+            }
 
-        return {
-            x: t ? Math.floor(p.scrollLeft / s) : 0,
-            y: t ? Math.floor(p.scrollTop  / s) : 0,
-            xSize: t ? Math.ceil(p.clientWidth  / s) : this.field.xSize,
-            ySize: t ? Math.ceil(p.clientHeight / s) : this.field.ySize,
-        };
-    };
+            newColors[i] = color;
+        }
 
-    self.prototype.colors = {
-        background: '#505050',
-        0: '#000000',
-        1: '#FFFFFF',
-        2: '#666666',
-        3: '#A8A8A8'
+        this.colors = newColors;
+        if (render) {
+            this.render();
+        }
     };
 
 
@@ -237,6 +228,44 @@
 
         return groups;
     }
+
+    function detectEventCoord(view, e) {
+        var b = view.cellBorder,
+            t = Math.round(b / 2);
+
+        return {
+            x: Math.floor((e.offsetX - t) / (view.cellSide + b)),
+            y: Math.floor((e.offsetY - t) / (view.cellSide + b))
+        };
+    };
+
+    function detectViewCoord(view) {
+        var p = view.canvas.parentNode,
+            t = p.classList.contains('scrollable'),
+            s = view.cellSide + view.cellBorder;
+
+        return {
+            x: t ? Math.floor(p.scrollLeft / s) : 0,
+            y: t ? Math.floor(p.scrollTop  / s) : 0,
+            xSize: t ? Math.ceil(p.clientWidth  / s) : view.field.xSize,
+            ySize: t ? Math.ceil(p.clientHeight / s) : view.field.ySize,
+        };
+    };
+
+    function getMouseChange(e) {
+        return (({
+            1:  1,
+            2: -1
+        })[e.buttons] || 0);
+    }
+
+    var defaultColors = {
+        background: '#505050',
+        0: '#000000',
+        1: '#FFFFFF',
+        2: '#666666',
+        3: '#A8A8A8'
+    };
 
     var eventHandlers = [ {
         events: [ 'contextmenu' ],
@@ -257,7 +286,7 @@
             }
 
             var oldCoord = this.oldEventCoord || {},
-                newCoord = this.detectEventCoord(e);
+                newCoord = detectEventCoord(this, e);
 
             if (newCoord.x === oldCoord.x && newCoord.y === oldCoord.y) {
                 return;
@@ -308,10 +337,7 @@
                     });
                     this.renderPartial({ x: x, y: y, xSize: f.brush.xSize, ySize: f.brush.ySize });
                 } else {
-                    f.data[x][y] = (f.data[x][y] + (({
-                        1:  1,
-                        2: -1
-                    })[e.buttons] || 0)) & (Math.pow(2, f.numBitPlanes) - 1);
+                    f.data[x][y] = (f.data[x][y] + getMouseChange(e)) & (Math.pow(2, f.numBitPlanes) - 1);
                     this.renderPartial({ x: x, y: y, xSize: 1, ySize: 1 });
                 }
             }
@@ -326,7 +352,7 @@
         scale: {
             events: [ 'mousedown' ],
             handler: function(e, newCoord, oldCoord) {
-                this.changeScale(e.button === 2 ? -1 : 1, e);
+                this.changeScale(getMouseChange(e), e);
             }
         }
     };

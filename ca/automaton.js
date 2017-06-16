@@ -102,7 +102,7 @@ var h = x & 1,\
         newStatesTable = getNewStatesTable(rule),
         time = 0;
 
-    var cellsView = CellFieldView(cells, viewOptions);
+    var view = CellFieldView(cells, viewOptions);
 
     var MIN_STEPS = 1,
         MAX_STEPS = 100,
@@ -130,7 +130,7 @@ var h = x & 1,\
 
             timer.intervalID = setInterval(function() {
                 newGeneration(steps);
-                cellsView.render();
+                view.render();
             }, timer.delay);
 
             return true;
@@ -192,25 +192,6 @@ var h = x & 1,\
         newGenerationInner = eval(newGenerationCode.indexProc.replace('{{.}}', indexProcCode));
     }
 
-    function setColors(colors) {
-        colors = colors instanceof Object ? colors : CellFieldView.prototype.colors;
-
-        var oldColors = cellsView.colors,
-            newColors = {};
-
-        for (var i in oldColors) {
-            var color = colors[i] || oldColors[i];
-            if (color[0] !== '#') {
-                color = '#' + color;
-            }
-
-            newColors[i] = color;
-        }
-
-        cellsView.colors = newColors;
-        cellsView.render();
-    }
-
 
     function newGeneration(n) {
         if (isNaN(n) || n < 1) {
@@ -260,7 +241,7 @@ var h = x & 1,\
 
     return {
         cells: cells,
-        view: cellsView,
+        view: view,
         resize: function(o) {
             o = o instanceof Object ? o : {};
 
@@ -271,7 +252,7 @@ var h = x & 1,\
                 }
             }
 
-            cellsView.resize(o.cellSide, o.cellBorder);
+            view.resize(o.cellSide, o.cellBorder);
         },
         newGeneration: function(n) {
             if (!this.isStarted()) {
@@ -322,7 +303,7 @@ var h = x & 1,\
             if (previousConfiguration) {
                 this.stop();
                 restoreConfiguration();
-                cellsView.render();
+                view.render();
             }
         }
     };
