@@ -1,12 +1,12 @@
 ﻿var CellularAutomaton = function(xSize, ySize, viewOptions) {
-    var neighborhoodSize = {};
+    var neighborhoodSize = null;
 
     var newGenerationCode = {
         tableProc: '(function(table, calcNewState) {\
 for (var i = 0; i < table.length; i++) {\
     var shift = 0;\
     var n = {};\
-    n.center = (i & (3 << (neighborhoodSize.main + neighborhoodSize.extra))) >> (neighborhoodSize.main + neighborhoodSize.extra);\
+    n.center = i & 3;\
     {{.}}\
     table[i] = calcNewState(n) & 3;\
 }\
@@ -27,80 +27,46 @@ for (var x = 0; x < xSize; x++) {\
         newD[x][y] = newStatesTable[index];\
     }\
 }\
-    })',
+    })'
+    };
+
+    var neighborhood = {
         main: {
-            Neumann: {
-                size: 8,
-                tableCode: '\
-n.north = (i & (3 << (6 + neighborhoodSize.extra))) >> (6 + neighborhoodSize.extra);\
-n.south = (i & (3 << (4 + neighborhoodSize.extra))) >> (4 + neighborhoodSize.extra);\
-n.west  = (i & (3 << (2 + neighborhoodSize.extra))) >> (2 + neighborhoodSize.extra);\
-n.east  = (i & (3 <<      neighborhoodSize.extra))  >>      neighborhoodSize.extra;',
-                indexCode: '\
-index <<= 2; index |= d[x][yPrev] & 3;\
-index <<= 2; index |= d[x][yNext] & 3;\
-index <<= 2; index |= d[xPrev][y] & 3;\
-index <<= 2; index |= d[xNext][y] & 3;'
-            },
-            'Moore-thin': {
-                size: 8,
-                tableCode: '\
-n.north  = (i & (1 << (7 + neighborhoodSize.extra))) >> (7 + neighborhoodSize.extra);\
-n.south  = (i & (1 << (6 + neighborhoodSize.extra))) >> (6 + neighborhoodSize.extra);\
-n.west   = (i & (1 << (5 + neighborhoodSize.extra))) >> (5 + neighborhoodSize.extra);\
-n.east   = (i & (1 << (4 + neighborhoodSize.extra))) >> (4 + neighborhoodSize.extra);\
-n.n_west = (i & (1 << (3 + neighborhoodSize.extra))) >> (3 + neighborhoodSize.extra);\
-n.s_west = (i & (1 << (2 + neighborhoodSize.extra))) >> (2 + neighborhoodSize.extra);\
-n.n_east = (i & (1 << (1 + neighborhoodSize.extra))) >> (1 + neighborhoodSize.extra);\
-n.s_east = (i & (1 <<      neighborhoodSize.extra))  >>      neighborhoodSize.extra;',
-                indexCode: '\
-index <<= 1; index |= d[x][yPrev] & 1;\
-index <<= 1; index |= d[x][yNext] & 1;\
-index <<= 1; index |= d[xPrev][y] & 1;\
-index <<= 1; index |= d[xNext][y] & 1;\
-index <<= 1; index |= d[xPrev][yPrev] & 1;\
-index <<= 1; index |= d[xPrev][yNext] & 1;\
-index <<= 1; index |= d[xNext][yPrev] & 1;\
-index <<= 1; index |= d[xNext][yNext] & 1;'
-            },
-            'Moore-thick': {
-                size: 16,
-                tableCode: '\
-n.north  = (i & (3 << (14 + neighborhoodSize.extra))) >> (14 + neighborhoodSize.extra);\
-n.south  = (i & (3 << (12 + neighborhoodSize.extra))) >> (12 + neighborhoodSize.extra);\
-n.west   = (i & (3 << (10 + neighborhoodSize.extra))) >> (10 + neighborhoodSize.extra);\
-n.east   = (i & (3 << ( 8 + neighborhoodSize.extra))) >> ( 8 + neighborhoodSize.extra);\
-n.n_west = (i & (3 << ( 6 + neighborhoodSize.extra))) >> ( 6 + neighborhoodSize.extra);\
-n.s_west = (i & (3 << ( 4 + neighborhoodSize.extra))) >> ( 4 + neighborhoodSize.extra);\
-n.n_east = (i & (3 << ( 2 + neighborhoodSize.extra))) >> ( 2 + neighborhoodSize.extra);\
-n.s_east = (i & (3 <<       neighborhoodSize.extra))  >>       neighborhoodSize.extra;',
-                indexCode: '\
-index <<= 2; index |= d[x][yPrev] & 3;\
-index <<= 2; index |= d[x][yNext] & 3;\
-index <<= 2; index |= d[xPrev][y] & 3;\
-index <<= 2; index |= d[xNext][y] & 3;\
-index <<= 2; index |= d[xPrev][yPrev] & 3;\
-index <<= 2; index |= d[xPrev][yNext] & 3;\
-index <<= 2; index |= d[xNext][yPrev] & 3;\
-index <<= 2; index |= d[xNext][yNext] & 3;'
-            }
+            Neumann: [
+                { name: 'north', size: 2, code: 'd[x][yPrev]' },
+                { name: 'south', size: 2, code: 'd[x][yNext]' },
+                { name:  'west', size: 2, code: 'd[xPrev][y]' },
+                { name:  'east', size: 2, code: 'd[xNext][y]' }
+            ],
+            'Moore-thick': [
+                { name:  'north', size: 2, code: 'd[x][yPrev]' },
+                { name:  'south', size: 2, code: 'd[x][yNext]' },
+                { name:   'west', size: 2, code: 'd[xPrev][y]' },
+                { name:   'east', size: 2, code: 'd[xNext][y]' },
+                { name: 'n_west', size: 2, code: 'd[xPrev][yPrev]' },
+                { name: 's_west', size: 2, code: 'd[xPrev][yNext]' },
+                { name: 'n_east', size: 2, code: 'd[xNext][yPrev]' },
+                { name: 's_east', size: 2, code: 'd[xNext][yNext]' }
+            ],
+            'Moore-thin': [
+                { name:  'north', size: 1, code: 'd[x][yPrev]' },
+                { name:  'south', size: 1, code: 'd[x][yNext]' },
+                { name:   'west', size: 1, code: 'd[xPrev][y]' },
+                { name:   'east', size: 1, code: 'd[xNext][y]' },
+                { name: 'n_west', size: 1, code: 'd[xPrev][yPrev]' },
+                { name: 's_west', size: 1, code: 'd[xPrev][yNext]' },
+                { name: 'n_east', size: 1, code: 'd[xNext][yPrev]' },
+                { name: 's_east', size: 1, code: 'd[xNext][yNext]' }
+            ]
         },
         extra: {
-            phase: {
-                size: 2,
-                tableCode: '\
-n.phase = (i & (3 << shift)) >> shift;',
-                indexCode: '\
-index <<= 2; index |= time & 3;'
-            },
-            hv: {
-                size: 2,
-                tableCode: '\
-n.horz = (i & (1 <<  shift))      >>  shift;\
-n.vert = (i & (1 << (shift + 1))) >> (shift + 1);',
-                indexCode: '\
-index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
-            }
+            phase: [
+                { name: 'phase', size: 2, code: 'time' }
+            ],
+            hv: [
+                { name: 'horz', size: 1, code: 'x' },
+                { name: 'vert', size: 1, code: 'y' },
+            ]
         }
     };
 
@@ -170,7 +136,7 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
 
         eval(code);
 
-        var table = new Array(Math.pow(2, 2 + neighborhoodSize.main + neighborhoodSize.extra));
+        var table = new Array(Math.pow(2, neighborhoodSize));
 
         newStateTableInner(table, main);
 
@@ -179,36 +145,27 @@ index <<= 2; index |= (x & 1) | ((y & 1) << 1);'
 
     function setNeighborhoods(o) {
         o = o instanceof Object ? o : {};
-        o.main = newGenerationCode.main.hasOwnProperty(o.main) ? o.main : 'Moore-thin';
+        o.main = neighborhood.main.hasOwnProperty(o.main) ? o.main : 'Moore-thin';
         o.extra = (o.extra instanceof Array ? o.extra : []).filter(function(n) {
-            return newGenerationCode.extra.hasOwnProperty(n);
+            return neighborhood.extra.hasOwnProperty(n);
         });
 
-        neighborhoodSize = {
-            main: newGenerationCode.main[o.main].size,
-            extra: 0
-        };
+        var tableProcCode = '',
+            indexProcCode = '';
 
-        var newStateTableProcCode = '',
-            newGenerationProcCode = '';
+        neighborhoodSize = Array.prototype.concat.apply(neighborhood.main[o.main], o.extra.map(function(n) {
+            return neighborhood.extra[n];
+        })).reduce(function(prev, curr) {
+            var mask = Math.pow(2, curr.size) - 1;
 
-        for (var i = 0; i < o.extra.length; i++) {
-            var t = newGenerationCode.extra[o.extra[i]];
+            tableProcCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
+            indexProcCode += 'index |= (' + curr.code + ' & ' + mask + ') << ' + prev + ';';
 
-            newStateTableProcCode += t.tableCode + 'shift += ' + t.size + ';';
+            return prev + curr.size;
+        }, 2/* { name: 'center', size: 2, code: 'd[x][y]' } */);
 
-            newGenerationProcCode = t.indexCode + newGenerationProcCode;
-            neighborhoodSize.extra += t.size;
-        }
-
-        newStateTableInner = eval(newGenerationCode.tableProc.replace('{{.}}',
-            newGenerationCode.main[o.main].tableCode +
-            newStateTableProcCode
-        ));
-        newGenerationInner = eval(newGenerationCode.indexProc.replace('{{.}}',
-            newGenerationCode.main[o.main].indexCode +
-            newGenerationProcCode
-        ));
+        newStateTableInner = eval(newGenerationCode.tableProc.replace('{{.}}', tableProcCode));
+        newGenerationInner = eval(newGenerationCode.indexProc.replace('{{.}}', indexProcCode));
     }
 
     function setColors(colors) {
