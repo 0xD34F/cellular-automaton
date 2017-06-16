@@ -1,9 +1,5 @@
 ﻿function CellField(x, y) {
-    var o = Object.create(CellField.prototype);
-
-    o.resize(x, y);
-
-    return o;
+    return Object.create(CellField.prototype).resize(x, y);
 }
 
 CellField.prototype.numBitPlanes = 2;
@@ -51,53 +47,60 @@ CellField.prototype.fill = function(f) {
     });
 };
 
-CellField.prototype.shift = function(_x, _y) {
-    _x = _x || 0;
-    _y = _y || 0;
+CellField.prototype.shift = function(x, y) {
+    x = x || 0;
+    y = y || 0;
 
-    shiftArray(this.data, _x);
+    shiftArray(this.data, x);
     for (var i = 0; i < this.xSize; i++) {
-        shiftArray(this.data[i], _y);
+        shiftArray(this.data[i], y);
     }
 
     return this.dispatchEvent('cell-field-shift', {
         shifted: {
-            x: _x,
-            y: _y
+            x: x,
+            y: y
         }
     });
 };
 
 CellField.prototype.clone = function() {
-    return CellField(this.xSize, this.ySize).copy(this);
+    return CellField(this.xSize, this.ySize).copy(this).dispatchEvent('cell-field-clone', {
+        cloned: this
+    });
 };
 
-CellField.prototype.copy = function(cells, _x, _y, options) {
-    _x = _x || 0;
-    _y = _y || 0;
+CellField.prototype.copy = function(source, options) {
     options = options instanceof Object ? options : {};
+    options.x = options.x || 0;
+    options.y = options.y || 0;
 
-    for (var i = 0, x = _x; i < cells.xSize; i++, x++) {
+    for (var i = 0, x = options.x; i < source.xSize; i++, x++) {
         if (x === this.xSize) {
             x = 0;
         }
 
-        for (var j = 0, y = _y; j < cells.ySize; j++, y++) {
+        for (var j = 0, y = options.y; j < source.ySize; j++, y++) {
             if (y === this.ySize) {
                 y = 0;
             }
 
-            var t = cells.data[i][j];
+            var t = source.data[i][j];
             if (!options.skipZeros || t !== 0) {
                 this.data[x][y] = options.setZeros ? 0 : t;
             }
         }
     }
 
-    return this;
+    return this.dispatchEvent('cell-field-copy', {
+        copied: {
+            source: source,
+            options: options
+        }
+    });
 };
 
-// o - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости> }
+// o - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости>, ... }
 CellField.prototype.copyBitPlane = function(o) {
     return this.fill(function(x, y, value) {
         var newVal = value;

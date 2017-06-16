@@ -300,7 +300,9 @@
                     x = (x - Math.floor(f.brush.xSize / 2) + f.xSize) % f.xSize;
                     y = (y - Math.floor(f.brush.ySize / 2) + f.ySize) % f.ySize;
 
-                    f.copy(f.brush, x, y, {
+                    f.copy(f.brush, {
+                        x: x,
+                        y: y,
                         skipZeros: true,
                         setZeros: e.buttons === 2
                     });
