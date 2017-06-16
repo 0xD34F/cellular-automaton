@@ -172,18 +172,24 @@ function main(n) {\n\
     main: \'Margolus\'\n\
 });\n\
 \n\
-function _(val) {\n\
-    return (val & 1) ^ 1;\n\
-}\n\
+beforeNewGeneration = function() {\n\
+    view.setColors(time & 1 ? {\n\
+        0: \'000000\',\n\
+        1: \'FFFFFF\'\n\
+    } : {\n\
+        0: \'FFFFFF\',\n\
+        1: \'000000\'\n\
+    });\n\
+};\n\
 \n\
 function main(n) {\n\
     var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1);\n\
     return ({\n\
-        0: _(n.center),\n\
-        1: _(n.center),\n\
+        0: n.center ^ 1,\n\
+        1: n.center ^ 1,\n\
         2: n.center & 1,\n\
-        3: _(n.opp),\n\
-        4: _(n.center)\n\
+        3: n.opp ^ 1,\n\
+        4: n.center ^ 1\n\
     })[s];\n\
 }'
     }, {

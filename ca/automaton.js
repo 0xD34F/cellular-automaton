@@ -92,8 +92,9 @@ var h = x & 1,\
         }
     };
 
-    var newStateTableInner = function() {},
-        newGenerationInner = function() {};
+    var newStateTableInner = null,
+        newGenerationInner = null,
+        beforeNewGeneration = null;
 
     var cells = CellField(xSize, ySize),
         newCells = cells.clone(),
@@ -150,6 +151,7 @@ var h = x & 1,\
 
     function getNewStatesTable(code) {
         time = 0;
+        beforeNewGeneration = null;
 
         setNeighborhoods({
             main: 'Moore-thin',
@@ -199,6 +201,10 @@ var h = x & 1,\
         }
 
         for (var i = 0; i < n; i++) {
+            if (beforeNewGeneration instanceof Function) {
+                beforeNewGeneration();
+            }
+
             newGenerationInner(cells.data, newCells.data);
 
             var t = newCells.data;
