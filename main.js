@@ -294,7 +294,7 @@ $(document).ready(function() {
                 return {
                     sysname: i,
                     username: isNaN(i) ? i : ('state ' + i)
-                }
+                };
             }))).find('.jscolor').each(function() {
                 this.jscolor = new jscolor(this, {
                     hash: true
@@ -511,7 +511,6 @@ $(document).ready(function() {
         $steps.val(steps);
 
         ca.newGeneration(steps);
-        ca.view.render();
     }).parent().find('input').width(50).val('1');
 
     $(ca.view.canvas).parent().on('mousewheel', function(e) {

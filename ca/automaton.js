@@ -2,36 +2,40 @@
     var neighborhoodSize = null;
 
     var newGenerationCode = {
-        tableProc: '(function(table, calcNewState) {\
-for (var i = 0; i < table.length; i++) {\
-    var shift = 0;\
-    var n = {};\
-    n.center = i & 3;\
-    {{.}}\
-    table[i] = calcNewState(n) & 3;\
-}\
-    })',
-        indexProc: '(function(d, newD) {\
-var xSize = d.length,\
-    ySize = d[0].length,\
-    t = time & 1;\
-\
-for (var x = 0; x < xSize; x++) {\
-    for (var y = 0; y < ySize; y++) {\
-        var xPrev = x === 0 ? xSize - 1 : x - 1,\
-            xNext = x === xSize - 1 ? 0 : x + 1,\
-            yPrev = y === 0 ? ySize - 1 : y - 1,\
-            yNext = y === ySize - 1 ? 0 : y + 1,\
-            index = d[x][y] & 3;\
-\
+        tableProc: '\
+(function(table, calcNewState) {\
+    for (var i = 0; i < table.length; i++) {\
+        var n = {};\
         {{.}}\
-        newD[x][y] = newStatesTable[index];\
+        table[i] = calcNewState(n) & 3;\
     }\
-}\
-    })'
+})',
+        indexProc: '\
+(function(table, d, newD) {\
+    var xSize = d.length,\
+        ySize = d[0].length,\
+        t = time & 1;\
+\
+    for (var x = 0; x < xSize; x++) {\
+        for (var y = 0; y < ySize; y++) {\
+            var xPrev = x === 0 ? xSize - 1 : x - 1,\
+                xNext = x === xSize - 1 ? 0 : x + 1,\
+                yPrev = y === 0 ? ySize - 1 : y - 1,\
+                yNext = y === ySize - 1 ? 0 : y + 1,\
+                index = 0;\
+            {{.}}\
+            newD[x][y] = table[index] & 3;\
+        }\
+    }\
+})'
     };
 
     var neighborhood = {
+        base: {
+            neighbors: [
+                { name: 'center', size: 2, code: 'd[x][y]' }
+            ]
+        },
         main: {
             Neumann: {
                 neighbors: [
@@ -174,21 +178,27 @@ var h = x & 1,\
             return neighborhood.extra.hasOwnProperty(n);
         });
 
-        var main = neighborhood.main[o.main];
+        var base = neighborhood.base,
+            main = neighborhood.main[o.main];
 
         var tableProcCode = '',
-            indexProcCode = main.code || '';
+            indexProcCode = (base.code || '') + (main.code || '') + o.extra.map(function(n) {
+                return neighborhood.extra[n].code || '';
+            }).join('');
 
-        neighborhoodSize = Array.prototype.concat.apply(main.neighbors, o.extra.map(function(n) {
+        var neighbors = Array.prototype.concat.apply(base.neighbors, main.neighbors);
+        neighbors = Array.prototype.concat.apply(neighbors, o.extra.map(function(n) {
             return neighborhood.extra[n].neighbors;
-        })).reduce(function(prev, curr) {
+        }));
+
+        neighborhoodSize = neighbors.reduce(function(prev, curr) {
             var mask = Math.pow(2, curr.size) - 1;
 
             tableProcCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
             indexProcCode += 'index |= ((' + curr.code + ') & ' + mask + ') << ' + prev + ';';
 
             return prev + curr.size;
-        }, 2/* { name: 'center', size: 2, code: 'd[x][y]' } */);
+        }, 0);
 
         newStateTableInner = eval(newGenerationCode.tableProc.replace('{{.}}', tableProcCode));
         newGenerationInner = eval(newGenerationCode.indexProc.replace('{{.}}', indexProcCode));
@@ -205,7 +215,7 @@ var h = x & 1,\
                 beforeNewGeneration();
             }
 
-            newGenerationInner(cells.data, newCells.data);
+            newGenerationInner(newStatesTable, cells.data, newCells.data);
 
             var t = newCells.data;
             newCells.data = cells.data;
@@ -226,6 +236,7 @@ var h = x & 1,\
         cells.copy(previousConfiguration.cells);
         time = previousConfiguration.time;
     }
+
 
     function runTimeLog(f, message) {
         return function() {
@@ -268,6 +279,7 @@ var h = x & 1,\
             if (!this.isStarted()) {
                 saveConfiguration();
                 newGeneration(n);
+                view.render();
             }
         },
         get stepsPerStroke() {
