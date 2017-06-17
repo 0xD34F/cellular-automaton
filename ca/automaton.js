@@ -260,6 +260,10 @@ var h = x & 1,\
 
             view.resize(o.cellSide, o.cellBorder);
         },
+        clear: function() {
+            cells.clear();
+            view.render();
+        },
         newGeneration: function(n) {
             if (!this.isStarted()) {
                 saveConfiguration();

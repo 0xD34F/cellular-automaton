@@ -22,13 +22,13 @@
 <body class="hidden">
     <div class="content">
         <div class="controls">
-            <button id="start" class="ca-start-hide"><span class="ui-icon ui-icon-play"></span></button>
-            <button id="stop" class="ca-start-show"><span class="ui-icon ui-icon-pause"></span></button>
+            <button id="start" data-action="start" class="ca-start-hide"><span class="ui-icon ui-icon-play"></span></button>
+            <button id="stop" data-action="stop" class="ca-start-show"><span class="ui-icon ui-icon-pause"></span></button>
             <div class="input-with-button ca-start-disable ui-controlgroup ui-corner-all ui-widget ui-widget-content" title="Skip generations">
                 <input class="ui-spinner-input" maxlength="5">
                 <button id="skip"><span class="ui-icon ui-icon-seek-next"></span></button>
             </div>
-            <button id="back" title="Return to the initial configuration"><span class="ui-icon ui-icon-seek-prev"></span></button>
+            <button id="back" data-action="back" title="Return to the initial configuration"><span class="ui-icon ui-icon-seek-prev"></span></button>
             <button id="view" data-dialog="ca-view" title="Cells field settings">View...</button>
             <div id="cell-field-mode">
                 <input id="mode-edit" type="radio" name="mode" value="edit"><label for="mode-edit" class="ca-start-disable" title="Edit"><span class="ui-icon ui-icon-pencil"></span></label>
@@ -38,7 +38,7 @@
             <button id="brush" data-dialog="ca-brush">Brush...</button>
             <div id="cell-field-data">
                 <button id="fill" data-dialog="ca-filling" class="ca-start-disable" title="Cells field filling">Fill...</button>
-                <button id="clear" class="ca-start-disable" title="Cells field clear">Clear</button>
+                <button id="clear" data-action="clear" class="ca-start-disable" title="Cells field clear">Clear</button>
             </div>
             <button id="speed" data-dialog="ca-speed">Speed...</button>
             <button id="rule" data-dialog="ca-rule" class="ca-start-disable">Rule...</button>

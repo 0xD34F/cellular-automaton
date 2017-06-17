@@ -469,14 +469,14 @@ $(document).ready(function() {
 
     $('.content > .controls')
         .find('button').button().end()
-        .on('click', '[data-dialog]', function() {
+        .on('click.ca-dialog', '[data-dialog]', function() {
             $('#' + $(this).attr('data-dialog')).dialog('open');
+        })
+        .on('click.ca-action', '[data-action]', function() {
+            ca[$(this).attr('data-action')]();
         });
 
-    $('#cell-field-data').buttonset().find('#clear').click(function() {
-        ca.cells.clear();
-        ca.view.render();
-    });
+    $('#cell-field-data').buttonset();
 
     $(document).on({
         'ca-start': function() {
@@ -503,30 +503,16 @@ $(document).ready(function() {
         }
     }).trigger('ca-stop');
 
-    $('#start').click(function() {
-        ca.start();
-    });
-
-    $('#stop').click(function() {
-        ca.stop();
-    });
 
     $('#skip').click(function() {
         var $steps = $(this).parent().find('input'),
-            steps = $steps.val() >> 0;
+            steps = limitation($steps.val(), 1, Math.pow(10, $steps.attr('maxlength')) - 1);
 
-        if (steps < 1) {
-            steps = 1;
-        }
         $steps.val(steps);
 
         ca.newGeneration(steps);
         ca.view.render();
     }).parent().find('input').width(50).val('1');
-
-    $('#back').click(function() {
-        ca.back();
-    });
 
     $(ca.view.canvas).parent().on('mousewheel', function(e) {
         ca.view.changeScale(e.originalEvent.deltaY > 0 ? -1 : 1, e.originalEvent);
