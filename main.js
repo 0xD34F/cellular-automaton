@@ -285,7 +285,7 @@ $(document).ready(function() {
                     min: n[1],
                     max: n[2],
                     step: 1
-                });
+                }).attr('maxlength', n[2].toString().length);
             }).bind($this));
             $this.find('#ca-field-x-size, #ca-field-y-size').parent().addClass('ca-start-disable');
 
