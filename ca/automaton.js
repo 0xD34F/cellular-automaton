@@ -17,14 +17,19 @@
         t = time & 1;\
 \
     for (var x = 0; x < xSize; x++) {\
+        var newDX = newD[x],\
+            xPrev = x === 0 ? xSize - 1 : x - 1,\
+            xNext = x === xSize - 1 ? 0 : x + 1,\
+            dXCurr = d[x],\
+            dXPrev = d[xPrev],\
+            dXNext = d[xNext];\
+\
         for (var y = 0; y < ySize; y++) {\
-            var xPrev = x === 0 ? xSize - 1 : x - 1,\
-                xNext = x === xSize - 1 ? 0 : x + 1,\
-                yPrev = y === 0 ? ySize - 1 : y - 1,\
+            var yPrev = y === 0 ? ySize - 1 : y - 1,\
                 yNext = y === ySize - 1 ? 0 : y + 1,\
                 index = 0;\
             {{.}}\
-            newD[x][y] = table[index] & 3;\
+            newDX[y] = table[index] & 3;\
         }\
     }\
 })'
@@ -33,40 +38,40 @@
     var neighborhood = {
         base: {
             neighbors: [
-                { name: 'center', size: 2, code: 'd[x][y]' }
+                { name: 'center', size: 2, code: 'dXCurr[y]' }
             ]
         },
         main: {
             Neumann: {
                 neighbors: [
-                    { name: 'north', size: 2, code: 'd[x][yPrev]' },
-                    { name: 'south', size: 2, code: 'd[x][yNext]' },
-                    { name:  'west', size: 2, code: 'd[xPrev][y]' },
-                    { name:  'east', size: 2, code: 'd[xNext][y]' }
+                    { name: 'north', size: 2, code: 'dXCurr[yPrev]' },
+                    { name: 'south', size: 2, code: 'dXCurr[yNext]' },
+                    { name:  'west', size: 2, code: 'dXPrev[y]' },
+                    { name:  'east', size: 2, code: 'dXNext[y]' }
                 ]
             },
             'Moore-thick': {
                 neighbors: [
-                    { name:  'north', size: 2, code: 'd[x][yPrev]' },
-                    { name:  'south', size: 2, code: 'd[x][yNext]' },
-                    { name:   'west', size: 2, code: 'd[xPrev][y]' },
-                    { name:   'east', size: 2, code: 'd[xNext][y]' },
-                    { name: 'n_west', size: 2, code: 'd[xPrev][yPrev]' },
-                    { name: 's_west', size: 2, code: 'd[xPrev][yNext]' },
-                    { name: 'n_east', size: 2, code: 'd[xNext][yPrev]' },
-                    { name: 's_east', size: 2, code: 'd[xNext][yNext]' }
+                    { name:  'north', size: 2, code: 'dXCurr[yPrev]' },
+                    { name:  'south', size: 2, code: 'dXCurr[yNext]' },
+                    { name:   'west', size: 2, code: 'dXPrev[y]' },
+                    { name:   'east', size: 2, code: 'dXNext[y]' },
+                    { name: 'n_west', size: 2, code: 'dXPrev[yPrev]' },
+                    { name: 's_west', size: 2, code: 'dXPrev[yNext]' },
+                    { name: 'n_east', size: 2, code: 'dXNext[yPrev]' },
+                    { name: 's_east', size: 2, code: 'dXNext[yNext]' }
                 ]
             },
             'Moore-thin': {
                 neighbors: [
-                    { name:  'north', size: 1, code: 'd[x][yPrev]' },
-                    { name:  'south', size: 1, code: 'd[x][yNext]' },
-                    { name:   'west', size: 1, code: 'd[xPrev][y]' },
-                    { name:   'east', size: 1, code: 'd[xNext][y]' },
-                    { name: 'n_west', size: 1, code: 'd[xPrev][yPrev]' },
-                    { name: 's_west', size: 1, code: 'd[xPrev][yNext]' },
-                    { name: 'n_east', size: 1, code: 'd[xNext][yPrev]' },
-                    { name: 's_east', size: 1, code: 'd[xNext][yNext]' }
+                    { name:  'north', size: 1, code: 'dXCurr[yPrev]' },
+                    { name:  'south', size: 1, code: 'dXCurr[yNext]' },
+                    { name:   'west', size: 1, code: 'dXPrev[y]' },
+                    { name:   'east', size: 1, code: 'dXNext[y]' },
+                    { name: 'n_west', size: 1, code: 'dXPrev[yPrev]' },
+                    { name: 's_west', size: 1, code: 'dXPrev[yNext]' },
+                    { name: 'n_east', size: 1, code: 'dXNext[yPrev]' },
+                    { name: 's_east', size: 1, code: 'dXNext[yNext]' }
                 ]
             },
             Margolus: {
