@@ -107,7 +107,6 @@ var h = x & 1,\
 
     var cells = CellField(xSize, ySize),
         newCells = cells.clone(),
-        previousConfiguration = null,
         rule = 'function main(n) { return n.center; }',
         newStatesTable = getNewStatesTable(rule),
         time = 0;
@@ -154,6 +153,24 @@ var h = x & 1,\
             timer.intervalID = null;
 
             return true;
+        }
+    };
+
+    var history = {
+        data: null,
+        save: function() {
+            this.data = {
+                cells: cells.clone(),
+                time: time
+            };
+        },
+        back: function() {
+            if (this.data) {
+                cells.copy(this.data.cells);
+                time = this.data.time;
+                view.render();
+                this.data = null;
+            }
         }
     };
 
@@ -230,18 +247,6 @@ var h = x & 1,\
         }
     }
 
-    function saveConfiguration() {
-        previousConfiguration = {
-            cells: cells.clone(),
-            time: time
-        };
-    }
-
-    function restoreConfiguration() {
-        cells.copy(previousConfiguration.cells);
-        time = previousConfiguration.time;
-    }
-
 
     function runTimeLog(f, message) {
         return function() {
@@ -282,7 +287,7 @@ var h = x & 1,\
         },
         newGeneration: function(n) {
             if (!this.isStarted()) {
-                saveConfiguration();
+                history.save();
                 newGeneration(n);
                 view.render();
             }
@@ -313,7 +318,7 @@ var h = x & 1,\
             var result = timer.start();
             if (result) {
                 document.dispatchEvent(new CustomEvent('ca-start'));
-                saveConfiguration();
+                history.save();
             }
 
             return result;
@@ -327,10 +332,9 @@ var h = x & 1,\
             return result;
         },
         back: function() {
-            if (previousConfiguration) {
+            if (history.data) {
                 this.stop();
-                restoreConfiguration();
-                view.render();
+                history.back();
             }
         }
     };
