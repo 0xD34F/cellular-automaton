@@ -1,6 +1,4 @@
 ﻿var CellularAutomaton = function(xSize, ySize, viewOptions) {
-    var neighborhoodSize = null;
-
     var newGenerationCode = {
         tableProc: '\
 (function(table, calcNewState) {\
@@ -101,14 +99,16 @@ var h = x & 1,\
         }
     };
 
-    var newStateTableInner = null,
-        newGenerationInner = null,
+    var neighborhoodData = null,
+        neighborhoodSize = null,
+        fillNewGenerationTable = null,
+        calculateNewGeneration = null,
         beforeNewGeneration = null;
 
     var cells = CellField(xSize, ySize),
         newCells = cells.clone(),
         rule = 'function main(n) { return n.center; }',
-        newStatesTable = getNewStatesTable(rule),
+        newGenerationTable = getNewGenerationTable(rule),
         time = 0;
 
     var view = CellFieldView(cells, viewOptions);
@@ -175,45 +175,31 @@ var h = x & 1,\
     };
 
 
-    function getNewStatesTable(code) {
+    function getNewGenerationTable(code) {
         time = 0;
         beforeNewGeneration = null;
-
-        setNeighborhoods({
-            main: 'Moore-thin',
-            extra: []
-        });
+        setNeighborhoods();
 
         eval(code);
 
+        makeFunctions();
+
         var table = new Array(Math.pow(2, neighborhoodSize));
 
-        newStateTableInner(table, main);
+        fillNewGenerationTable(table, main);
 
         return table;
     }
 
-    function setNeighborhoods(o) {
-        o = o instanceof Object ? o : {};
-        o.main = neighborhood.main.hasOwnProperty(o.main) ? o.main : 'Moore-thin';
-        o.extra = (o.extra instanceof Array ? o.extra : []).filter(function(n) {
-            return neighborhood.extra.hasOwnProperty(n);
-        });
-
-        var base = neighborhood.base,
-            main = neighborhood.main[o.main];
-
+    function makeFunctions() {
         var tableProcCode = '',
-            indexProcCode = (base.code || '') + (main.code || '') + o.extra.map(function(n) {
-                return neighborhood.extra[n].code || '';
+            indexProcCode = neighborhoodData.map(function(n) {
+                return n.code || '';
             }).join('');
 
-        var neighbors = Array.prototype.concat.apply(base.neighbors, main.neighbors);
-        neighbors = Array.prototype.concat.apply(neighbors, o.extra.map(function(n) {
-            return neighborhood.extra[n].neighbors;
-        }));
-
-        neighborhoodSize = neighbors.reduce(function(prev, curr) {
+        neighborhoodSize = Array.prototype.concat.apply([], neighborhoodData.map(function(n) {
+            return n.neighbors;
+        })).reduce(function(prev, curr) {
             var mask = Math.pow(2, curr.size) - 1;
 
             tableProcCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
@@ -222,8 +208,21 @@ var h = x & 1,\
             return prev + curr.size;
         }, 0);
 
-        newStateTableInner = eval(newGenerationCode.tableProc.replace('{{.}}', tableProcCode));
-        newGenerationInner = eval(newGenerationCode.indexProc.replace('{{.}}', indexProcCode));
+        fillNewGenerationTable = eval(newGenerationCode.tableProc.replace('{{.}}', tableProcCode));
+        calculateNewGeneration = eval(newGenerationCode.indexProc.replace('{{.}}', indexProcCode));
+    }
+
+    function setNeighborhoods(o) {
+        o = o instanceof Object ? o : {};
+
+        neighborhoodData = [
+            neighborhood.base,
+            neighborhood.main[neighborhood.main.hasOwnProperty(o.main) ? o.main : 'Moore-thin']
+        ].concat((o.extra instanceof Array ? o.extra : []).filter(function(n) {
+            return neighborhood.extra.hasOwnProperty(n);
+        }).map(function(n) {
+            return neighborhood.extra[n];
+        }));
     }
 
 
@@ -237,7 +236,7 @@ var h = x & 1,\
                 beforeNewGeneration();
             }
 
-            newGenerationInner(newStatesTable, cells.data, newCells.data);
+            calculateNewGeneration(newGenerationTable, cells.data, newCells.data);
 
             var t = newCells.data;
             newCells.data = cells.data;
@@ -262,7 +261,7 @@ var h = x & 1,\
 
     CellFieldView.prototype.render = runTimeLog(CellFieldView.prototype.render, 'CellField render');
     CellFieldView.prototype.renderPartial = runTimeLog(CellFieldView.prototype.renderPartial, 'CellField renderPartial');
-    getNewStatesTable = runTimeLog(getNewStatesTable, 'new states table built');
+    getNewGenerationTable = runTimeLog(getNewGenerationTable, 'new states table built');
     newGeneration = runTimeLog(newGeneration, 'new generation got'); // */
 
 
@@ -308,7 +307,7 @@ var h = x & 1,\
             return rule;
         },
         set rule(code) {
-            newStatesTable = getNewStatesTable(code);
+            newGenerationTable = getNewGenerationTable(code);
             rule = code;
         },
         isStarted: function() {
