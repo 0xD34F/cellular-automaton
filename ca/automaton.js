@@ -78,8 +78,8 @@ var h = x & 1,\
     v = y & 1,\
     p = h ^ v;',
                 neighbors: [
-                    { name:  'cw', size: 2, code: 't ? d[p ? x : (h ? xNext : xPrev)][p ? (v ? yNext : yPrev) : y] : d[p ? x : (h ? xPrev : xNext)][p ? (v ? yPrev : yNext) : y]' },
-                    { name: 'ccw', size: 2, code: 't ? d[p ? (h ? xNext : xPrev) : x][p ? y : (v ? yNext : yPrev)] : d[p ? (h ? xPrev : xNext) : x][p ? y : (v ? yPrev : yNext)]' },
+                    { name:  'cw', size: 2, code: 't ? d[p ? (h ? xNext : xPrev) : x][p ? y : (v ? yNext : yPrev)] : d[p ? (h ? xPrev : xNext) : x][p ? y : (v ? yPrev : yNext)]' },
+                    { name: 'ccw', size: 2, code: 't ? d[p ? x : (h ? xNext : xPrev)][p ? (v ? yNext : yPrev) : y] : d[p ? x : (h ? xPrev : xNext)][p ? (v ? yPrev : yNext) : y]' },
                     { name: 'opp', size: 2, code: 't ? d[h ? xNext : xPrev][v ? yNext : yPrev] : d[h ? xPrev : xNext][v ? yPrev : yNext]' }
                 ]
             }
