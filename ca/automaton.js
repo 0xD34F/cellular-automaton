@@ -1,16 +1,21 @@
 ﻿var CellularAutomaton = function(xSize, ySize, viewOptions) {
     var newGenerationCode = {
         tableProc: '\
-(function(table, calcNewState) {\
+(function(neighborhoodSize, calculateNewState) {\
+    var table = new Array(Math.pow(2, neighborhoodSize));\
+\
     for (var i = 0; i < table.length; i++) {\
         var n = {};\
         {{.}}\
-        table[i] = calcNewState(n) & 3;\
+        table[i] = calculateNewState(n) & 3;\
     }\
+\
+    return table;\
 })',
         indexProc: '\
-(function(table, d, newD) {\
-    var xSize = d.length,\
+(function(d, newD) {\
+    var table = newGenerationTable,\
+        xSize = d.length,\
         ySize = d[0].length,\
         t = time & 1;\
 \
@@ -20,82 +25,65 @@
             xNext = x === xSize - 1 ? 0 : x + 1,\
             dXCurr = d[x],\
             dXPrev = d[xPrev],\
-            dXNext = d[xNext];\
+            dXNext = d[xNext],\
+            h = x & 1;\
 \
         for (var y = 0; y < ySize; y++) {\
             var yPrev = y === 0 ? ySize - 1 : y - 1,\
                 yNext = y === ySize - 1 ? 0 : y + 1,\
-                index = 0;\
-            {{.}}\
-            newDX[y] = table[index] & 3;\
+                v = y & 1;\
+\
+            newDX[y] = table[{{.}}] & 3;\
         }\
     }\
 })'
     };
 
     var neighborhood = {
-        base: {
-            neighbors: [
-                { name: 'center', size: 2, code: 'dXCurr[y]' }
+        base: [
+            { name: 'center', size: 2, code: 'dXCurr[y]' }
+        ],
+        main: {
+            Neumann: [
+                { name: 'north', size: 2, code: 'dXCurr[yPrev]' },
+                { name: 'south', size: 2, code: 'dXCurr[yNext]' },
+                { name:  'west', size: 2, code: 'dXPrev[y]' },
+                { name:  'east', size: 2, code: 'dXNext[y]' }
+            ],
+            'Moore-thick': [
+                { name:  'north', size: 2, code: 'dXCurr[yPrev]' },
+                { name:  'south', size: 2, code: 'dXCurr[yNext]' },
+                { name:   'west', size: 2, code: 'dXPrev[y]' },
+                { name:   'east', size: 2, code: 'dXNext[y]' },
+                { name: 'n_west', size: 2, code: 'dXPrev[yPrev]' },
+                { name: 's_west', size: 2, code: 'dXPrev[yNext]' },
+                { name: 'n_east', size: 2, code: 'dXNext[yPrev]' },
+                { name: 's_east', size: 2, code: 'dXNext[yNext]' }
+            ],
+            'Moore-thin': [
+                { name:  'north', size: 1, code: 'dXCurr[yPrev]' },
+                { name:  'south', size: 1, code: 'dXCurr[yNext]' },
+                { name:   'west', size: 1, code: 'dXPrev[y]' },
+                { name:   'east', size: 1, code: 'dXNext[y]' },
+                { name: 'n_west', size: 1, code: 'dXPrev[yPrev]' },
+                { name: 's_west', size: 1, code: 'dXPrev[yNext]' },
+                { name: 'n_east', size: 1, code: 'dXNext[yPrev]' },
+                { name: 's_east', size: 1, code: 'dXNext[yNext]' }
+            ],
+            Margolus: [
+                { name:  'cw', size: 2, code: 't ? d[h ^ v ? (h ? xNext : xPrev) : x][h ^ v ? y : (v ? yNext : yPrev)] : d[h ^ v ? (h ? xPrev : xNext) : x][h ^ v ? y : (v ? yPrev : yNext)]' },
+                { name: 'ccw', size: 2, code: 't ? d[h ^ v ? x : (h ? xNext : xPrev)][h ^ v ? (v ? yNext : yPrev) : y] : d[h ^ v ? x : (h ? xPrev : xNext)][h ^ v ? (v ? yPrev : yNext) : y]' },
+                { name: 'opp', size: 2, code: 't ? d[h ? xNext : xPrev][v ? yNext : yPrev] : d[h ? xPrev : xNext][v ? yPrev : yNext]' }
             ]
         },
-        main: {
-            Neumann: {
-                neighbors: [
-                    { name: 'north', size: 2, code: 'dXCurr[yPrev]' },
-                    { name: 'south', size: 2, code: 'dXCurr[yNext]' },
-                    { name:  'west', size: 2, code: 'dXPrev[y]' },
-                    { name:  'east', size: 2, code: 'dXNext[y]' }
-                ]
-            },
-            'Moore-thick': {
-                neighbors: [
-                    { name:  'north', size: 2, code: 'dXCurr[yPrev]' },
-                    { name:  'south', size: 2, code: 'dXCurr[yNext]' },
-                    { name:   'west', size: 2, code: 'dXPrev[y]' },
-                    { name:   'east', size: 2, code: 'dXNext[y]' },
-                    { name: 'n_west', size: 2, code: 'dXPrev[yPrev]' },
-                    { name: 's_west', size: 2, code: 'dXPrev[yNext]' },
-                    { name: 'n_east', size: 2, code: 'dXNext[yPrev]' },
-                    { name: 's_east', size: 2, code: 'dXNext[yNext]' }
-                ]
-            },
-            'Moore-thin': {
-                neighbors: [
-                    { name:  'north', size: 1, code: 'dXCurr[yPrev]' },
-                    { name:  'south', size: 1, code: 'dXCurr[yNext]' },
-                    { name:   'west', size: 1, code: 'dXPrev[y]' },
-                    { name:   'east', size: 1, code: 'dXNext[y]' },
-                    { name: 'n_west', size: 1, code: 'dXPrev[yPrev]' },
-                    { name: 's_west', size: 1, code: 'dXPrev[yNext]' },
-                    { name: 'n_east', size: 1, code: 'dXNext[yPrev]' },
-                    { name: 's_east', size: 1, code: 'dXNext[yNext]' }
-                ]
-            },
-            Margolus: {
-                code: '\
-var h = x & 1,\
-    v = y & 1,\
-    p = h ^ v;',
-                neighbors: [
-                    { name:  'cw', size: 2, code: 't ? d[p ? (h ? xNext : xPrev) : x][p ? y : (v ? yNext : yPrev)] : d[p ? (h ? xPrev : xNext) : x][p ? y : (v ? yPrev : yNext)]' },
-                    { name: 'ccw', size: 2, code: 't ? d[p ? x : (h ? xNext : xPrev)][p ? (v ? yNext : yPrev) : y] : d[p ? x : (h ? xPrev : xNext)][p ? (v ? yPrev : yNext) : y]' },
-                    { name: 'opp', size: 2, code: 't ? d[h ? xNext : xPrev][v ? yNext : yPrev] : d[h ? xPrev : xNext][v ? yPrev : yNext]' }
-                ]
-            }
-        },
         extra: {
-            phase: {
-                neighbors: [
-                    { name: 'phase', size: 2, code: 'time' }
-                ]
-            },
-            hv: {
-                neighbors: [
-                    { name: 'horz', size: 1, code: 'x' },
-                    { name: 'vert', size: 1, code: 'y' }
-                ]
-            }
+            phase: [
+                { name: 'phase', size: 2, code: 'time' }
+            ],
+            hv: [
+                { name: 'horz', size: 1, code: 'x' },
+                { name: 'vert', size: 1, code: 'y' }
+            ]
         }
     };
 
@@ -107,8 +95,8 @@ var h = x & 1,\
 
     var cells = CellField(xSize, ySize),
         newCells = cells.clone(),
-        rule = 'function main(n) { return n.center; }',
-        newGenerationTable = getNewGenerationTable(rule),
+        newGenerationTable = null,
+        rule = null,
         time = 0;
 
     var view = CellFieldView(cells, viewOptions);
@@ -175,7 +163,7 @@ var h = x & 1,\
     };
 
 
-    function getNewGenerationTable(code) {
+    function setRule(code) {
         time = 0;
         beforeNewGeneration = null;
         setNeighborhoods();
@@ -184,32 +172,25 @@ var h = x & 1,\
 
         makeFunctions();
 
-        var table = new Array(Math.pow(2, neighborhoodSize));
-
-        fillNewGenerationTable(table, main);
-
-        return table;
+        newGenerationTable = fillNewGenerationTable(neighborhoodSize, main);
+        rule = code;
     }
 
     function makeFunctions() {
         var tableProcCode = '',
-            indexProcCode = neighborhoodData.map(function(n) {
-                return n.code || '';
-            }).join('');
+            indexProcCode = [];
 
-        neighborhoodSize = Array.prototype.concat.apply([], neighborhoodData.map(function(n) {
-            return n.neighbors;
-        })).reduce(function(prev, curr) {
+        neighborhoodSize = Array.prototype.concat.apply([], neighborhoodData).reduce(function(prev, curr) {
             var mask = Math.pow(2, curr.size) - 1;
 
             tableProcCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
-            indexProcCode += 'index |= ((' + curr.code + ') & ' + mask + ') << ' + prev + ';';
+            indexProcCode.push('(((' + curr.code + ') & ' + mask + ') << ' + prev + ')');
 
             return prev + curr.size;
         }, 0);
 
         fillNewGenerationTable = eval(newGenerationCode.tableProc.replace('{{.}}', tableProcCode));
-        calculateNewGeneration = eval(newGenerationCode.indexProc.replace('{{.}}', indexProcCode));
+        calculateNewGeneration = eval(newGenerationCode.indexProc.replace('{{.}}', indexProcCode.join(' | ')));
     }
 
     function setNeighborhoods(o) {
@@ -236,7 +217,7 @@ var h = x & 1,\
                 beforeNewGeneration();
             }
 
-            calculateNewGeneration(newGenerationTable, cells.data, newCells.data);
+            calculateNewGeneration(cells.data, newCells.data);
 
             var t = newCells.data;
             newCells.data = cells.data;
@@ -261,9 +242,10 @@ var h = x & 1,\
 
     CellFieldView.prototype.render = runTimeLog(CellFieldView.prototype.render, 'CellField render');
     CellFieldView.prototype.renderPartial = runTimeLog(CellFieldView.prototype.renderPartial, 'CellField renderPartial');
-    getNewGenerationTable = runTimeLog(getNewGenerationTable, 'new states table built');
+    setRule = runTimeLog(setRule, 'rule set');
     newGeneration = runTimeLog(newGeneration, 'new generation got'); // */
 
+    setRule('function main(n) { return n.center; }');
 
     return {
         cells: cells,
@@ -307,8 +289,7 @@ var h = x & 1,\
             return rule;
         },
         set rule(code) {
-            newGenerationTable = getNewGenerationTable(code);
-            rule = code;
+            setRule(code);
         },
         isStarted: function() {
             return !!timer.intervalID;
