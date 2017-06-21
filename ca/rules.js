@@ -1,19 +1,19 @@
 ﻿var rules = (function() {
     var predefinedRules = [ {
         name: 'Conway\'s Life',
-        code: 'function main(n) {\n\
+        code: 'makeTable(function(n) {\n\
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
     return s === 3 ? 1 : (s === 2 ? n.center : 0);\n\
-}'
+});'
     }, {
         name: 'Conway\'s Life (trace)',
-        code: 'function main(n) {\n\
+        code: 'makeTable(function(n) {\n\
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,\n\
         p0 = s === 3 ? 1 : (s === 2 ? n.center : 0),\n\
         p1 = (+!!n.center) | p0;\n\
 \n\
     return p0 | (p1 << 1);\n\
-}'
+})'
     }, {
         name: 'Brian\'s brain',
         code: 'function ready(n) {\n\
@@ -25,19 +25,19 @@ function stimulus(n) {\n\
     return s === 2 ? 1 : 0;\n\
 }\n\
 \n\
-function main(n) {\n\
+makeTable(function(n) {\n\
     var p0 = stimulus(n) & ready(n),\n\
         p1 = n.center & 1;\n\
 \n\
     return (p1 << 1) | p0;\n\
-}'
+});'
     }, {
         name: 'Wireworld',
         code: 'setNeighborhoods({\n\
     main: \'Moore-thick\'\n\
 });\n\
 \n\
-function main(n) {\n\
+makeTable(function(n) {\n\
     var s = (n.north === 1) + (n.south === 1) + (n.west === 1) + (n.east === 1) + (n.n_west === 1) + (n.s_west === 1) + (n.n_east === 1) + (n.s_east === 1);\n\
 \n\
     return ({\n\
@@ -46,30 +46,30 @@ function main(n) {\n\
         2: 3,\n\
         3: s === 1 || s === 2 ? 1 : 3\n\
     })[n.center];\n\
-}'
+});'
     }, {
         name: 'Parity',
-        code: 'function main(n) {\n\
+        code: 'makeTable(function(n) {\n\
     return n.north ^ n.south ^ n.west ^ n.east ^ (n.center & 1);\n\
-}'
+});'
     }, {
         name: '1 out of 8',
-        code: 'function main(n) {\n\
+        code: 'makeTable(function(n) {\n\
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
     return s === 1 ? 1 : n.center;\n\
-}'
+});'
     }, {
         name: 'Lichens with death',
-        code: 'function main(n) {\n\
+        code: 'makeTable(function(n) {\n\
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
     return (s === 3) ? 1 : (s === 4 ? 0 : n.center);\n\
-}'
+});'
     }, {
         name: 'Anneal',
-        code: 'function main(n) {\n\
+        code: 'makeTable(function(n) {\n\
     var s = (n.center & 1) + n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
     return s > 5 || s === 4 ? 1 : 0;\n\
-}'
+});'
     }, {
         name: 'Anneal x 2',
         code: 'setNeighborhoods({\n\
@@ -89,12 +89,12 @@ function sum(n, p) {\n\
     );\n\
 }\n\
 \n\
-function main(n) {\n\
+makeTable(function(n) {\n\
     var s0 = sum(n, 1),\n\
         s1 = sum(n, 2);\n\
 \n\
     return (s0 > 5 || s0 === 4 ? 1 : 0) | ((s1 > 5 || s1 === 4 ? 1 : 0) << 1);\n\
-}',
+});',
     }, {
         name: 'Rand anneal',
         code: 'setNeighborhoods({\n\
@@ -105,7 +105,7 @@ function rand(n) {\n\
   return (+!!((n.center & 2) && (n.north & 2) && (n.south & 2) && (n.west & 2) && (n.east & 2))) ^ 1;\n\
 }\n\
 \n\
-function main(n) {\n\
+makeTable(function(n) {\n\
     var s = (n.center & 1) + (n.north & 1) + (n.south & 1) + (n.west & 1) + (n.east & 1);\n\
 \n\
     return ({\n\
@@ -116,16 +116,16 @@ function main(n) {\n\
         4: 1,\n\
         5: 1\n\
     })[s];\n\
-}'
+});'
     }, {
         name: 'Time tunnel',
-        code: 'function main(n) {\n\
+        code: 'makeTable(function(n) {\n\
     var s = (n.center & 1) + n.north + n.south + n.west + n.east,\n\
         p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((n.center & 2) >> 1),\n\
         p1 = n.center & 1;\n\
 \n\
     return p0 | (p1 << 1);\n\
-}'
+});'
     }, {
         name: 'Border / hollow',
         code: 'setNeighborhoods({\n\
@@ -141,16 +141,16 @@ function hollow(n) {\n\
     return t ? 0 : n.center;\n\
 }\n\
 \n\
-function main(n) {\n\
+makeTable(function(n) {\n\
     return (n.phase & 1) ? hollow(n) : border(n);\n\
-}'
+});'
     }, {
         name: 'Safe / pass',
         code: 'setNeighborhoods({\n\
     main: \'Neumann\'\n\
 });\n\
 \n\
-function main(n) {\n\
+makeTable(function(n) {\n\
     var p0 = n.center & 1,\n\
         p1 = n.center & 2;\n\
 \n\
@@ -165,7 +165,7 @@ function main(n) {\n\
     }\n\
 \n\
     return p0 | p1;\n\
-}'
+});'
     }, {
         name: 'Critters',
         code: 'setNeighborhoods({\n\
@@ -182,7 +182,7 @@ beforeNewGeneration = function() {\n\
     });\n\
 };\n\
 \n\
-function main(n) {\n\
+makeTable(function(n) {\n\
     var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1);\n\
     return ({\n\
         0: n.center ^ 1,\n\
@@ -191,14 +191,14 @@ function main(n) {\n\
         3: n.opp ^ 1,\n\
         4: n.center ^ 1\n\
     })[s];\n\
-}'
+});'
     }, {
         name: 'Tron',
         code: 'setNeighborhoods({\n\
     main: \'Margolus\'\n\
 });\n\
 \n\
-function main(n) {\n\
+makeTable(function(n) {\n\
     var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1);\n\
     return ({\n\
         0: 1,\n\
@@ -207,7 +207,7 @@ function main(n) {\n\
         3: n.center,\n\
         4: 0\n\
     })[s];\n\
-}'
+});'
     }, {
         name: 'Tube worms',
         code: 'setNeighborhoods({\n\
@@ -216,25 +216,23 @@ function main(n) {\n\
     extra: [\'_center\']\n\
 });\n\
 \n\
-function main_a(n) {\n\
+makeTable(function(n) {\n\
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,\n\
         alarm = [ 0, 0, 0, 1, 1, 1, 1, 1, 1 ][s];\n\
 \n\
     return ([ 1, 0, 0, 0 ][n._center]) | (alarm << 1);\n\
-}\n\
-\n\
-function main_b(n) {\n\
+},  function(n) {\n\
     return n._center === 3 ? 3 : ([ 0, 0, 1, 2 ][n.center]);\n\
-}'
+});'
     }, {
         name: '30',
-        code: 'var main = rules.elementary(30);'
+        code: 'makeTable(rules.elementary(30));'
     }, {
         name: '110',
-        code: 'var main = rules.elementary(110);'
+        code: 'makeTable(rules.elementary(110));'
     }, {
         name: '126',
-        code: 'var main = rules.elementary(126);'
+        code: 'makeTable(rules.elementary(126));'
     } ].map(function(n) {
         n.predefined = true;
         return n;

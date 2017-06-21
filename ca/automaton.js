@@ -203,20 +203,19 @@
 
 
     function setRule(code) {
+        // сброс настроек
         time = 0;
         beforeNewGeneration = null;
         setNeighborhoods();
+        makeTable();
 
         eval(code);
-
-        CAA.nextState = typeof main_a === 'function' ? main_a : typeof main === 'function' ? main : null;
-        CAB.nextState = typeof main_b === 'function' ? main_b : null;
 
         CAA.prepareCode();
         CAB.prepareCode();
 
         calculateNewGeneration = eval(newGenerationCode.indexProc.replace('{{.}}', [ CAA, CAB ].filter(function(n) {
-            return !!n.nextState;
+            return n.nextState instanceof Function;
         }).map(function(n) {
             n.fillNewGenerationTable();
             return n.nextStateCode;
@@ -228,6 +227,11 @@
     function setNeighborhoods(a, b) {
         CAA.setNeighborhoods(a);
         CAB.setNeighborhoods(b);
+    }
+
+    function makeTable(a, b) {
+        CAA.nextState = a;
+        CAB.nextState = b;
     }
 
 
@@ -269,7 +273,7 @@
     setRule = runTimeLog(setRule, 'rule set');
     newGeneration = runTimeLog(newGeneration, 'new generation got'); // */
 
-    setRule('function main(n) { return n.center; }');
+    setRule('makeTable(function(n) { return n.center; });');
 
     return {
         cells: cells,
