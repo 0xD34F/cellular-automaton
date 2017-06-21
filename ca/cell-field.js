@@ -2,7 +2,7 @@
     return Object.create(CellField.prototype).resize(x, y);
 }
 
-CellField.prototype.numBitPlanes = 2;
+CellField.prototype.numBitPlanes = 4;
 CellField.prototype.getBitPlanes = function() {
     var planes = [];
     for (var i = 0; i < this.numBitPlanes; i++) {

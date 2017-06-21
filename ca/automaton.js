@@ -1,20 +1,56 @@
 ﻿var CellularAutomaton = function(xSize, ySize, viewOptions) {
+    function _CA(name, shift, neighborhoods) {
+        this.name = name;
+        this.shift = shift;
+        this.neighborhoods = neighborhoods instanceof Object ? neighborhoods : {};
+    }
+    _CA.prototype.setNeighborhoods = function(o) {
+        o = o instanceof Object ? o : {};
+
+        var _this = this;
+
+        this.neighborhoodData = [
+            neighborhood.base,
+            neighborhood.main[neighborhood.main.hasOwnProperty(o.main) ? o.main : 'Moore-thin']
+        ].concat((o.extra instanceof Array ? o.extra : []).map(function(n) {
+            return _this.neighborhoods[n] || neighborhood.extra[n];
+        }).filter(function(n) {
+            return !!n;
+        }));
+    };
+    _CA.prototype.prepareCode = function() {
+        var shift = this.shift,
+            tableProcCode = '',
+            nextStateCode = [];
+
+        this.neighborhoodSize = Array.prototype.concat.apply([], this.neighborhoodData).reduce(function(prev, curr) {
+            var mask = Math.pow(2, curr.size) - 1;
+
+            tableProcCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
+            nextStateCode.push('((((' + curr.code + ') & ' + (mask << shift) + ') >> ' + shift + ') << ' + prev + ')');
+
+            return prev + curr.size;
+        }, 0);
+
+        this.fillNewGenerationTable = eval(newGenerationCode.tableProc.replace('{{.}}', tableProcCode));
+        this.nextStateCode = '((table_' + this.name + '[' + nextStateCode.join(' | ') + '] & 3) << ' + shift + ')';
+    };
+
     var newGenerationCode = {
         tableProc: '\
-(function(neighborhoodSize, calculateNewState) {\
-    var table = new Array(Math.pow(2, neighborhoodSize));\
+(function() {\
+    var t = this.table = new Array(Math.pow(2, this.neighborhoodSize));\
 \
-    for (var i = 0; i < table.length; i++) {\
+    for (var i = 0; i < t.length; i++) {\
         var n = {};\
         {{.}}\
-        table[i] = calculateNewState(n) & 3;\
+        t[i] = this.nextState(n) & 3;\
     }\
-\
-    return table;\
 })',
         indexProc: '\
 (function(d, newD) {\
-    var table = newGenerationTable,\
+    var table_a = CAA.table,\
+        table_b = CAB.table,\
         xSize = d.length,\
         ySize = d[0].length,\
         t = time & 1;\
@@ -33,7 +69,7 @@
                 yNext = y === ySize - 1 ? 0 : y + 1,\
                 v = y & 1;\
 \
-            newDX[y] = table[{{.}}] & 3;\
+            newDX[y] = {{.}};\
         }\
     }\
 })'
@@ -86,6 +122,9 @@
             ]
         }
     };
+
+    var CAA = new _CA('a', 0, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] & 12) >> 2' } ] }),
+        CAB = new _CA('b', 2, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] &  3) << 2' } ] });
 
     var neighborhoodData = null,
         neighborhoodSize = null,
@@ -170,40 +209,25 @@
 
         eval(code);
 
-        makeFunctions();
+        CAA.nextState = typeof main_a === 'function' ? main_a : typeof main === 'function' ? main : null;
+        CAB.nextState = typeof main_b === 'function' ? main_b : null;
 
-        newGenerationTable = fillNewGenerationTable(neighborhoodSize, main);
+        CAA.prepareCode();
+        CAB.prepareCode();
+
+        calculateNewGeneration = eval(newGenerationCode.indexProc.replace('{{.}}', [ CAA, CAB ].filter(function(n) {
+            return !!n.nextState;
+        }).map(function(n) {
+            n.fillNewGenerationTable();
+            return n.nextStateCode;
+        }).join(' | ')));
+
         rule = code;
     }
 
-    function makeFunctions() {
-        var tableProcCode = '',
-            indexProcCode = [];
-
-        neighborhoodSize = Array.prototype.concat.apply([], neighborhoodData).reduce(function(prev, curr) {
-            var mask = Math.pow(2, curr.size) - 1;
-
-            tableProcCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
-            indexProcCode.push('(((' + curr.code + ') & ' + mask + ') << ' + prev + ')');
-
-            return prev + curr.size;
-        }, 0);
-
-        fillNewGenerationTable = eval(newGenerationCode.tableProc.replace('{{.}}', tableProcCode));
-        calculateNewGeneration = eval(newGenerationCode.indexProc.replace('{{.}}', indexProcCode.join(' | ')));
-    }
-
-    function setNeighborhoods(o) {
-        o = o instanceof Object ? o : {};
-
-        neighborhoodData = [
-            neighborhood.base,
-            neighborhood.main[neighborhood.main.hasOwnProperty(o.main) ? o.main : 'Moore-thin']
-        ].concat((o.extra instanceof Array ? o.extra : []).filter(function(n) {
-            return neighborhood.extra.hasOwnProperty(n);
-        }).map(function(n) {
-            return neighborhood.extra[n];
-        }));
+    function setNeighborhoods(a, b) {
+        CAA.setNeighborhoods(a);
+        CAB.setNeighborhoods(b);
     }
 
 
