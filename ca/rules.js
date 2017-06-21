@@ -225,6 +225,26 @@ makeTable(function(n) {\n\
     return n._center === 3 ? 3 : ([ 0, 0, 1, 2 ][n.center]);\n\
 });'
     }, {
+        name: 'Brownian',
+        code: 'setNeighborhoods({\n\
+    main: \'Margolus\'\n\
+}, {\n\
+    extra: [\'_center\']\n\
+});\n\
+\n\
+function bit(val) {\n\
+    return +!!(val & 2);\n\
+}\n\
+\n\
+makeTable(function(n) {\n\
+    var p1 = bit(n.ccw) & bit(n.opp) ^ bit(n.cw) ^ bit(n.center),\n\
+        rand = bit(n.ccw) ^ bit(n.opp) ^ bit(n.cw) ^ bit(n.center);\n\
+\n\
+    return ((rand ? n.cw : n.ccw) & 1) | (p1 << 1);\n\
+},  function(n) {\n\
+    return (n._center & 1) | n.center;\n\
+});'
+    }, {
         name: '30',
         code: 'makeTable(rules.elementary(30));'
     }, {
