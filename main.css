@@ -169,8 +169,8 @@ html {
 }
 .ca-state-name {
     display: inline-block;
-    vertical-align: top;
     font-size: 18px;
+    font-family: "Lucida Console", monospace;
 }
 .ca-state-color {
     display: inline-block;

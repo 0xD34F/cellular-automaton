@@ -132,7 +132,7 @@ var templates = {
 </table>',
     brushColorSelect:
 '{{#.}}\
-<div class="ca-state" ca-state="{{state}}"><span class="ca-state-name">state {{state}}</span><span class="ca-state-color" style="background-color: {{color}}"></span></div>\
+<div class="ca-state" ca-state="{{state}}"><span class="ca-state-name">{{label}}</span><span class="ca-state-color" style="background-color: {{color}}"></span></div>\
 {{/.}}'
 };
 
@@ -169,6 +169,7 @@ $(document).ready(function() {
     ca.cells.brush = caBrush.field.clone();
 
     $('#ca-brush').dialog({
+        width: 370,
         create: function() {
             $(this).find('.ca-state-select').on('click', '.ca-state', function() {
                 var $this = $(this);
@@ -184,6 +185,7 @@ $(document).ready(function() {
 
             $(this).find('.ca-state-select').html(Mustache.render(templates.brushColorSelect, $.map(colors, function(n, i) {
                 return isNaN(i) ? null : {
+                    label: (+i).toString(16).toUpperCase(),
                     state: i,
                     color: n
                 };
