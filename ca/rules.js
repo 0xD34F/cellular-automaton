@@ -209,6 +209,24 @@ function main(n) {\n\
     })[s];\n\
 }'
     }, {
+        name: 'Tube worms',
+        code: 'setNeighborhoods({\n\
+    extra: [\'_center\']\n\
+}, {\n\
+    extra: [\'_center\']\n\
+});\n\
+\n\
+function main_a(n) {\n\
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,\n\
+        alarm = [ 0, 0, 0, 1, 1, 1, 1, 1, 1 ][s];\n\
+\n\
+    return ([ 1, 0, 0, 0 ][n._center]) | (alarm << 1);\n\
+}\n\
+\n\
+function main_b(n) {\n\
+    return n._center === 3 ? 3 : ([ 0, 0, 1, 2 ][n.center]);\n\
+}'
+    }, {
         name: '30',
         code: 'var main = rules.elementary(30);'
     }, {
