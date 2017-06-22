@@ -115,11 +115,11 @@ var templates = {
     {{/.}}\
 </table>',
     colorSetting:
-'<table class="ca-options-table">\
+'<div class="ca-state-select row">\
     {{#.}}\
-    <tr><td>{{username}}</td><td><input type="text" class="jscolor" color-name="{{sysname}}" readonly="readonly"></td></tr>\
+    <div class="ca-state"><span class="ca-state-name">{{label}}</span><input type="text" class="jscolor" color-name="{{color}}" readonly="readonly"></div>\
     {{/.}}\
-</table>',
+</div>',
     bitPlanesShow:
 '<table class="ca-options-table">\
     <tr><th>Bit plane</th><th>Show</th></tr>\
@@ -268,7 +268,7 @@ $(document).ready(function() {
 
     $('#ca-view').dialog({
         width: 320,
-        height: 420,
+        height: 460,
         create: function() {
             var $this = $(this);
 
@@ -289,8 +289,8 @@ $(document).ready(function() {
 
             $this.find('#ca-view-colors').append(Mustache.render(templates.colorSetting, $.map(ca.view.colors, function(n, i) {
                 return {
-                    sysname: i,
-                    username: isNaN(i) ? i : ('state ' + i)
+                    color: i,
+                    label: isNaN(i) ? i : (+i).toString(16).toUpperCase()
                 };
             }))).find('.jscolor').each(function() {
                 this.jscolor = new jscolor(this, {

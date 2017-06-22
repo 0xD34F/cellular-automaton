@@ -147,35 +147,44 @@ html {
     width: 2.5em;
 }
 
-.ca-options-table input.jscolor {
+input.jscolor {
     width: 6em;
     text-align: right;
     font-family: "Lucida Console", monospace;
-    font-size: 1.2em;
     padding-right: .2em;
     box-sizing: border-box;
 }
 
-.ca-state-select {
+.ca-state-select.column {
     display: inline-flex;
     flex-flow: column wrap;
     justify-content: space-between;
     vertical-align: top;
 }
+.ca-state-select.row {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+}
+
 .ca-state {
     padding: 5px;
     cursor: pointer;
     border: 1px solid transparent;
 }
+.ca-state-select.row .ca-state {
+    padding: 5px 10px;
+}
 .ca-state-name {
     display: inline-block;
     font-size: 18px;
+    margin-right: 5px;
     font-family: "Lucida Console", monospace;
 }
 .ca-state-color {
     display: inline-block;
     vertical-align: top;
-    margin: 0 5px;
+    margin-right: 5px;
     width: 16px;
     height: 16px;
     border: 1px solid black;
@@ -226,13 +235,16 @@ button, input, textarea, select, li, .ui-selectmenu-button {
 
 .ui-tabs.ui-widget.ui-widget-content {
     border: 0;
+    padding: 0;
 }
 .ui-tabs .ui-tabs-nav {
     border: 0;
+    padding-top: 0;
     background-color: transparent;
 }
 .ui-tabs .ui-tabs-panel {
     border-top-width: 1px;
+    padding: .5em 0 0 0;
 }
 .ui-tabs .ui-tabs-nav .ui-tabs-anchor {
     padding: .2em .4em;
