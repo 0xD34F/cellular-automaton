@@ -254,20 +254,14 @@ $(document).ready(function() {
                     }
                 });
 
+                if (fillInvert.length) {
+                    ca.cells.invertBitPlane(fillInvert);
+                }
                 if (Object.keys(fillRandom).length) {
                     ca.cells.fillRandom(fillRandom);
                 }
                 if (Object.keys(fillCopy).length) {
                     ca.cells.copyBitPlane(fillCopy);
-                }
-                if (fillInvert.length) {
-                    var mask = fillInvert.reduce(function(prev, curr) {
-                        return prev | (1 << curr);
-                    }, 0);
-
-                    ca.cells.fill(function(x, y, value) {
-                        return value ^ mask;
-                    });
                 }
 
                 ca.view.render();

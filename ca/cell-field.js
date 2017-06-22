@@ -100,6 +100,16 @@ CellField.prototype.copy = function(source, options) {
     });
 };
 
+CellField.prototype.invertBitPlane = function(o) {
+    var mask = o.reduce(function(prev, curr) {
+        return prev | (1 << curr);
+    }, 0);
+
+    return this.fill(function(x, y, value) {
+        return value ^ mask;
+    });
+};
+
 // o - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости>, ... }
 CellField.prototype.copyBitPlane = function(o) {
     return this.fill(function(x, y, value) {
