@@ -100,6 +100,7 @@ var templates = {
             <select class="ca-filling-method" dir="rtl">\
                 <option value="random">Random</option>\
                 <option value="copy">Copy</option>\
+                <option value="invert">Invert</option>\
                 <option value="all1">All 1</option>\
                 <option value="all0">All 0</option>\
             </select>\
@@ -236,13 +237,15 @@ $(document).ready(function() {
         buttons: {
             'OK': closeDialog(function() {
                 var fillRandom = {},
-                    fillCopy = {};
+                    fillCopy = {},
+                    fillInvert = [];
 
                 this.find('.ca-bit-plane-cb').each(function(i) {
                     if (this.checked) {
                         var $tr = $(this).closest('tr');
 
                         switch ($tr.find('.ca-filling-method').val()) {
+                            case 'invert': fillInvert.push(i); break;
                             case   'all1': fillRandom[i] = ca.cells.randomFillDensityDescritization; break;
                             case   'all0': fillRandom[i] = 0; break;
                             case 'random': fillRandom[i] = $tr.find('.ca-filling-random input').val(); break;
@@ -256,6 +259,15 @@ $(document).ready(function() {
                 }
                 if (Object.keys(fillCopy).length) {
                     ca.cells.copyBitPlane(fillCopy);
+                }
+                if (fillInvert.length) {
+                    var mask = fillInvert.reduce(function(prev, curr) {
+                        return prev | (1 << curr);
+                    }, 0);
+
+                    ca.cells.fill(function(x, y, value) {
+                        return value ^ mask;
+                    });
                 }
 
                 ca.view.render();
