@@ -209,14 +209,11 @@ $(document).ready(function() {
                 planesHTML = Mustache.render(templates.fieldFilling, planesList);
 
             var max = ca.cells.randomFillDensityDescritization;
-            $(this).append(planesHTML).find('.ca-filling-random > input').each(function() {
-                $(this).val(max / 2).spinner({
-                    min: 0,
-                    max: max,
-                    step: 1,
-                    numberFormat: 'n'
-                });
-            }).end().find('select').selectmenu({
+            $(this).append(planesHTML).find('.ca-filling-random > input').spinner({
+                min: 0,
+                max: max,
+                step: 1
+            }).val(max / 2).end().find('select').selectmenu({
                 width: 100
             }).on('selectmenuchange', function(e, ui) {
                 $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find('.ca-filling-' + (ui ? ui.item.value : this.value)).show();
@@ -323,8 +320,7 @@ $(document).ready(function() {
                 }).end()
                 .find('.ca-bit-plane-cb').each(function(i) {
                     this.checked = !!(ca.view.showBitPlanes & (1 << i));
-                    $(this).change();
-                });
+                }).change();
         },
         buttons: {
             'OK': closeDialog(function() {
@@ -335,11 +331,9 @@ $(document).ready(function() {
                 });
                 ca.view.colors = newColors;
 
-                var t = 0;
-                this.find('.ca-bit-plane-cb').each(function(i) {
-                    t |= this.checked ? (1 << i) : 0;
-                });
-                ca.view.showBitPlanes = t;
+                ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce(function(prev, curr, i) {
+                    return prev | (+curr.checked << i);
+                }, 0);
 
                 ca.resize({
                     xSize: limitation(this.find('#ca-field-x-size').val(), X_SIZE_MIN, X_SIZE_MAX),
