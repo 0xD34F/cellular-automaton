@@ -323,6 +323,19 @@
 
             setTimeout(this.render.bind(this));
         }
+    }, {
+        wrapper: true,
+        events: [ 'mousewheel' ],
+        handler: function(e) {
+            if (!this.scalable) {
+                return;
+            }
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            this.changeScale(e.deltaY > 0 ? -1 : 1, e);
+        }
     } ];
 
     var userActions = {

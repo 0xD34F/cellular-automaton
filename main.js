@@ -152,6 +152,7 @@ $(document).ready(function() {
 
     var ca = window.ca = CellularAutomaton(X_SIZE_MAX, Y_SIZE_MAX, {
         wrapper: '#cells-wrapper',
+        scalable: true,
         cellSideMin: CELL_SIDE_MIN,
         cellSideMax: CELL_SIDE_MAX,
         cellSide: 2,
@@ -515,11 +516,6 @@ $(document).ready(function() {
 
         ca.newGeneration(steps);
     }).parent().find('input').width(50).val('1');
-
-    $(ca.view.canvas).parent().on('mousewheel', function(e) {
-        ca.view.changeScale(e.originalEvent.deltaY > 0 ? -1 : 1, e.originalEvent);
-        return false;
-    });
 
     var defaultRule = 'Conway\'s Life';
     ca.rule = rules.get(defaultRule);
