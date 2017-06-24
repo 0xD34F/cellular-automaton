@@ -105,9 +105,9 @@
                 { name: 's_east', size: 1, code: 'dXNext[yNext]' }
             ],
             Margolus: [
-                { name:  'cw', size: 2, code: 't ? d[h ^ v ? (h ? xNext : xPrev) : x][h ^ v ? y : (v ? yNext : yPrev)] : d[h ^ v ? (h ? xPrev : xNext) : x][h ^ v ? y : (v ? yPrev : yNext)]' },
-                { name: 'ccw', size: 2, code: 't ? d[h ^ v ? x : (h ? xNext : xPrev)][h ^ v ? (v ? yNext : yPrev) : y] : d[h ^ v ? x : (h ? xPrev : xNext)][h ^ v ? (v ? yPrev : yNext) : y]' },
-                { name: 'opp', size: 2, code: 't ? d[h ? xNext : xPrev][v ? yNext : yPrev] : d[h ? xPrev : xNext][v ? yPrev : yNext]' }
+                { name:  'cw', size: 2, code: 't ? (h ^ v ? (h ? dXNext : dXPrev) : dXCurr)[h ^ v ? y : (v ? yNext : yPrev)] : (h ^ v ? (h ? dXPrev : dXNext) : dXCurr)[h ^ v ? y : (v ? yPrev : yNext)]' },
+                { name: 'ccw', size: 2, code: 't ? (h ^ v ? dXCurr : (h ? dXNext : dXPrev))[h ^ v ? (v ? yNext : yPrev) : y] : (h ^ v ? dXCurr : (h ? dXPrev : dXNext))[h ^ v ? (v ? yPrev : yNext) : y]' },
+                { name: 'opp', size: 2, code: 't ? (h ? dXNext : dXPrev)[v ? yNext : yPrev] : (h ? dXPrev : dXNext)[v ? yPrev : yNext]' }
             ]
         },
         extra: {
