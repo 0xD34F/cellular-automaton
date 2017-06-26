@@ -57,12 +57,7 @@ makeTable(function(n) {\n\
 makeTable(function(n) {\n\
     var s = (n.north === 1) + (n.south === 1) + (n.west === 1) + (n.east === 1) + (n.n_west === 1) + (n.s_west === 1) + (n.n_east === 1) + (n.s_east === 1);\n\
 \n\
-    return ({\n\
-        0: 0,\n\
-        1: 2,\n\
-        2: 3,\n\
-        3: s === 1 || s === 2 ? 1 : 3\n\
-    })[n.center];\n\
+    return [ 0, 2, 3, s === 1 || s === 2 ? 1 : 3 ][n.center];\n\
 });'
     }, {
         name: 'Parity',
@@ -118,21 +113,13 @@ makeTable(function(n) {\n\
     main: \'Neumann\'\n\
 });\n\
 \n\
-function rand(n) {\n\
-  return (+!!((n.center & 2) && (n.north & 2) && (n.south & 2) && (n.west & 2) && (n.east & 2))) ^ 1;\n\
-}\n\
-\n\
 makeTable(function(n) {\n\
-    var s = (n.center & 1) + (n.north & 1) + (n.south & 1) + (n.west & 1) + (n.east & 1);\n\
+    var s = (n.center & 1) + (n.north & 1) + (n.south & 1) + (n.west & 1) + (n.east & 1),\n\
+        r = (+!!(2 & n.center & n.north & n.south & n.west & n.east)) ^ 1,\n\
+        p0 = [ 0, 0, r, +!r, 1, 1 ][s],\n\
+        p1 = (n.center & 2) ^ (n.north & 2) ^ (n.south & 2) ^ (n.west & 2) ^ (n.east & 2);\n\
 \n\
-    return ({\n\
-        0: 0,\n\
-        1: 0,\n\
-        2: rand(n),\n\
-        3: +!rand(n),\n\
-        4: 1,\n\
-        5: 1\n\
-    })[s];\n\
+    return p0 | p1;\n\
 });'
     }, {
         name: 'Time tunnel',
@@ -200,14 +187,10 @@ beforeNewGeneration = function() {\n\
 };\n\
 \n\
 makeTable(function(n) {\n\
-    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1);\n\
-    return ({\n\
-        0: n.center ^ 1,\n\
-        1: n.center ^ 1,\n\
-        2: n.center & 1,\n\
-        3: n.opp ^ 1,\n\
-        4: n.center ^ 1\n\
-    })[s];\n\
+    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1),\n\
+        c = n.center ^ 1;\n\
+\n\
+    return [ c, c, n.center & 1, n.opp ^ 1, c ][s];\n\
 });'
     }, {
         name: 'Tron',
@@ -216,14 +199,10 @@ makeTable(function(n) {\n\
 });\n\
 \n\
 makeTable(function(n) {\n\
-    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1);\n\
-    return ({\n\
-        0: 1,\n\
-        1: n.center,\n\
-        2: n.center,\n\
-        3: n.center,\n\
-        4: 0\n\
-    })[s];\n\
+    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1),\n\
+        c = n.center;\n\
+\n\
+    return [ 1, c, c, c, 0 ][s];\n\
 });'
     }, {
         name: 'Tube worms',
