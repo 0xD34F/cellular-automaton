@@ -130,7 +130,7 @@ CellField.prototype.fillRandom = function(o) {
         for (var i in o) {
             var mask = (1 << i);
 
-            if (random(this.randomFillDensityDescritization) < o[i]) {
+            if (Math.floor(Math.random() * this.randomFillDensityDescritization) < o[i]) {
                 value |= mask;
             } else {
                 value &= ~mask;

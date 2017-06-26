@@ -13,7 +13,24 @@
         p1 = (+!!n.center) | p0;\n\
 \n\
     return p0 | (p1 << 1);\n\
-})'
+});'
+    }, {
+        name: 'Conway\'s Life (stochastic)',
+        code: 'setNeighborhoods({\n\
+    extra: [\'rand\']\n\
+});\n\
+\n\
+makeTable(function(n) {\n\
+    var birth = 14,\n\
+        death = 14;\n\
+\n\
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
+    if (n.center & 1) {\n\
+        return s === 3 || s === 2 ? 1 : (n.rand < death ? 0 : 1);\n\
+    } else {\n\
+        return s === 3 ? (n.rand < birth ? 1 : 0) : 0;\n\
+    }\n\
+});'
     }, {
         name: 'Brian\'s brain',
         code: 'function ready(n) {\n\

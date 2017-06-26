@@ -248,7 +248,7 @@
             x: t ? Math.floor(p.scrollLeft / s) : 0,
             y: t ? Math.floor(p.scrollTop  / s) : 0,
             xSize: t ? Math.ceil(p.clientWidth  / s) : view.field.xSize,
-            ySize: t ? Math.ceil(p.clientHeight / s) : view.field.ySize,
+            ySize: t ? Math.ceil(p.clientHeight / s) : view.field.ySize
         };
     };
 

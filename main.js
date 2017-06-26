@@ -42,11 +42,6 @@ function shiftArray(array, shift) {
     }
 }
 
-function random(max, min) {
-    min = min || 0;
-    return Math.floor(Math.random() * (max - min)) + min;
-}
-
 function limitation(val, min, max) {
     val = val >> 0;
 
