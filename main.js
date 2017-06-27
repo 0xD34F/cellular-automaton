@@ -1,25 +1,4 @@
-﻿(function() {
-    if (typeof window.CustomEvent === 'function') {
-        return;
-    }
-
-    function CustomEvent (event, params) {
-        params = params || {
-            bubbles: false,
-            cancelable: false,
-            detail: undefined
-        };
-
-        var e = document.createEvent('CustomEvent');
-        e.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
-        return e;
-    }
-    CustomEvent.prototype = window.Event.prototype;
-
-    window.CustomEvent = CustomEvent;
-})();
-
-function shiftArray(array, shift) {
+﻿function shiftArray(array, shift) {
     var from = 0,
         val = array[from],
         group = 1;
