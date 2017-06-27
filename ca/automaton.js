@@ -18,61 +18,61 @@
     };
     _CA.prototype.getNextStateCode = function() {
         var shift = this.shift,
-            tableProcCode = '',
+            neighborsCode = '',
             nextStateCode = [];
 
         var neighborhoodSize = this.neighbors.reduce(function(prev, curr) {
             var mask = Math.pow(2, curr.size) - 1;
 
-            tableProcCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
+            neighborsCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
             nextStateCode.push('((((' + curr.code + ') & ' + (mask << shift) + ') >> ' + shift + ') << ' + prev + ')');
 
             return prev + curr.size;
         }, 0);
 
-        var tableProc = eval(this.tableProcCode.replace('{{.}}', tableProcCode));
+        var tableProc = eval(this.tableProcCode(neighborsCode));
         this.table = tableProc(this.nextState, neighborhoodSize);
 
         return '(table_' + this.name + '[' + nextStateCode.join(' | ') + '] << ' + shift + ')';
     };
-    _CA.prototype.tableProcCode = '\
-(function(nextState, neighborhoodSize) {\
-    var table = new Array(Math.pow(2, neighborhoodSize));\
-\
-    for (var i = 0; i < table.length; i++) {\
-        var n = {};\
-        {{.}}\
-        table[i] = nextState(n) & 3;\
-    }\
-\
-    return table;\
-})';
-    _CA.prototype.newGenerationCode = '\
-(function(d, newD) {\
-    var table_a = CAA.table,\
-        table_b = CAB.table,\
-        xSize = d.length,\
-        ySize = d[0].length,\
-        t = time & 1;\
-\
-    for (var x = 0; x < xSize; x++) {\
-        var newDX = newD[x],\
-            xPrev = x === 0 ? xSize - 1 : x - 1,\
-            xNext = x === xSize - 1 ? 0 : x + 1,\
-            dXCurr = d[x],\
-            dXPrev = d[xPrev],\
-            dXNext = d[xNext],\
-            h = x & 1;\
-\
-        for (var y = 0; y < ySize; y++) {\
-            var yPrev = y === 0 ? ySize - 1 : y - 1,\
-                yNext = y === ySize - 1 ? 0 : y + 1,\
-                v = y & 1;\
-\
-            newDX[y] = {{.}};\
-        }\
-    }\
-})';
+    _CA.prototype.tableProcCode = neighborsCode => `
+(function(nextState, neighborhoodSize) {
+    var table = new Array(Math.pow(2, neighborhoodSize));
+
+    for (var i = 0; i < table.length; i++) {
+        var n = {};
+        ${neighborsCode}
+        table[i] = nextState(n) & 3;
+    }
+
+    return table;
+})`;
+    _CA.prototype.newGenerationCode = nextStateCode => `
+(function(d, newD) {
+    var table_a = CAA.table,
+        table_b = CAB.table,
+        xSize = d.length,
+        ySize = d[0].length,
+        t = time & 1;
+
+    for (var x = 0; x < xSize; x++) {
+        var newDX = newD[x],
+            xPrev = x === 0 ? xSize - 1 : x - 1,
+            xNext = x === xSize - 1 ? 0 : x + 1,
+            dXCurr = d[x],
+            dXPrev = d[xPrev],
+            dXNext = d[xNext],
+            h = x & 1;
+
+        for (var y = 0; y < ySize; y++) {
+            var yPrev = y === 0 ? ySize - 1 : y - 1,
+                yNext = y === ySize - 1 ? 0 : y + 1,
+                v = y & 1;
+
+            newDX[y] = ${nextStateCode};
+        }
+    }
+})`;
     _CA.prototype.neighborhood = {
         base: [
             { name: 'center', size: 2, code: 'dXCurr[y]' }
@@ -209,7 +209,7 @@
 
         eval(code);
 
-        calculateNewGeneration = eval(_CA.prototype.newGenerationCode.replace('{{.}}', [ CAA, CAB ].filter(function(n) {
+        calculateNewGeneration = eval(_CA.prototype.newGenerationCode([ CAA, CAB ].filter(function(n) {
             return n.nextState instanceof Function;
         }).map(function(n) {
             return n.getNextStateCode();
