@@ -64,51 +64,53 @@ function closeDialog(f) {
 }
 
 var templates = {
-    fieldFilling:
-'<table class="ca-options-table" style="table-layout: fixed;">\
-    <tr><th width="65px">Bit plane</th><th width="100px">Method</th><th width="185px"></th><th width="35px">Fill</th></tr>\
-    {{#.}}\
-    <tr data-bit-plane="{{.}}">\
-        <td class="ca-bit-plane">{{.}}</td>\
-        <td>\
-            <select class="ca-filling-method" dir="rtl">\
-                <option value="random">Random</option>\
-                <option value="copy">Copy</option>\
-                <option value="invert">Invert</option>\
-                <option value="all1">All 1</option>\
-                <option value="all0">All 0</option>\
-            </select>\
-        </td>\
-        <td class="ca-filling-options">\
-            <div class="ca-filling-random"><span class="ca-filling-options-note">density, ‰</span><input type="text"></div>\
-            <div class="ca-filling-copy"><span class="ca-filling-options-note">from plane</span><input type="text" readonly="readonly"></div>\
-        </td>\
-        <td class="ca-bit-plane">\
-            <input type="checkbox" id="ca-filling-fill-plane-{{.}}" class="ca-bit-plane-cb"><label for="ca-filling-fill-plane-{{.}}"></label>\
-        </td>\
-    </tr>\
-    {{/.}}\
-</table>',
-    colorSetting:
-'<div class="ca-state-select row">\
-    {{#.}}\
-    <div class="ca-state"><span class="ca-state-name">{{label}}</span><input type="text" class="jscolor" color-name="{{color}}" readonly="readonly"></div>\
-    {{/.}}\
-</div>',
-    bitPlanesShow:
-'<table class="ca-options-table">\
-    <tr><th>Bit plane</th><th>Show</th></tr>\
-    {{#.}}\
-    <tr>\
-        <td class="ca-bit-plane">{{.}}</td>\
-        <td class="ca-bit-plane"><input type="checkbox" id="ca-show-plane-{{.}}" class="ca-bit-plane-cb"><label for="ca-show-plane-{{.}}"></label></td>\
-    </tr>\
-    {{/.}}\
-</table>',
-    brushColorSelect:
-'{{#.}}\
-<div class="ca-state" ca-state="{{state}}"><span class="ca-state-name">{{label}}</span><span class="ca-state-color" style="background-color: {{color}}"></span></div>\
-{{/.}}'
+    fieldFilling: bitPlanes => `
+<table class="ca-options-table" style="table-layout: fixed;">
+    <tr><th width="65px">Bit plane</th><th width="100px">Method</th><th width="185px"></th><th width="35px">Fill</th></tr>
+${bitPlanes.map(n => `
+    <tr data-bit-plane="${n}">
+        <td class="ca-bit-plane">${n}</td>
+        <td>
+            <select class="ca-filling-method" dir="rtl">
+                <option value="random">Random</option>
+                <option value="copy">Copy</option>
+                <option value="invert">Invert</option>
+                <option value="all1">All 1</option>
+                <option value="all0">All 0</option>
+            </select>
+        </td>
+        <td class="ca-filling-options">
+            <div class="ca-filling-random"><span class="ca-filling-options-note">density, ‰</span><input type="text"></div>
+            <div class="ca-filling-copy"><span class="ca-filling-options-note">from plane</span><input type="text" readonly="readonly"></div>
+        </td>
+        <td class="ca-bit-plane">
+            <input type="checkbox" id="ca-filling-fill-plane-${n}" class="ca-bit-plane-cb"><label for="ca-filling-fill-plane-${n}"></label>
+        </td>
+    </tr>
+`).join('')}
+</table>`,
+
+    colorSetting: colors => `
+<div class="ca-state-select row">
+${colors.map(n => `
+    <div class="ca-state"><span class="ca-state-name">${n.label}</span><input type="text" class="jscolor" color-name="${n.color}" readonly="readonly"></div>
+`).join('')}
+</div>`,
+
+    bitPlanesShow: bitPlanes => `
+<table class="ca-options-table">
+    <tr><th>Bit plane</th><th>Show</th></tr>
+${bitPlanes.map(n => `
+    <tr>
+        <td class="ca-bit-plane">${n}</td>
+        <td class="ca-bit-plane"><input type="checkbox" id="ca-show-plane-${n}" class="ca-bit-plane-cb"><label for="ca-show-plane-${n}"></label></td>
+    </tr>
+`).join('')}
+</table>`,
+
+    brushColorSelect: colors => colors.map(n => `
+        <div class="ca-state" ca-state="${n.state}"><span class="ca-state-name">${n.label}</span><span class="ca-state-color" style="background-color: ${n.color}"></span></div>
+    `).join('')
 };
 
 
@@ -159,7 +161,7 @@ $(document).ready(function() {
             caBrush.field.copy(ca.cells.brush);
             caBrush.render();
 
-            $(this).find('.ca-state-select').html(Mustache.render(templates.brushColorSelect, $.map(colors, function(n, i) {
+            $(this).find('.ca-state-select').html(templates.brushColorSelect($.map(colors, function(n, i) {
                 return isNaN(i) ? null : {
                     label: (+i).toString(16).toUpperCase(),
                     state: i,
@@ -180,7 +182,7 @@ $(document).ready(function() {
         width: 480,
         create: function() {
             var planesList = ca.cells.getBitPlanes(),
-                planesHTML = Mustache.render(templates.fieldFilling, planesList);
+                planesHTML = templates.fieldFilling(planesList);
 
             var max = ca.cells.randomFillDensityDescritization;
             $(this).append(planesHTML).find('.ca-filling-random > input').spinner({
@@ -265,7 +267,7 @@ $(document).ready(function() {
             $this.find('#ca-field-x-size, #ca-field-y-size').parent().addClass('ca-start-disable');
 
 
-            $this.find('#ca-view-colors').append(Mustache.render(templates.colorSetting, $.map(ca.view.colors, function(n, i) {
+            $this.find('#ca-view-colors').append(templates.colorSetting($.map(ca.view.colors, function(n, i) {
                 return {
                     color: i,
                     label: isNaN(i) ? i : (+i).toString(16).toUpperCase()
@@ -278,7 +280,7 @@ $(document).ready(function() {
 
 
             $this
-                .find('#ca-view-planes').append(Mustache.render(templates.bitPlanesShow, ca.cells.getBitPlanes()))
+                .find('#ca-view-planes').append(templates.bitPlanesShow(ca.cells.getBitPlanes()))
                 .find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
         open: function() {
