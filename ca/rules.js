@@ -249,6 +249,14 @@ makeTable(function(n) {\n\
     }, {
         name: '126',
         code: 'makeTable(rules.elementary(126));'
+    }, {
+        name: 'Cyclic',
+        code: 'function main(n) {\n\
+    var t = (n.center + 1) & 15,\n\
+        s = (n.north === t) + (n.south === t) + (n.west === t) + (n.east === t);\n\
+\n\
+    return s ? t : n.center;\n\
+}'
     } ].map(function(n) {
         n.predefined = true;
         return n;
