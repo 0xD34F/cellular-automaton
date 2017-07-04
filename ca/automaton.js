@@ -1,4 +1,5 @@
 ﻿var CellularAutomaton = function(xSize, ySize, viewOptions) {
+
     function _CA(shift, neighborhood) {
         this.shift = shift;
         this.customNeighborhood = neighborhood instanceof Object ? neighborhood : {};
@@ -7,72 +8,32 @@
         o = o instanceof Object ? o : {};
 
         this.neighbors = Array.prototype.concat.apply([], [
-            this.neighborhood.base,
-            this.neighborhood.main[this.neighborhood.main.hasOwnProperty(o.main) ? o.main : 'Moore-thin']
-        ].concat((o.extra instanceof Array ? o.extra : []).map(function(n) {
-            return this.customNeighborhood[n] || this.neighborhood.extra[n];
-        }.bind(this)).filter(function(n) {
-            return !!n;
-        })));
+            neighborhood.base,
+            neighborhood.main[neighborhood.main.hasOwnProperty(o.main) ? o.main : 'Moore'],
+            ...(Array.isArray(o.extra) ? o.extra : []).map(n => this.customNeighborhood[n] || neighborhood.extra[n]).filter(n => !!n)
+        ]);
     };
     _CA.prototype.getNextStateCode = function() {
         var shift = this.shift,
-            neighborsCode = '',
+            neighborsCode = [],
             nextStateCode = [];
 
         var neighborhoodSize = this.neighbors.reduce(function(prev, curr) {
-            var mask = Math.pow(2, curr.size) - 1;
+            var mask = bitMask(curr.size);
 
-            neighborsCode += 'n.' + curr.name + ' = (i & (' + mask + ' << ' + prev + ')) >> ' + prev + ';';
-            nextStateCode.push('((((' + curr.code + ') & ' + (mask << shift) + ') >> ' + shift + ') << ' + prev + ')');
+            neighborsCode.push(codeTemplate.indexToNeighbor(curr.name, mask, prev));
+            nextStateCode.push(codeTemplate.neighborToIndex(curr.code, mask, prev, shift));
 
             return prev + curr.size;
         }, 0);
 
-        var tableProc = eval(this.tableProcCode(neighborsCode));
+        var tableProc = eval(codeTemplate.tableProc(neighborsCode));
         this.table = tableProc(this.nextState, neighborhoodSize);
 
-        return '(table_' + shift + '[' + nextStateCode.join(' | ') + '] << ' + shift + ')';
+        return codeTemplate.nextStateFromTable(nextStateCode, shift);
     };
-    _CA.prototype.tableProcCode = neighborsCode => `
-(function(nextState, neighborhoodSize) {
-    var table = new Array(Math.pow(2, neighborhoodSize));
 
-    for (var i = 0; i < table.length; i++) {
-        var n = {};
-        ${neighborsCode}
-        table[i] = nextState(n) & 3;
-    }
-
-    return table;
-})`;
-    _CA.newGenerationCode = nextStateCode => `
-(function(d, newD) {
-    var table_0 = CAA.table,
-        table_2 = CAB.table,
-        xSize = d.length,
-        ySize = d[0].length,
-        t = time & 1;
-
-    for (var x = 0; x < xSize; x++) {
-        var newDX = newD[x],
-            xPrev = x === 0 ? xSize - 1 : x - 1,
-            xNext = x === xSize - 1 ? 0 : x + 1,
-            dXCurr = d[x],
-            dXPrev = d[xPrev],
-            dXNext = d[xNext],
-            h = x & 1;
-
-        for (var y = 0; y < ySize; y++) {
-            var yPrev = y === 0 ? ySize - 1 : y - 1,
-                yNext = y === ySize - 1 ? 0 : y + 1,
-                v = y & 1;
-
-            newDX[y] = ${nextStateCode};
-        }
-    }
-})`;
-    _CA.prototype.neighborhood = {
+    var neighborhood = {
         base: [
             { name: 'center', size: 2, code: 'dXCurr[y]' }
         ],
@@ -83,17 +44,7 @@
                 { name:  'west', size: 2, code: 'dXPrev[y]' },
                 { name:  'east', size: 2, code: 'dXNext[y]' }
             ],
-            'Moore-thick': [
-                { name:  'north', size: 2, code: 'dXCurr[yPrev]' },
-                { name:  'south', size: 2, code: 'dXCurr[yNext]' },
-                { name:   'west', size: 2, code: 'dXPrev[y]' },
-                { name:   'east', size: 2, code: 'dXNext[y]' },
-                { name: 'n_west', size: 2, code: 'dXPrev[yPrev]' },
-                { name: 's_west', size: 2, code: 'dXPrev[yNext]' },
-                { name: 'n_east', size: 2, code: 'dXNext[yPrev]' },
-                { name: 's_east', size: 2, code: 'dXNext[yNext]' }
-            ],
-            'Moore-thin': [
+            Moore: [
                 { name:  'north', size: 1, code: 'dXCurr[yPrev]' },
                 { name:  'south', size: 1, code: 'dXCurr[yNext]' },
                 { name:   'west', size: 1, code: 'dXPrev[y]' },
@@ -122,6 +73,58 @@
             ]
         }
     };
+    neighborhood.main['Moore-thick'] = neighborhood.main.Moore.map(n => Object.assign({}, n, { size: 2 }));
+
+    var codeTemplate = {
+
+        indexToNeighbor: (name, mask, position, index) => `${name}: (i & ${mask << position}) >> ${position}`,
+
+        neighborToIndex: (code, mask, position, shift) => `((((${code}) & ${mask << shift}) >> ${shift}) << ${position})`,
+
+        nextStateFromTable: (neighbors, shift) => `(table_${shift}[${neighbors.join('|')}] << ${shift})`,
+
+        nextStateCalculation: neighbors => `main({${neighbors.map(n => `${n.name + ':' + n.code}`).join(',')}}) & 15`,
+
+        tableProc: neighborsCode => `
+(function(nextState, neighborhoodSize) {
+    var table = new Array(Math.pow(2, neighborhoodSize));
+
+    for (var i = 0; i < table.length; i++) {
+        table[i] = nextState({
+            ${neighborsCode.join(',')}
+        }) & 3;
+    }
+
+    return table;
+})`,
+
+        newGeneration: nextStateCode => `
+(function(d, newD) {
+    var table_0 = CAA.table,
+        table_2 = CAB.table,
+        xSize = d.length,
+        ySize = d[0].length,
+        t = time & 1;
+
+    for (var x = 0; x < xSize; x++) {
+        var newDX = newD[x],
+            xPrev = x === 0 ? xSize - 1 : x - 1,
+            xNext = x === xSize - 1 ? 0 : x + 1,
+            dXCurr = d[x],
+            dXPrev = d[xPrev],
+            dXNext = d[xNext],
+            h = x & 1;
+
+        for (var y = 0; y < ySize; y++) {
+            var yPrev = y === 0 ? ySize - 1 : y - 1,
+                yNext = y === ySize - 1 ? 0 : y + 1,
+                v = y & 1;
+
+            newDX[y] = ${nextStateCode};
+        }
+    }
+})`
+    };
 
     var CAA = new _CA(0, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] & 12) >> 2' } ] }),
         CAB = new _CA(2, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] &  3) << 2' } ] });
@@ -136,44 +139,49 @@
 
     var view = CellFieldView(cells, viewOptions);
 
-    var MIN_STEPS = 1,
-        MAX_STEPS = 100,
-        steps = MIN_STEPS;
-
     var timer = {
         intervalID: null,
         MIN_DELAY: 1,
         MAX_DELAY: 10000,
         _delay: 30,
         get delay() {
-            return timer._delay;
+            return this._delay;
         },
         set delay(value) {
-            timer._delay = limitation(value, this.MIN_DELAY, this.MAX_DELAY);
-            if (timer.intervalID) {
-                timer.stop();
-                timer.start();
+            this._delay = limitation(value, this.MIN_DELAY, this.MAX_DELAY);
+            if (this.intervalID) {
+                this.stop();
+                this.start();
             }
         },
+        MIN_STEPS: 1,
+        MAX_STEPS: 100,
+        _steps: 1,
+        get steps() {
+            return this._steps;
+        },
+        set steps(value) {
+            this._steps = limitation(value, this.MIN_STEPS, this.MAX_STEPS);
+        },
         start: function() {
-            if (timer.intervalID) {
+            if (this.intervalID) {
                 return false;
             }
 
-            timer.intervalID = setInterval(function() {
-                newGeneration(steps);
+            this.intervalID = setInterval(() => {
+                newGeneration(this.steps);
                 view.render();
-            }, timer.delay);
+            }, this.delay);
 
             return true;
         },
         stop: function() {
-            if (!timer.intervalID) {
+            if (!this.intervalID) {
                 return false;
             }
 
-            clearInterval(timer.intervalID);
-            timer.intervalID = null;
+            clearInterval(this.intervalID);
+            this.intervalID = null;
 
             return true;
         }
@@ -209,11 +217,9 @@
         eval(code);
 
         if (typeof main === 'function') {
-            calculateNewGeneration = eval(_CA.newGenerationCode('main({' + CAA.neighbors.map(function(n) {
-                return n.name + ': ' + n.code;
-            }).join(',') + '}) &' + (Math.pow(2, cells.numBitPlanes) - 1)));
+            calculateNewGeneration = eval(codeTemplate.newGeneration(codeTemplate.nextStateCalculation(CAA.neighbors)));
         } else {
-            calculateNewGeneration = eval(_CA.newGenerationCode([ CAA, CAB ].filter(function(n) {
+            calculateNewGeneration = eval(codeTemplate.newGeneration([ CAA, CAB ].filter(function(n) {
                 return n.nextState instanceof Function;
             }).map(function(n) {
                 return n.getNextStateCode();
@@ -301,10 +307,10 @@
             }
         },
         get stepsPerStroke() {
-            return steps;
+            return timer.steps;
         },
         set stepsPerStroke(value) {
-            steps = limitation(value, MIN_STEPS, MAX_STEPS);
+            timer.steps = value;
         },
         get strokeDuration() {
             return timer.delay;

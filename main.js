@@ -34,6 +34,10 @@ function limitation(val, min, max) {
     return val;
 }
 
+function bitMask(size) {
+    return Math.pow(2, size) - 1;
+}
+
 $.extend($.ui.dialog.prototype.options, {
     modal: true,
     autoOpen: false,
