@@ -1,6 +1,5 @@
 ﻿var CellularAutomaton = function(xSize, ySize, viewOptions) {
-    function _CA(name, shift, neighborhood) {
-        this.name = name;
+    function _CA(shift, neighborhood) {
         this.shift = shift;
         this.customNeighborhood = neighborhood instanceof Object ? neighborhood : {};
     }
@@ -33,7 +32,7 @@
         var tableProc = eval(this.tableProcCode(neighborsCode));
         this.table = tableProc(this.nextState, neighborhoodSize);
 
-        return '(table_' + this.name + '[' + nextStateCode.join(' | ') + '] << ' + shift + ')';
+        return '(table_' + shift + '[' + nextStateCode.join(' | ') + '] << ' + shift + ')';
     };
     _CA.prototype.tableProcCode = neighborsCode => `
 (function(nextState, neighborhoodSize) {
@@ -47,10 +46,10 @@
 
     return table;
 })`;
-    _CA.prototype.newGenerationCode = nextStateCode => `
+    _CA.newGenerationCode = nextStateCode => `
 (function(d, newD) {
-    var table_a = CAA.table,
-        table_b = CAB.table,
+    var table_0 = CAA.table,
+        table_2 = CAB.table,
         xSize = d.length,
         ySize = d[0].length,
         t = time & 1;
@@ -124,8 +123,8 @@
         }
     };
 
-    var CAA = new _CA('a', 0, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] & 12) >> 2' } ] }),
-        CAB = new _CA('b', 2, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] &  3) << 2' } ] });
+    var CAA = new _CA(0, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] & 12) >> 2' } ] }),
+        CAB = new _CA(2, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] &  3) << 2' } ] });
 
     var calculateNewGeneration = null,
         beforeNewGeneration = null;
@@ -209,11 +208,17 @@
 
         eval(code);
 
-        calculateNewGeneration = eval(_CA.prototype.newGenerationCode([ CAA, CAB ].filter(function(n) {
-            return n.nextState instanceof Function;
-        }).map(function(n) {
-            return n.getNextStateCode();
-        }).join(' | ')));
+        if (typeof main === 'function') {
+            calculateNewGeneration = eval(_CA.newGenerationCode('main({' + CAA.neighbors.map(function(n) {
+                return n.name + ': ' + n.code;
+            }).join(',') + '}) &' + (Math.pow(2, cells.numBitPlanes) - 1)));
+        } else {
+            calculateNewGeneration = eval(_CA.newGenerationCode([ CAA, CAB ].filter(function(n) {
+                return n.nextState instanceof Function;
+            }).map(function(n) {
+                return n.getNextStateCode();
+            }).join(' | ')));
+        }
 
         rule = code;
     }
