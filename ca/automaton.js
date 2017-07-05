@@ -83,7 +83,7 @@
 
         nextStateFromTable: (neighbors, shift) => `(table_${shift}[${neighbors.join('|')}] << ${shift})`,
 
-        nextStateCalculation: neighbors => `main({${neighbors.map(n => `${n.name + ':' + n.code}`).join(',')}}) & 15`,
+        nextStateCalculation: neighbors => `main({${neighbors.map(n => `${n.name + ':' + n.code}`).join(',')}}) & ${bitMask(cells.numBitPlanes)}`,
 
         tableProc: neighborsCode => `
 (function(nextState, neighborhoodSize) {
