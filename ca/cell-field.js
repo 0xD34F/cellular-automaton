@@ -11,23 +11,12 @@ CellField.prototype.getBitPlanes = function() {
     return [...Array(this.numBitPlanes)].map((n, i) => i);
 };
 
-CellField.prototype.dispatchEvent = function(eventName, data) {
-    data = data instanceof Object ? data : {};
-    data.cellField = this;
-
-    document.dispatchEvent(new CustomEvent(eventName, {
-        detail: data
-    }));
-
-    return this;
-};
-
 CellField.prototype.resize = function(x, y) {
     this.xSize = x;
     this.ySize = y;
     this.data = [...Array(x)].map(() => Array(y).fill(0));
 
-    return this.dispatchEvent('cell-field-resize');
+    return this;
 };
 
 CellField.prototype.fill = function(f) {
@@ -37,9 +26,7 @@ CellField.prototype.fill = function(f) {
         }
     }
 
-    return this.dispatchEvent('cell-field-fill', {
-        filled: f
-    });
+    return this;
 };
 
 CellField.prototype.shift = function(x, y) {
@@ -51,15 +38,11 @@ CellField.prototype.shift = function(x, y) {
         shiftArray(this.data[i], y);
     }
 
-    return this.dispatchEvent('cell-field-shift', {
-        shifted: { x, y }
-    });
+    return this;
 };
 
 CellField.prototype.clone = function() {
-    return CellField(this.xSize, this.ySize).copy(this).dispatchEvent('cell-field-clone', {
-        cloned: this
-    });
+    return CellField(this.xSize, this.ySize).copy(this);
 };
 
 CellField.prototype.copy = function(source, options) {
@@ -84,9 +67,7 @@ CellField.prototype.copy = function(source, options) {
         }
     }
 
-    return this.dispatchEvent('cell-field-copy', {
-        copied: { source, options }
-    });
+    return this;
 };
 
 // o - массив номеров битовых плоскостей

@@ -47,7 +47,11 @@
         },
         set: function(value) {
             this._mode = value;
-            this.field.dispatchEvent('cell-field-mode');
+            document.dispatchEvent(new CustomEvent('cell-field-mode', {
+                detail: {
+                    cellField: this.field
+                }
+            }));
             this.canvas.setAttribute('data-mode', value);
         }
     });
@@ -167,7 +171,6 @@
             d[i + 3] = 255;
         }
 
-        this.field.dispatchEvent('cell-field-resize-view');
         this.render();
     };
 
@@ -283,7 +286,6 @@
         events: [ 'mouseup', 'mouseleave' ],
         handler: function(e) {
             this.oldEventCoord = {};
-            this.field.dispatchEvent('cell-field-' + this.mode + '-ended');
         }
     }, {
         events: [ 'mousedown', 'mousemove' ],
