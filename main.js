@@ -340,7 +340,7 @@ $(document).ready(function() {
                 source: function(request, response) {
                     var term = request.term.toLowerCase();
 
-                    response(rules.predefined().concat(rules.saved()).filter(function(n) {
+                    response(rules.get().filter(function(n) {
                         return !!n.name.toLowerCase().match(term);
                     }).map(function(n) {
                         return {

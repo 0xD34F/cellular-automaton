@@ -277,15 +277,11 @@ makeTable(function(n) {\n\
     }
 
     function isPredefined(name) {
-        return predefinedRules.some(function(n) {
-            return n.name === name;
-        });
+        return predefinedRules.some(n => n.name === name);
     }
 
     function deleteSaved(name) {
-        var i = savedRules.findIndex(function(n) {
-            return n.name === name;
-        });
+        var i = savedRules.findIndex(n => n.name === name);
         if (i === -1) {
             return false;
         }
@@ -313,13 +309,7 @@ makeTable(function(n) {\n\
         get: function(name) {
             var rules = predefinedRules.concat(savedRules);
 
-            for (var i = 0; i < rules.length; i++) {
-                if (rules[i].name === name) {
-                    return rules[i].code;
-                }
-            }
-
-            return null;
+            return name ? ((rules.find(n => n.name === name) || {}).code || '') : rules;
         },
         save: function(name, code) {
             var err = [];
@@ -360,12 +350,6 @@ makeTable(function(n) {\n\
 
             save();
             return result(true, 'rule "' + name + '" deleted');
-        },
-        saved: function() {
-            return savedRules;
-        },
-        predefined: function() {
-            return predefinedRules;
         }
     };
 })();
