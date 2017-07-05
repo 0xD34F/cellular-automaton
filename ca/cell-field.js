@@ -8,12 +8,7 @@ Object.defineProperty(CellField.prototype, 'numBitPlanes', {
     }
 });
 CellField.prototype.getBitPlanes = function() {
-    var planes = [];
-    for (var i = 0; i < this.numBitPlanes; i++) {
-        planes.push(i);
-    }
-
-    return planes;
+    return [...Array(this.numBitPlanes)].map((n, i) => i);
 };
 
 CellField.prototype.dispatchEvent = function(eventName, data) {
@@ -30,13 +25,9 @@ CellField.prototype.dispatchEvent = function(eventName, data) {
 CellField.prototype.resize = function(x, y) {
     this.xSize = x;
     this.ySize = y;
+    this.data = [...Array(x)].map(() => Array(y).fill(0));
 
-    this.data = new Array(x);
-    for (var i = 0; i < x; i++) {
-        this.data[i] = new Array(y);
-    }
-
-    return this.clear().dispatchEvent('cell-field-resize');
+    return this.dispatchEvent('cell-field-resize');
 };
 
 CellField.prototype.fill = function(f) {
@@ -61,10 +52,7 @@ CellField.prototype.shift = function(x, y) {
     }
 
     return this.dispatchEvent('cell-field-shift', {
-        shifted: {
-            x: x,
-            y: y
-        }
+        shifted: { x, y }
     });
 };
 
@@ -97,21 +85,15 @@ CellField.prototype.copy = function(source, options) {
     }
 
     return this.dispatchEvent('cell-field-copy', {
-        copied: {
-            source: source,
-            options: options
-        }
+        copied: { source, options }
     });
 };
 
+// o - массив номеров битовых плоскостей
 CellField.prototype.invertBitPlane = function(o) {
-    var mask = o.reduce(function(prev, curr) {
-        return prev | (1 << curr);
-    }, 0);
+    var mask = o.reduce((prev, curr) => prev | (1 << curr), 0);
 
-    return this.fill(function(x, y, value) {
-        return value ^ mask;
-    });
+    return this.fill((x, y, value) => value ^ mask);
 };
 
 // o - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости>, ... }
@@ -142,11 +124,5 @@ CellField.prototype.fillRandom = function(o) {
         }
 
         return value;
-    });
-};
-
-CellField.prototype.clear = function() {
-    return this.fill(function() {
-        return 0;
     });
 };

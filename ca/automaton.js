@@ -251,10 +251,7 @@
             }
 
             calculateNewGeneration(cells.data, newCells.data);
-
-            var t = newCells.data;
-            newCells.data = cells.data;
-            cells.data = t;
+            [ newCells.data, cells.data ] = [ cells.data, newCells.data ];
 
             time++;
         }
@@ -296,7 +293,7 @@
             view.resize(o.cellSide, o.cellBorder);
         },
         clear: function() {
-            cells.clear();
+            cells.fill(() => 0);
             view.render();
         },
         newGeneration: function(n) {

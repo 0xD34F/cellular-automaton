@@ -219,14 +219,9 @@
 
 
     function getRenderGroups(cellField) {
-        var numStates = Math.pow(2, cellField.numBitPlanes),
-            groups = [];
+        var numStates = Math.pow(2, cellField.numBitPlanes);
 
-        for (var i = 0; i < numStates; i++) {
-            groups.push([]);
-        }
-
-        return groups;
+        return [...Array(numStates)].map(() => []);
     }
 
     function detectEventCoord(view, e) {

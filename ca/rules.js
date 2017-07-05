@@ -291,10 +291,7 @@ makeTable(function(n) {\n\
     }
 
     function result(status, message) {
-        return {
-            status: status,
-            message: message
-        };
+        return { status, message };
     }
 
     return {
@@ -328,10 +325,7 @@ makeTable(function(n) {\n\
 
             deleteSaved(name);
 
-            savedRules.push({
-                name: name,
-                code: code
-            });
+            savedRules.push({ name, code });
 
             save();
             return result(true, 'rule "' + name + '" saved');

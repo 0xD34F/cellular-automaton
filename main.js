@@ -201,14 +201,10 @@ $(document).ready(function() {
                 source: function(request, response) {
                     var ownPlane = +this.element.closest('tr').attr('data-bit-plane');
 
-                    response(planesList.filter(function(n) {
-                        return n !== ownPlane;
-                    }).map(function(n) {
-                        return {
-                            label: n,
-                            value: n
-                        };
-                    }));
+                    response(planesList.filter(n => n !== ownPlane).map(n => ({
+                        label: n,
+                        value: n
+                    })));
                 }
             }).end().find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
@@ -271,12 +267,10 @@ $(document).ready(function() {
             $this.find('#ca-field-x-size, #ca-field-y-size').parent().addClass('ca-start-disable');
 
 
-            $this.find('#ca-view-colors').append(templates.colorSetting($.map(ca.view.colors, function(n, i) {
-                return {
-                    color: i,
-                    label: isNaN(i) ? i : (+i).toString(16).toUpperCase()
-                };
-            }))).find('.jscolor').each(function() {
+            $this.find('#ca-view-colors').append(templates.colorSetting($.map(ca.view.colors, (n, i) => ({
+                color: i,
+                label: isNaN(i) ? i : (+i).toString(16).toUpperCase()
+            })))).find('.jscolor').each(function() {
                 this.jscolor = new jscolor(this, {
                     hash: true
                 });
@@ -311,9 +305,7 @@ $(document).ready(function() {
                 });
                 ca.view.colors = newColors;
 
-                ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce(function(prev, curr, i) {
-                    return prev | (+curr.checked << i);
-                }, 0);
+                ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce((prev, curr, i) => prev | (curr.checked << i), 0);
 
                 ca.resize({
                     xSize: limitation(this.find('#ca-field-x-size').val(), X_SIZE_MIN, X_SIZE_MAX),
@@ -340,16 +332,12 @@ $(document).ready(function() {
                 source: function(request, response) {
                     var term = request.term.toLowerCase();
 
-                    response(rules.get().filter(function(n) {
-                        return !!n.name.toLowerCase().match(term);
-                    }).map(function(n) {
-                        return {
-                            matched: n.name.replace(new RegExp('(' + request.term + ')', 'i'), '<span class="matched-text">$1</span>'),
-                            label: n.name,
-                            value: n.code,
-                            predefined: n.predefined
-                        };
-                    }));
+                    response(rules.get().filter(n => !!n.name.toLowerCase().match(term)).map(n => ({
+                        matched: n.name.replace(new RegExp('(' + request.term + ')', 'i'), '<span class="matched-text">$1</span>'),
+                        label: n.name,
+                        value: n.code,
+                        predefined: n.predefined
+                    })));
                 },
                 select: function(e, ui) {
                     $(this).val(ui.item.label);
