@@ -79,6 +79,12 @@ CellField.prototype.invertBitPlane = function(o) {
 
 // o - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости>, ... }
 CellField.prototype.copyBitPlane = function(o) {
+    for (var i in o) {
+        if (isNaN(parseInt(o[i], 10))) {
+            delete o[i];
+        }
+    }
+
     return this.fill(function(x, y, value) {
         var newVal = value;
 
