@@ -171,6 +171,7 @@
             d[i + 3] = 255;
         }
 
+        this._scrollFix();
         this.render();
     };
 
@@ -218,6 +219,14 @@
         if (render) {
             this.render();
         }
+    };
+
+    self.prototype._scrollFix = function() {
+        var s = this.cellSide + this.cellBorder,
+            p = this.canvas.parentNode;
+
+        p.scrollLeft = Math.round(p.scrollLeft / s) * s;
+        p.scrollTop  = Math.round(p.scrollTop  / s) * s;
     };
 
 
@@ -312,11 +321,7 @@
         wrapper: true,
         events: [ 'scroll' ],
         handler: function(e) {
-            var s = this.cellSide + this.cellBorder,
-                p = this.canvas.parentNode;
-
-            p.scrollLeft = Math.round(p.scrollLeft / s) * s;
-            p.scrollTop  = Math.round(p.scrollTop  / s) * s;
+            this._scrollFix();
 
             setTimeout(this.render.bind(this));
         }
