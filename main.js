@@ -132,9 +132,10 @@ $(document).ready(function() {
 
     var ca = window.ca = CellularAutomaton(X_SIZE_MAX, Y_SIZE_MAX, {
         wrapper: '#cells-wrapper',
-        scalable: true,
-        cellSideMin: CELL_SIDE_MIN,
-        cellSideMax: CELL_SIDE_MAX,
+        scaling: {
+            min: CELL_SIDE_MIN,
+            max: CELL_SIDE_MAX
+        },
         cellSide: 2,
         cellBorder: 1
     });

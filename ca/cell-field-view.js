@@ -176,7 +176,7 @@
 
     self.prototype.changeScale = function(change, coord) {
         var oldCellSide = this.cellSide,
-            newCellSide = limitation(oldCellSide + change, this.cellSideMin, this.cellSideMax);
+            newCellSide = limitation(oldCellSide + change, this.scaling.min, this.scaling.max);
 
         if (oldCellSide !== newCellSide) {
             if (!coord) {
@@ -324,7 +324,7 @@
         wrapper: true,
         events: [ 'mousewheel' ],
         handler: function(e) {
-            if (!this.scalable) {
+            if (!this.scaling) {
                 return;
             }
 
