@@ -96,7 +96,11 @@ CellField.prototype.copyBitPlane = function(o) {
     });
 };
 
-CellField.prototype.randomFillDensityDescritization = 1000;
+Object.defineProperty(CellField.prototype, 'randomFillDensityDescritization', {
+    get: function() {
+        return 1000;
+    }
+});
 // o - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
 CellField.prototype.fillRandom = function(o) {
     return this.fill(function(x, y, value) {
