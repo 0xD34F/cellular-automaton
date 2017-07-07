@@ -11,7 +11,7 @@ CellField.prototype.getBitPlanes = function() {
     return [...Array(this.numBitPlanes)].map((n, i) => i);
 };
 
-CellField.prototype.resize = function(x, y) {
+CellField.prototype.resize = function(x, y = x) {
     this.xSize = x;
     this.ySize = y;
     this.data = [...Array(x)].map(() => Array(y).fill(0));

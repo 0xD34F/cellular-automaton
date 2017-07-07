@@ -140,13 +140,13 @@ $(document).ready(function() {
         cellBorder: 1
     });
 
-    var caBrush = CellFieldView(CellField(BRUSH_SIZE, BRUSH_SIZE), {
+    var caBrush = CellFieldView(CellField(BRUSH_SIZE), {
         wrapper: '#brush-wrapper',
         cellSide: 12,
         cellBorder: 1
     });
     caBrush.field.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
-    caBrush.field.brush = CellField(1, 1);
+    caBrush.field.brush = CellField(1);
     caBrush.field.brush.data[0][0] = 1;
 
     ca.cells.brush = caBrush.field.clone();
