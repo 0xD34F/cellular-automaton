@@ -1,24 +1,6 @@
-﻿function shiftArray(array, shift) {
-    var from = 0,
-        val = array[from],
-        group = 1;
-
-    for (var i = 0; i < array.length; i++) {
-        var to = ((from + shift) + array.length) % array.length;
-        if (to === from) {
-            break;
-        }
-
-        var t = array[to];
-        array[to] = val;
-        from = to;
-        val = t;
-
-        if (from < group) {
-            from = group++;
-            val = array[from];
-        }
-    }
+﻿function rotateArray(array, rotate) {
+    rotate -= array.length * Math.floor(rotate / array.length);
+    array.push(...array.splice(0, rotate));
 }
 
 function limitation(val, min, max) {
@@ -202,10 +184,7 @@ $(document).ready(function() {
                 source: function(request, response) {
                     var ownPlane = +this.element.closest('tr').attr('data-bit-plane');
 
-                    response(planesList.filter(n => n !== ownPlane).map(n => ({
-                        label: n,
-                        value: n
-                    })));
+                    response(planesList.filter(n => n !== ownPlane).map(n => n.toString()));
                 }
             }).end().find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
@@ -215,17 +194,16 @@ $(document).ready(function() {
                     fillCopy = {},
                     fillInvert = [];
 
-                this.find('.ca-bit-plane-cb').each(function(i) {
-                    if (this.checked) {
-                        var $tr = $(this).closest('tr');
+                this.find('.ca-bit-plane-cb:checked').each(function() {
+                    var $tr = $(this).closest('tr'),
+                        plane = $tr.attr('data-bit-plane');
 
-                        switch ($tr.find('.ca-filling-method').val()) {
-                            case 'invert': fillInvert.push(i); break;
-                            case   'all1': fillRandom[i] = ca.cells.randomFillDensityDescritization; break;
-                            case   'all0': fillRandom[i] = 0; break;
-                            case 'random': fillRandom[i] = $tr.find('.ca-filling-random input').val(); break;
-                            case   'copy': fillCopy[i] = $tr.find('.ca-filling-copy input').val(); break;
-                        }
+                    switch ($tr.find('.ca-filling-method').val()) {
+                        case 'invert': fillInvert.push(plane); break;
+                        case   'all1': fillRandom[plane] = ca.cells.randomFillDensityDescritization; break;
+                        case   'all0': fillRandom[plane] = 0; break;
+                        case 'random': fillRandom[plane] = $tr.find('.ca-filling-random input').val(); break;
+                        case   'copy': fillCopy[plane] = $tr.find('.ca-filling-copy input').val(); break;
                     }
                 });
 
@@ -258,14 +236,13 @@ $(document).ready(function() {
                 [ '#ca-field-y-size',      Y_SIZE_MIN,      Y_SIZE_MAX ],
                 [ '#ca-field-cell-side',   CELL_SIDE_MIN,   CELL_SIDE_MAX ],
                 [ '#ca-field-cell-border', CELL_BORDER_MIN, CELL_BORDER_MAX ]
-            ].forEach((function(n) {
-                this.find(n[0]).spinner({
+            ].forEach(function(n) {
+                $this.find(n[0]).spinner({
                     min: n[1],
                     max: n[2],
                     step: 1
                 }).attr('maxlength', n[2].toString().length);
-            }).bind($this));
-            $this.find('#ca-field-x-size, #ca-field-y-size').parent().addClass('ca-start-disable');
+            });
 
 
             $this.find('#ca-view-colors').append(templates.colorSetting($.map(ca.view.colors, (n, i) => ({
@@ -326,10 +303,10 @@ $(document).ready(function() {
             var $this = $(this);
 
             $this.find('#ca-rule-name-clear').click(function() {
-                $(this).parent().find('input').val('');
+                $('#ca-rule-name').val('');
             });
 
-            $this.find('#ca-rule-name').width(200).autocomplete({
+            $this.find('#ca-rule-name').autocomplete({
                 source: function(request, response) {
                     var term = request.term.toLowerCase();
 
@@ -484,5 +461,5 @@ $(document).ready(function() {
     ca.rule = rules.get(defaultRule);
     $('#ca-rule-name').val(defaultRule);
 
-    $('body').removeClass('hidden');
+    $('body').removeClass('ui-helper-hidden');
 });

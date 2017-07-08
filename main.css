@@ -50,10 +50,6 @@ html {
     font-family: sans-serif;
 }
 
-.hidden {
-    display: none;
-}
-
 #toast-container > div {
     border-radius: 0;
 }

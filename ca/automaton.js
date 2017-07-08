@@ -297,7 +297,7 @@
             view.render();
         },
         newGeneration: function(n) {
-            if (!this.isStarted()) {
+            if (!timer.intervalID) {
                 history.save();
                 newGeneration(n);
                 view.render();
@@ -320,9 +320,6 @@
         },
         set rule(code) {
             setRule(code);
-        },
-        isStarted: function() {
-            return !!timer.intervalID;
         },
         start: function() {
             var result = timer.start();

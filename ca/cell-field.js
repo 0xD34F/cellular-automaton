@@ -30,12 +30,9 @@ CellField.prototype.fill = function(f) {
 };
 
 CellField.prototype.shift = function(x, y) {
-    x = x || 0;
-    y = y || 0;
-
-    shiftArray(this.data, x);
+    rotateArray(this.data, -x);
     for (var i = 0; i < this.xSize; i++) {
-        shiftArray(this.data[i], y);
+        rotateArray(this.data[i], -y);
     }
 
     return this;
