@@ -155,11 +155,14 @@ input.jscolor {
     box-sizing: border-box;
 }
 
-.ca-state-select.column {
-    display: inline-flex;
-    flex-flow: column wrap;
+#ca-brush {
+    display: flex;
     justify-content: space-between;
-    vertical-align: top;
+}
+
+.ca-state-select.grid {
+    display: inline-grid;
+    grid: repeat(4, 1fr) / repeat(4, 1fr);
 }
 .ca-state-select.row {
     display: flex;
@@ -168,9 +171,14 @@ input.jscolor {
 }
 
 .ca-state {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     padding: 5px;
-    cursor: pointer;
     border: 1px solid transparent;
+}
+.ca-state-select.grid .ca-state {
+    cursor: pointer;
 }
 .ca-state-select.row .ca-state {
     padding: 5px 10px;

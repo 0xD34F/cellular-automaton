@@ -97,7 +97,7 @@ ${bitPlanes.map(n => `
     colorSetting: colors => `
 <div class="ca-state-select row">
 ${colors.map(n => `
-    <div class="ca-state"><span class="ca-state-name">${n.label}</span><input type="text" class="jscolor" color-name="${n.color}" readonly="readonly"></div>
+    <div class="ca-state"><div><span class="ca-state-name">${n.label}</span><input type="text" class="jscolor" color-name="${n.color}" readonly="readonly"></div></div>
 `).join('')}
 </div>`,
 
@@ -113,7 +113,7 @@ ${bitPlanes.map(n => `
 </table>`,
 
     brushColorSelect: colors => colors.map(n => `
-        <div class="ca-state" ca-state="${n.state}"><span class="ca-state-name">${n.label}</span><span class="ca-state-color" style="background-color: ${n.color}"></span></div>
+<div class="ca-state" ca-state="${n.state}"><div><span class="ca-state-name">${n.label}</span><span class="ca-state-color" style="background-color: ${n.color}"></span></div></div>
     `).join('')
 };
 
@@ -152,14 +152,14 @@ $(document).ready(function() {
     ca.cells.brush = caBrush.field.clone();
 
     $('#ca-brush').dialog({
-        width: 370,
+        width: 380,
         create: function() {
             $(this).find('.ca-state-select').on('click', '.ca-state', function() {
                 var $this = $(this);
                 $this.parent().find('.ui-state-active').removeClass('ui-state-active');
                 $this.addClass('ui-state-active');
                 caBrush.field.brush.data[0][0] = $this.attr('ca-state');
-            }).height(caBrush.canvas.height);
+            });
         },
         open: function() {
             var colors = caBrush.colors = ca.view.colors;
