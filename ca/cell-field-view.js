@@ -253,6 +253,37 @@
         return [ 1, 3, 5 ].map(n => parseInt(color.slice(n, n + 2), 16));
     }
 
+    function getLineCoords(p0, p1) {
+        var x = p0.x,
+            y = p0.y,
+            dx = Math.abs(x - p1.x),
+            dy = Math.abs(y - p1.y),
+            sx = (x < p1.x) ? 1 : -1,
+            sy = (y < p1.y) ? 1 : -1,
+            error = dx - dy,
+            coords = [];
+
+        while (true) {
+            coords.push({ x, y });
+
+            if ((x === p1.x) && (y === p1.y)) {
+                break;
+            }
+
+            var e2 = error * 2;
+            if (e2 > -dy) {
+                error -= dy;
+                x += sx;
+            }
+            if (e2 < dx) {
+                error += dx;
+                y += sy;
+            }
+        }
+
+        return coords;
+    }
+
     var defaultColors = {
         background: '#505050',
          0: '#000000',
@@ -338,20 +369,26 @@
                     return false;
                 }
 
-                if (f.brush instanceof CellField) {
-                    x = (x - Math.floor(f.brush.xSize / 2) + f.xSize) % f.xSize;
-                    y = (y - Math.floor(f.brush.ySize / 2) + f.ySize) % f.ySize;
+                var coords = getLineCoords(newCoord, Object.assign({}, newCoord, oldCoord));
+                for (var i = 0; i < coords.length; i++) {
+                    x = coords[i].x;
+                    y = coords[i].y;
 
-                    f.copy(f.brush, {
-                        x: x,
-                        y: y,
-                        skipZeros: true,
-                        setZeros: e.buttons === 2
-                    });
-                    this.renderPartial({ x: x, y: y, xSize: f.brush.xSize, ySize: f.brush.ySize });
-                } else {
-                    f.data[x][y] = (f.data[x][y] + getMouseChange(e)) & bitMask(f.numBitPlanes);
-                    this.renderPartial({ x: x, y: y, xSize: 1, ySize: 1 });
+                    if (f.brush instanceof CellField) {
+                        x = (x - Math.floor(f.brush.xSize / 2) + f.xSize) % f.xSize;
+                        y = (y - Math.floor(f.brush.ySize / 2) + f.ySize) % f.ySize;
+
+                        f.copy(f.brush, {
+                            x: x,
+                            y: y,
+                            skipZeros: true,
+                            setZeros: e.buttons === 2
+                        });
+                        this.renderPartial({ x: x, y: y, xSize: f.brush.xSize, ySize: f.brush.ySize });
+                    } else {
+                        f.data[x][y] = (f.data[x][y] + getMouseChange(e)) & bitMask(f.numBitPlanes);
+                        this.renderPartial({ x: x, y: y, xSize: 1, ySize: 1 });
+                    }
                 }
             }
         },
