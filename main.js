@@ -112,6 +112,14 @@ $(document).ready(function() {
         CELL_BORDER_MAX = 4,
         BRUSH_SIZE = 11;
 
+    var caBrush = CellFieldView(CellField(BRUSH_SIZE), {
+        wrapper: '#brush-wrapper',
+        cellSide: 12,
+        cellBorder: 1,
+        brush: CellField(1).fill(() => 1)
+    });
+    caBrush.field.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
+
     var ca = window.ca = CellularAutomaton(X_SIZE_MAX, Y_SIZE_MAX, {
         wrapper: '#cells-wrapper',
         scaling: {
@@ -119,19 +127,10 @@ $(document).ready(function() {
             max: CELL_SIDE_MAX
         },
         cellSide: 2,
-        cellBorder: 1
+        cellBorder: 1,
+        brush: caBrush.field.clone()
     });
 
-    var caBrush = CellFieldView(CellField(BRUSH_SIZE), {
-        wrapper: '#brush-wrapper',
-        cellSide: 12,
-        cellBorder: 1
-    });
-    caBrush.field.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
-    caBrush.field.brush = CellField(1);
-    caBrush.field.brush.data[0][0] = 1;
-
-    ca.cells.brush = caBrush.field.clone();
 
     $('#ca-brush').dialog({
         width: 380,
@@ -140,12 +139,12 @@ $(document).ready(function() {
                 var $this = $(this);
                 $this.parent().find('.ui-state-active').removeClass('ui-state-active');
                 $this.addClass('ui-state-active');
-                caBrush.field.brush.data[0][0] = $this.attr('ca-state');
+                caBrush.brush.data[0][0] = $this.attr('ca-state');
             });
         },
         open: function() {
             var colors = caBrush.colors = ca.view.colors;
-            caBrush.field.copy(ca.cells.brush);
+            caBrush.field.copy(ca.view.brush);
             caBrush.render();
 
             $(this).find('.ca-state-select').html(templates.brushColorSelect($.map(colors, function(n, i) {
@@ -154,11 +153,11 @@ $(document).ready(function() {
                     state: i,
                     color: n
                 };
-            }))).find('[ca-state="' + caBrush.field.brush.data[0][0] + '"]').addClass('ui-state-active');
+            }))).find('[ca-state="' + caBrush.brush.data[0][0] + '"]').addClass('ui-state-active');
         },
         buttons: {
             'OK': closeDialog(function() {
-                ca.cells.brush.copy(caBrush.field);
+                ca.view.brush.copy(caBrush.field);
             }),
             'Cancel': closeDialog()
         }
