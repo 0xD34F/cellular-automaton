@@ -189,6 +189,10 @@
     };
 
     function changeScale(view, change, coord) {
+        if (!view.scaling) {
+            return;
+        }
+
         var oldCellSide = view.cellSide,
             newCellSide = limitation(oldCellSide + change, view.scaling.min, view.scaling.max);
 
@@ -241,13 +245,6 @@
             ySize: t ? Math.ceil(p.clientHeight / s) : view.field.ySize
         };
     };
-
-    function getMouseChange(e) {
-        return (({
-            1:  1,
-            2: -1
-        })[e.buttons] || 0);
-    }
 
     function getColorComponents(color) {
         return [ 1, 3, 5 ].map(n => parseInt(color.slice(n, n + 2), 16));
@@ -344,12 +341,8 @@
         }
     }, {
         wrapper: true,
-        events: [ 'mousewheel' ],
+        events: [ 'wheel' ],
         handler: function(e) {
-            if (!this.scaling) {
-                return;
-            }
-
             e.preventDefault();
             e.stopPropagation();
 
@@ -395,7 +388,10 @@
         scale: {
             events: [ 'mousedown' ],
             handler: function(e, newCoord, oldCoord) {
-                changeScale(this, getMouseChange(e), newCoord);
+                changeScale(this, ({
+                    1:  1,
+                    2: -1
+                })[e.buttons] || 0, newCoord);
             }
         }
     };
