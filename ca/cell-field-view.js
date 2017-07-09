@@ -363,34 +363,25 @@
             handler: function(e, newCoord, oldCoord) {
                 var x = newCoord.x,
                     y = newCoord.y,
-                    f = this.field;
+                    f = this.field,
+                    b = this.brush;
 
-                if (x >= f.xSize || y >= f.ySize || x < 0 || y < 0) {
+                if (x >= f.xSize || y >= f.ySize || x < 0 || y < 0 || !b) {
                     return false;
                 }
 
-                var brush = this.brush,
-                    coord = getLineCoord(newCoord, Object.assign({}, newCoord, oldCoord));
-
+                var coord = getLineCoord(newCoord, Object.assign({}, newCoord, oldCoord));
                 for (var i = 0; i < coord.length; i++) {
-                    x = coord[i].x;
-                    y = coord[i].y;
+                    x = (coord[i].x - Math.floor(b.xSize / 2) + f.xSize) % f.xSize;
+                    y = (coord[i].y - Math.floor(b.ySize / 2) + f.ySize) % f.ySize;
 
-                    if (brush instanceof CellField) {
-                        x = (x - Math.floor(brush.xSize / 2) + f.xSize) % f.xSize;
-                        y = (y - Math.floor(brush.ySize / 2) + f.ySize) % f.ySize;
-
-                        f.copy(brush, {
-                            x: x,
-                            y: y,
-                            skipZeros: true,
-                            setZeros: e.buttons === 2
-                        });
-                        this.renderPartial({ x: x, y: y, xSize: brush.xSize, ySize: brush.ySize });
-                    } else {
-                        f.data[x][y] = (f.data[x][y] + getMouseChange(e)) & bitMask(f.numBitPlanes);
-                        this.renderPartial({ x: x, y: y, xSize: 1, ySize: 1 });
-                    }
+                    f.copy(b, {
+                        x: x,
+                        y: y,
+                        skipZeros: true,
+                        setZeros: e.buttons === 2
+                    });
+                    this.renderPartial({ x: x, y: y, xSize: b.xSize, ySize: b.ySize });
                 }
             }
         },
