@@ -32,6 +32,29 @@ makeTable(function(n) {\n\
     }\n\
 });'
     }, {
+        name: 'Forest fire',
+        code: 'view.setColors({\n\
+    1: \'00FF00\',\n\
+    2: \'FF0000\'\n\
+});\n\
+\n\
+function main(n) {\n\
+    var tree = n.center,\n\
+        treeIgnite = Math.random() > 0.99999,\n\
+        treeBirth = Math.random() > 0.99;\n\
+\n\
+    var s = 2 & (n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east);\n\
+    if (tree === 1 && (s || treeIgnite)) {\n\
+        return 2;\n\
+    }\n\
+\n\
+    if (tree === 0 && treeBirth) {\n\
+        return 1;\n\
+    }\n\
+\n\
+    return tree === 2 ? 0 : tree;\n\
+};'
+    }, {
         name: 'Brian\'s brain',
         code: 'function ready(n) {\n\
     return n.center === 0 ? 1 : 0;\n\
