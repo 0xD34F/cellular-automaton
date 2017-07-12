@@ -10,7 +10,12 @@
         this.neighbors = Array.prototype.concat.apply([], [
             neighborhood.base,
             neighborhood.main[neighborhood.main.hasOwnProperty(o.main) ? o.main : 'Moore'],
-            ...(Array.isArray(o.extra) ? o.extra : []).map(n => this.customNeighborhood[n] || neighborhood.extra[n]).filter(n => !!n)
+            ...(Array.isArray(o.extra) ? o.extra : []).map(n => {
+                var name = n instanceof Object ? n.name : n,
+                    val = this.customNeighborhood[name] || neighborhood.extra[name];
+
+                return val instanceof Function ? val(n.data) : val;
+            }).filter(n => !!n)
         ]);
     };
     _CA.prototype.getNextStateCode = function() {
@@ -70,7 +75,14 @@
             ],
             rand: [
                 { name: 'rand', size: 4, code: 'Math.random() * 16' }
-            ]
+            ],
+            prob: function(data) {
+                return {
+                    name: 'prob',
+                    size: data.length,
+                    code: data.map((n, i) => `((Math.random() < ${n}) << ${i})`).join('|')
+                };
+            }
         }
     };
     neighborhood.main['Moore-thick'] = neighborhood.main.Moore.map(n => Object.assign({}, n, { size: 2 }));
