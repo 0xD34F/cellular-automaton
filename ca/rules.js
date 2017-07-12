@@ -33,27 +33,34 @@ makeTable(function(n) {\n\
 });'
     }, {
         name: 'Forest fire',
-        code: 'view.setColors({\n\
-    1: \'00FF00\',\n\
-    2: \'FF0000\'\n\
+        code: 'setNeighborhoods({\n\
+    extra: [ {\n\
+        name: \'prob\',\n\
+        data: [ 0.00001, 0.005 ]\n\
+    } ]\n\
 });\n\
 \n\
-function main(n) {\n\
-    var tree = n.center,\n\
-        treeIgnite = Math.random() > 0.99999,\n\
-        treeBirth = Math.random() > 0.99;\n\
+view.setColors({\n\
+    1: \'FF0000\',\n\
+    2: \'00FF00\'\n\
+});\n\
 \n\
-    var s = 2 & (n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east);\n\
-    if (tree === 1 && (s || treeIgnite)) {\n\
-        return 2;\n\
-    }\n\
+makeTable(function(n) {\n\
+    var fire = 1 & (n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east),\n\
+        tree = n.center,\n\
+        treeIgnite = n.prob & 1,\n\
+        treeBirth = n.prob & 2;\n\
 \n\
-    if (tree === 0 && treeBirth) {\n\
+    if (tree === 2 && (fire || treeIgnite)) {\n\
         return 1;\n\
     }\n\
 \n\
-    return tree === 2 ? 0 : tree;\n\
-};'
+    if (tree === 0 && treeBirth) {\n\
+        return 2;\n\
+    }\n\
+\n\
+    return tree === 1 ? 0 : tree;\n\
+});'
     }, {
         name: 'Brian\'s brain',
         code: 'function ready(n) {\n\
