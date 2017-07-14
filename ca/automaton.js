@@ -73,9 +73,6 @@
                 { name: 'horz', size: 1, code: 'x' },
                 { name: 'vert', size: 1, code: 'y' }
             ],
-            rand: [
-                { name: 'rand', size: 4, code: 'Math.random() * 16' }
-            ],
             prob: data => ({
                 name: 'prob',
                 size: data.length,
