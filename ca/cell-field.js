@@ -43,9 +43,7 @@ CellField.prototype.clone = function() {
 };
 
 CellField.prototype.copy = function(source, options) {
-    options = options instanceof Object ? options : {};
-    options.x = options.x || 0;
-    options.y = options.y || 0;
+    options = Object.assign({ x: 0, y: 0 }, options);
 
     for (var i = 0, x = options.x; i < source.xSize; i++, x++) {
         if (x === this.xSize) {

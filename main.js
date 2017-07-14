@@ -235,13 +235,11 @@ $(document).ready(function() {
                 [ '#ca-field-y-size',      Y_SIZE_MIN,      Y_SIZE_MAX ],
                 [ '#ca-field-cell-side',   CELL_SIDE_MIN,   CELL_SIDE_MAX ],
                 [ '#ca-field-cell-border', CELL_BORDER_MIN, CELL_BORDER_MAX ]
-            ].forEach(function(n) {
-                $this.find(n[0]).spinner({
-                    min: n[1],
-                    max: n[2],
-                    step: 1
-                }).attr('maxlength', n[2].toString().length);
-            });
+            ].forEach(n => $this.find(n[0]).spinner({
+                min: n[1],
+                max: n[2],
+                step: 1
+            }).attr('maxlength', n[2].toString().length));
 
 
             $this.find('#ca-view-colors').append(templates.colorSetting($.map(ca.view.colors, (n, i) => ({

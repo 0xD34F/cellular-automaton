@@ -287,16 +287,13 @@ makeTable(function(n) {\n\
 \n\
     return s ? t : n.center;\n\
 }'
-    } ].map(function(n) {
-        n.predefined = true;
-        return n;
-    });
+    } ].map(n => Object.assign(n, { predefined: true }));
 
     var savedRules = null;
     try {
         savedRules = JSON.parse(localStorage.rules);
     } catch (e) {}
-    savedRules = savedRules instanceof Array ? savedRules : [];
+    savedRules = Array.isArray(savedRules) ? savedRules : [];
 
     function save() {
         if (savedRules.length) {

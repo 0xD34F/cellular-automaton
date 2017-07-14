@@ -76,13 +76,11 @@
             rand: [
                 { name: 'rand', size: 4, code: 'Math.random() * 16' }
             ],
-            prob: function(data) {
-                return {
-                    name: 'prob',
-                    size: data.length,
-                    code: data.map((n, i) => `((Math.random() < ${n}) << ${i})`).join('|')
-                };
-            }
+            prob: data => ({
+                name: 'prob',
+                size: data.length,
+                code: data.map((n, i) => `((Math.random() < ${n}) << ${i})`).join('|')
+            })
         }
     };
     neighborhood.main['Moore-thick'] = neighborhood.main.Moore.map(n => Object.assign({}, n, { size: 2 }));
@@ -95,7 +93,7 @@
 
         nextStateFromTable: (neighbors, shift) => `(table_${shift}[${neighbors.join('|')}] << ${shift})`,
 
-        nextStateCalculation: neighbors => `main({${neighbors.map(n => `${n.name + ':' + n.code}`).join(',')}}) & ${bitMask(cells.numBitPlanes)}`,
+        nextStateCalculation: neighbors => `main({${neighbors.map(n => `${n.name}:${n.code}`).join(',')}}) & ${bitMask(cells.numBitPlanes)}`,
 
         tableProc: neighborsCode => `
 (function(nextState, neighborhoodSize) {
@@ -228,15 +226,11 @@
 
         eval(code);
 
-        if (typeof main === 'function') {
-            calculateNewGeneration = eval(codeTemplate.newGeneration(codeTemplate.nextStateCalculation(CAA.neighbors)));
-        } else {
-            calculateNewGeneration = eval(codeTemplate.newGeneration([ CAA, CAB ].filter(function(n) {
-                return n.nextState instanceof Function;
-            }).map(function(n) {
-                return n.getNextStateCode();
-            }).join(' | ')));
-        }
+        var nextStateCode = typeof main === 'function'
+            ? codeTemplate.nextStateCalculation(CAA.neighbors)
+            : [ CAA, CAB ].filter(n => n.nextState instanceof Function).map(n => n.getNextStateCode()).join('|')
+
+        calculateNewGeneration = eval(codeTemplate.newGeneration(nextStateCode));
 
         rule = code;
     }
