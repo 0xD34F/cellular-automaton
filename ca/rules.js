@@ -1,258 +1,263 @@
 ﻿var rules = (function() {
     var predefinedRules = [ {
         name: 'Conway\'s Life',
-        code: 'makeTable(function(n) {\n\
-    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
-    return s === 3 ? 1 : (s === 2 ? n.center : 0);\n\
-});'
+        code:
+`makeTable(function(n) {
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
+    return s === 3 ? 1 : (s === 2 ? n.center : 0);
+});`
     }, {
         name: 'Conway\'s Life (trace)',
-        code: 'makeTable(function(n) {\n\
-    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,\n\
-        p0 = s === 3 ? 1 : (s === 2 ? n.center : 0),\n\
-        p1 = (+!!n.center) | p0;\n\
-\n\
-    return p0 | (p1 << 1);\n\
-});'
+        code:
+`makeTable(function(n) {
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,
+        p0 = s === 3 ? 1 : (s === 2 ? n.center : 0),
+        p1 = (+!!n.center) | p0;
+
+    return p0 | (p1 << 1);
+});`
     }, {
         name: 'Forest fire',
-        code: 'setNeighborhoods({\n\
-    extra: [ {\n\
-        name: \'prob\',\n\
-        data: [ 0.00001, 0.005 ]\n\
-    } ]\n\
-});\n\
-\n\
-view.setColors({\n\
-    1: \'FF0000\',\n\
-    2: \'00FF00\'\n\
-});\n\
-\n\
-makeTable(function(n) {\n\
-    var fire = 1 & (n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east),\n\
-        tree = n.center,\n\
-        treeIgnite = n.prob & 1,\n\
-        treeBirth = n.prob & 2;\n\
-\n\
-    if (tree === 2 && (fire || treeIgnite)) {\n\
-        return 1;\n\
-    }\n\
-\n\
-    if (tree === 0 && treeBirth) {\n\
-        return 2;\n\
-    }\n\
-\n\
-    return tree === 1 ? 0 : tree;\n\
-});'
+        code:
+`setNeighborhoods({
+    extra: [ {
+        name: 'prob',
+        data: [ 0.00001, 0.005 ]
+    } ]
+});
+
+view.setColors([ '000000', 'FF0000', '00FF00' ], true);
+
+makeTable(function(n) {
+    var fire = 1 & (n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east),
+        tree = n.center,
+        treeIgnite = n.prob & 1,
+        treeBirth = n.prob & 2;
+
+    if (tree === 2 && (fire || treeIgnite)) {
+        return 1;
+    }
+
+    if (tree === 0 && treeBirth) {
+        return 2;
+    }
+
+    return tree === 1 ? 0 : tree;
+});`
     }, {
         name: 'Brian\'s brain',
-        code: 'function ready(n) {\n\
-    return n.center === 0 ? 1 : 0;\n\
-}\n\
-\n\
-function stimulus(n) {\n\
-    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
-    return s === 2 ? 1 : 0;\n\
-}\n\
-\n\
-makeTable(function(n) {\n\
-    var p0 = stimulus(n) & ready(n),\n\
-        p1 = n.center & 1;\n\
-\n\
-    return (p1 << 1) | p0;\n\
-});'
+        code:
+`function ready(n) {
+    return n.center === 0 ? 1 : 0;
+}
+
+function stimulus(n) {
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
+    return s === 2 ? 1 : 0;
+}
+
+makeTable(function(n) {
+    var p0 = stimulus(n) & ready(n),
+        p1 = n.center & 1;
+
+    return (p1 << 1) | p0;
+});`
     }, {
         name: 'Wireworld',
-        code: 'setNeighborhoods({\n\
-    main: \'Moore-thick\'\n\
-});\n\
-\n\
-makeTable(function(n) {\n\
-    var s = (n.north === 1) + (n.south === 1) + (n.west === 1) + (n.east === 1) + (n.n_west === 1) + (n.s_west === 1) + (n.n_east === 1) + (n.s_east === 1);\n\
-\n\
-    return [ 0, 2, 3, s === 1 || s === 2 ? 1 : 3 ][n.center];\n\
-});'
+        code:
+`setNeighborhoods({
+    main: 'Moore-thick'
+});
+
+makeTable(function(n) {
+    var s = (n.north === 1) + (n.south === 1) + (n.west === 1) + (n.east === 1) + (n.n_west === 1) + (n.s_west === 1) + (n.n_east === 1) + (n.s_east === 1);
+
+    return [ 0, 2, 3, s === 1 || s === 2 ? 1 : 3 ][n.center];
+});`
     }, {
         name: 'Parity',
-        code: 'makeTable(function(n) {\n\
-    return n.north ^ n.south ^ n.west ^ n.east ^ (n.center & 1);\n\
-});'
+        code:
+`makeTable(function(n) {
+    return n.north ^ n.south ^ n.west ^ n.east ^ (n.center & 1);
+});`
     }, {
         name: '1 out of 8',
-        code: 'makeTable(function(n) {\n\
-    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
-    return s === 1 ? 1 : n.center;\n\
-});'
+        code:
+`makeTable(function(n) {
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
+    return s === 1 ? 1 : n.center;
+});`
     }, {
         name: 'Lichens with death',
-        code: 'makeTable(function(n) {\n\
-    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
-    return (s === 3) ? 1 : (s === 4 ? 0 : n.center);\n\
-});'
+        code:
+`makeTable(function(n) {
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
+    return (s === 3) ? 1 : (s === 4 ? 0 : n.center);
+});`
     }, {
         name: 'Anneal',
-        code: 'makeTable(function(n) {\n\
-    var s = (n.center & 1) + n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;\n\
-    return s > 5 || s === 4 ? 1 : 0;\n\
-});'
+        code:
+`makeTable(function(n) {
+    var s = (n.center & 1) + n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
+    return s > 5 || s === 4 ? 1 : 0;
+});`
     }, {
         name: 'Anneal x 2',
-        code: 'setNeighborhoods({\n\
-    main: \'Moore-thick\'\n\
-});\n\
-\n\
-view.setColors({\n\
-    1: \'FF0000\',\n\
-    2: \'00FF00\',\n\
-    3: \'FFFF00\'\n\
-}, true);\n\
-\n\
-function sum(n, p) {\n\
-    return (\n\
-        !!(n.center & p) + !!(n.north & p) + !!(n.south & p) + !!(n.west & p) + !!(n.east & p) +\n\
-        !!(n.n_west & p) + !!(n.s_west & p) + !!(n.n_east & p) + !!(n.s_east & p)\n\
-    );\n\
-}\n\
-\n\
-makeTable(function(n) {\n\
-    var s0 = sum(n, 1),\n\
-        s1 = sum(n, 2);\n\
-\n\
-    return (s0 > 5 || s0 === 4 ? 1 : 0) | ((s1 > 5 || s1 === 4 ? 1 : 0) << 1);\n\
-});',
+        code:
+`setNeighborhoods({
+    main: 'Moore-thick'
+});
+
+view.setColors([ '000000', 'FF0000', '00FF00', 'FFFF00' ], true);
+
+function sum(n, p) {
+    return (
+        !!(n.center & p) + !!(n.north & p) + !!(n.south & p) + !!(n.west & p) + !!(n.east & p) +
+        !!(n.n_west & p) + !!(n.s_west & p) + !!(n.n_east & p) + !!(n.s_east & p)
+    );
+}
+
+makeTable(function(n) {
+    var s0 = sum(n, 1),
+        s1 = sum(n, 2);
+
+    return (s0 > 5 || s0 === 4 ? 1 : 0) | ((s1 > 5 || s1 === 4 ? 1 : 0) << 1);
+});`,
     }, {
         name: 'Rand anneal',
-        code: 'setNeighborhoods({\n\
-    main: \'Neumann\'\n\
-});\n\
-\n\
-makeTable(function(n) {\n\
-    var s = (n.center & 1) + (n.north & 1) + (n.south & 1) + (n.west & 1) + (n.east & 1),\n\
-        r = (+!!(2 & n.center & n.north & n.south & n.west & n.east)) ^ 1,\n\
-        p0 = [ 0, 0, r, +!r, 1, 1 ][s],\n\
-        p1 = (n.center & 2) ^ (n.north & 2) ^ (n.south & 2) ^ (n.west & 2) ^ (n.east & 2);\n\
-\n\
-    return p0 | p1;\n\
-});'
+        code:
+`setNeighborhoods({
+    main: 'Neumann'
+});
+
+makeTable(function(n) {
+    var s = (n.center & 1) + (n.north & 1) + (n.south & 1) + (n.west & 1) + (n.east & 1),
+        r = (+!!(2 & n.center & n.north & n.south & n.west & n.east)) ^ 1,
+        p0 = [ 0, 0, r, +!r, 1, 1 ][s],
+        p1 = (n.center & 2) ^ (n.north & 2) ^ (n.south & 2) ^ (n.west & 2) ^ (n.east & 2);
+
+    return p0 | p1;
+});`
     }, {
         name: 'Time tunnel',
-        code: 'makeTable(function(n) {\n\
-    var s = (n.center & 1) + n.north + n.south + n.west + n.east,\n\
-        p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((n.center & 2) >> 1),\n\
-        p1 = n.center & 1;\n\
-\n\
-    return p0 | (p1 << 1);\n\
-});'
+        code:
+`makeTable(function(n) {
+    var s = (n.center & 1) + n.north + n.south + n.west + n.east,
+        p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((n.center & 2) >> 1),
+        p1 = n.center & 1;
+
+    return p0 | (p1 << 1);
+});`
     }, {
         name: 'Border / hollow',
-        code: 'setNeighborhoods({\n\
-    extra: [\'phase\']\n\
-});\n\
-\n\
-function border(n) {\n\
-    return 1 & (n.center | n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east);\n\
-}\n\
-\n\
-function hollow(n) {\n\
-    var t = 1 & n.north & n.south & n.west & n.east & n.n_west & n.n_east & n.s_west & n.s_east;\n\
-    return t ? 0 : n.center;\n\
-}\n\
-\n\
-makeTable(function(n) {\n\
-    return (n.phase & 1) ? hollow(n) : border(n);\n\
-});'
+        code:
+`setNeighborhoods({
+    extra: ['phase']
+});
+
+function border(n) {
+    return 1 & (n.center | n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east);
+}
+
+function hollow(n) {
+    var t = 1 & n.north & n.south & n.west & n.east & n.n_west & n.n_east & n.s_west & n.s_east;
+    return t ? 0 : n.center;
+}
+
+makeTable(function(n) {
+    return (n.phase & 1) ? hollow(n) : border(n);
+});`
     }, {
         name: 'Safe / pass',
-        code: 'setNeighborhoods({\n\
-    main: \'Neumann\'\n\
-});\n\
-\n\
-makeTable(function(n) {\n\
-    var p0 = n.center & 1,\n\
-        p1 = n.center & 2;\n\
-\n\
-    if (!p0) {\n\
-        if (!p1 && (n.north & 1)) {\n\
-            p0 = 1;\n\
-        }\n\
-    } else {\n\
-        if (!n.south) {\n\
-            p0 = 0;\n\
-        }\n\
-    }\n\
-\n\
-    return p0 | p1;\n\
-});'
+        code:
+`setNeighborhoods({
+    main: 'Neumann'
+});
+
+makeTable(function(n) {
+    var p0 = n.center & 1,
+        p1 = n.center & 2;
+
+    if (!p0) {
+        if (!p1 && (n.north & 1)) {
+            p0 = 1;
+        }
+    } else {
+        if (!n.south) {
+            p0 = 0;
+        }
+    }
+
+    return p0 | p1;
+});`
     }, {
         name: 'Critters',
-        code: 'setNeighborhoods({\n\
-    main: \'Margolus\'\n\
-});\n\
-\n\
-beforeNewGeneration = function() {\n\
-    view.setColors(time & 1 ? {\n\
-        0: \'000000\',\n\
-        1: \'FFFFFF\'\n\
-    } : {\n\
-        0: \'FFFFFF\',\n\
-        1: \'000000\'\n\
-    });\n\
-};\n\
-\n\
-makeTable(function(n) {\n\
-    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1),\n\
-        c = n.center ^ 1;\n\
-\n\
-    return [ c, c, n.center & 1, n.opp ^ 1, c ][s];\n\
-});'
+        code:
+`setNeighborhoods({
+    main: 'Margolus'
+});
+
+beforeNewGeneration = function() {
+    view.setColors(time & 1 ? [ '000000', 'FFFFFF' ] : [ 'FFFFFF', '000000' ]);
+};
+
+makeTable(function(n) {
+    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1),
+        c = n.center ^ 1;
+
+    return [ c, c, n.center & 1, n.opp ^ 1, c ][s];
+});`
     }, {
         name: 'Tron',
-        code: 'setNeighborhoods({\n\
-    main: \'Margolus\'\n\
-});\n\
-\n\
-makeTable(function(n) {\n\
-    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1),\n\
-        c = n.center;\n\
-\n\
-    return [ 1, c, c, c, 0 ][s];\n\
-});'
+        code:
+`setNeighborhoods({
+    main: 'Margolus'
+});
+
+makeTable(function(n) {
+    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1),
+        c = n.center;
+
+    return [ 1, c, c, c, 0 ][s];
+});`
     }, {
         name: 'Tube worms',
-        code: 'setNeighborhoods({\n\
-    extra: [\'_center\']\n\
-}, {\n\
-    extra: [\'_center\']\n\
-});\n\
-\n\
-makeTable(function(n) {\n\
-    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,\n\
-        alarm = [ 0, 0, 0, 1, 1, 1, 1, 1, 1 ][s];\n\
-\n\
-    return ([ 1, 0, 0, 0 ][n._center]) | (alarm << 1);\n\
-},  function(n) {\n\
-    return n._center === 3 ? 3 : ([ 0, 0, 1, 2 ][n.center]);\n\
-});'
+        code:
+`setNeighborhoods({
+    extra: ['_center']
+}, {
+    extra: ['_center']
+});
+
+makeTable(function(n) {
+    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,
+        alarm = [ 0, 0, 0, 1, 1, 1, 1, 1, 1 ][s];
+
+    return ([ 1, 0, 0, 0 ][n._center]) | (alarm << 1);
+},  function(n) {
+    return n._center === 3 ? 3 : ([ 0, 0, 1, 2 ][n.center]);
+});`
     }, {
         name: 'Brownian',
-        code: 'setNeighborhoods({\n\
-    main: \'Margolus\'\n\
-}, {\n\
-    extra: [\'_center\']\n\
-});\n\
-\n\
-function bit(val) {\n\
-    return +!!(val & 2);\n\
-}\n\
-\n\
-makeTable(function(n) {\n\
-    var p1 = bit(n.ccw) & bit(n.opp) ^ bit(n.cw) ^ bit(n.center),\n\
-        rand = bit(n.ccw) ^ bit(n.opp) ^ bit(n.cw) ^ bit(n.center);\n\
-\n\
-    return ((rand ? n.cw : n.ccw) & 1) | (p1 << 1);\n\
-},  function(n) {\n\
-    return (n._center & 1) | n.center;\n\
-});'
+        code:
+`setNeighborhoods({
+    main: 'Margolus'
+}, {
+    extra: ['_center']
+});
+
+function bit(val) {
+    return +!!(val & 2);
+}
+
+makeTable(function(n) {
+    var p1 = bit(n.ccw) & bit(n.opp) ^ bit(n.cw) ^ bit(n.center),
+        rand = bit(n.ccw) ^ bit(n.opp) ^ bit(n.cw) ^ bit(n.center);
+
+    return ((rand ? n.cw : n.ccw) & 1) | (p1 << 1);
+},  function(n) {
+    return (n._center & 1) | n.center;
+});`
     }, {
         name: '30',
         code: 'makeTable(rules.elementary(30));'
@@ -264,13 +269,15 @@ makeTable(function(n) {\n\
         code: 'makeTable(rules.elementary(126));'
     }, {
         name: 'Cyclic',
-        code: 'function main(n) {\n\
-    var t = (n.center + 1) & 15,\n\
-        s = (n.north === t) + (n.south === t) + (n.west === t) + (n.east === t);\n\
-\n\
-    return s ? t : n.center;\n\
-}'
+        code:
+`function main(n) {
+    var t = (n.center + 1) & 15,
+        s = (n.north === t) + (n.south === t) + (n.west === t) + (n.east === t);
+
+    return s ? t : n.center;
+}`
     } ].map(n => Object.assign(n, { predefined: true }));
+
 
     var savedRules = null;
     try {

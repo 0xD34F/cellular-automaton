@@ -168,7 +168,7 @@
     };
 
     self.prototype.setColors = function(colors, render) {
-        colors = colors instanceof Object ? colors : defaultColors;
+        colors = Object.assign({}, defaultColors, colors);
 
         var oldColors = this.colors,
             newColors = {};
