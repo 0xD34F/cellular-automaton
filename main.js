@@ -455,14 +455,12 @@ $(document).ready(function() {
             $('.ca-start-show').hide();
 
             ca.view.mode = 'edit';
-        },
-        'cell-field-mode': function(e) {
-            var cf = e.originalEvent.detail.cellField;
-            if (cf === ca.cells) {
-                $('#cell-field-mode').find('[for="mode-' + ca.view.mode + '"]').click();
-            }
         }
     }).trigger('ca-stop');
+
+    $(ca.view.canvas).on('cell-field-mode', function() {
+        $('#cell-field-mode').find('[for="mode-' + ca.view.mode + '"]').click();
+    });
 
 
     $('#skip').click(function() {

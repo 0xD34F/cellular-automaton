@@ -43,11 +43,7 @@
         },
         set: function(value) {
             this._mode = value;
-            document.dispatchEvent(new CustomEvent('cell-field-mode', {
-                detail: {
-                    cellField: this.field
-                }
-            }));
+            this.canvas.dispatchEvent(new CustomEvent('cell-field-mode'));
             this.canvas.setAttribute('data-mode', value);
         }
     });
