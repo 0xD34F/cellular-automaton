@@ -381,7 +381,7 @@
         shift: {
             events: [ 'mousemove' ],
             handler: function(e, newCoord, oldCoord) {
-                this.field.shift(newCoord.x - oldCoord.x, newCoord.y - oldCoord.y);
+                this.field.shift(oldCoord.x - newCoord.x, oldCoord.y - newCoord.y);
                 this.render();
             }
         },
