@@ -20,11 +20,6 @@ function bitMask(size) {
     return Math.pow(2, size) - 1;
 }
 
-$.extend($.ui.dialog.prototype.options, {
-    modal: true,
-    autoOpen: false,
-    resizable: false
-});
 
 $.extend($.ui.autocomplete.prototype.options, {
     delay: 0,
@@ -36,18 +31,48 @@ $.extend($.ui.autocomplete.prototype.options, {
     }
 });
 
-function closeDialog(f) {
-    return function() {
-        var $this = $(this),
-            run = f instanceof Function ? f.apply($this, arguments) : true;
+$.widget('ui.spinner', $.ui.spinner, {
+    _create: function() {
+        this.element.attr('maxlength', this.options.max.toString(10).length);
 
-        $.when(run).always(function(result) {
-            if (result !== false) {
-                $this.dialog('close');
-            }
-        });
-    };
-}
+        return this._super();
+    }
+});
+
+$.widget('ui.dialog', $.ui.dialog, {
+    options: {
+        modal: true,
+        autoOpen: false,
+        resizable: false
+    },
+    _closeDialog: function(f) {
+        return function() {
+            var $this = $(this),
+                run = f instanceof Function ? f.apply($this, arguments) : true;
+
+            $.when(run).always(function(result) {
+                if (result !== false) {
+                    $this.dialog('close');
+                }
+            });
+        };
+    },
+    _create: function() {
+        var buttons = this.options.buttons;
+        for (var i in buttons) {
+            buttons[i] = this._closeDialog(buttons[i]);
+        }
+
+        return this._super();
+    },
+    open: function() {
+        this._super();
+        this.overlay.on('click', () => this.element.dialog('close'));
+
+        return this;
+    }
+});
+
 
 var templates = {
     fieldFilling: bitPlanes => `
@@ -156,10 +181,10 @@ $(document).ready(function() {
             }))).find('[ca-state="' + caBrush.brush.data[0][0] + '"]').addClass('ui-state-active');
         },
         buttons: {
-            'OK': closeDialog(function() {
+            'OK': function() {
                 ca.view.brush.copy(caBrush.field);
-            }),
-            'Cancel': closeDialog()
+            },
+            'Cancel': null
         }
     });
 
@@ -188,7 +213,7 @@ $(document).ready(function() {
             }).end().find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
         buttons: {
-            'OK': closeDialog(function() {
+            'OK': function() {
                 var fillRandom = {},
                     fillCopy = {},
                     fillInvert = [];
@@ -212,8 +237,8 @@ $(document).ready(function() {
                     .copyBitPlane(fillCopy);
 
                 ca.view.render();
-            }),
-            'Cancel': closeDialog()
+            },
+            'Cancel': null
         }
     });
 
@@ -234,7 +259,7 @@ $(document).ready(function() {
                 min: n[1],
                 max: n[2],
                 step: 1
-            }).attr('maxlength', n[2].toString().length));
+            }));
 
 
             $this.find('#ca-view-colors').append(templates.colorSetting($.map(ca.view.colors, (n, i) => ({
@@ -267,7 +292,7 @@ $(document).ready(function() {
                 }).change();
         },
         buttons: {
-            'OK': closeDialog(function() {
+            'OK': function() {
                 var newColors = {};
                 this.find('.jscolor').each(function() {
                     var $this = $(this);
@@ -283,8 +308,8 @@ $(document).ready(function() {
                     cellSide: limitation(this.find('#ca-field-cell-side').val(), CELL_SIDE_MIN, CELL_SIDE_MAX),
                     cellBorder: limitation(this.find('#ca-field-cell-border').val(), CELL_BORDER_MIN, CELL_BORDER_MAX)
                 });
-            }),
-            'Cancel': closeDialog()
+            },
+            'Cancel': null
         }
     });
 
@@ -352,15 +377,15 @@ $(document).ready(function() {
             $('#ca-rule-code').val(ca.rule);
         },
         buttons: {
-            'OK': closeDialog(function() {
+            'OK': function() {
                 try {
                     ca.rule = $('#ca-rule-code').val();
                 } catch (e) {
                     toastr.error(e.message);
                     return false;
                 }
-            }),
-            'Cancel': closeDialog()
+            },
+            'Cancel': null
         }
     });
 
@@ -384,11 +409,11 @@ $(document).ready(function() {
                 .find('#stroke-duration').val(ca.strokeDuration);
         },
         buttons: {
-            'OK': closeDialog(function() {
+            'OK': function() {
                 ca.stepsPerStroke = this.find('#steps-per-stroke').val();
                 ca.strokeDuration = this.find('#stroke-duration').val();
-            }),
-            'Cancel': closeDialog()
+            },
+            'Cancel': null
         }
     });
 
