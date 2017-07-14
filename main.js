@@ -206,15 +206,10 @@ $(document).ready(function() {
                     }
                 });
 
-                if (fillInvert.length) {
-                    ca.cells.invertBitPlane(fillInvert);
-                }
-                if (Object.keys(fillRandom).length) {
-                    ca.cells.fillRandom(fillRandom);
-                }
-                if (Object.keys(fillCopy).length) {
-                    ca.cells.copyBitPlane(fillCopy);
-                }
+                ca.cells
+                    .invertBitPlane(fillInvert)
+                    .fillRandom(fillRandom)
+                    .copyBitPlane(fillCopy);
 
                 ca.view.render();
             }),

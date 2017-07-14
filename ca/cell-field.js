@@ -69,7 +69,7 @@ CellField.prototype.copy = function(source, options) {
 CellField.prototype.invertBitPlane = function(o) {
     var mask = o.reduce((prev, curr) => prev | (1 << curr), 0);
 
-    return this.fill((x, y, value) => value ^ mask);
+    return mask ? this.fill((x, y, value) => value ^ mask) : this;
 };
 
 // o - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости>, ... }
@@ -80,7 +80,7 @@ CellField.prototype.copyBitPlane = function(o) {
         }
     }
 
-    return this.fill(function(x, y, value) {
+    return Object.keys(o).length ? this.fill(function(x, y, value) {
         var newVal = value;
 
         for (var i in o) {
@@ -88,7 +88,7 @@ CellField.prototype.copyBitPlane = function(o) {
         }
 
         return newVal;
-    });
+    }) : this;
 };
 
 Object.defineProperty(CellField.prototype, 'randomFillDensityDescritization', {
@@ -98,7 +98,7 @@ Object.defineProperty(CellField.prototype, 'randomFillDensityDescritization', {
 });
 // o - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
 CellField.prototype.fillRandom = function(o) {
-    return this.fill(function(x, y, value) {
+    return Object.keys(o).length ? this.fill(function(x, y, value) {
         for (var i in o) {
             var mask = (1 << i);
 
@@ -110,5 +110,5 @@ CellField.prototype.fillRandom = function(o) {
         }
 
         return value;
-    });
+    }) : this;
 };
