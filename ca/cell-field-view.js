@@ -321,6 +321,11 @@
                 return;
             }
 
+            var selection = window.getSelection();
+            if (selection.rangeCount) {
+                selection.removeAllRanges();
+            }
+
             var action = userActions[this.mode];
             if (action.events.indexOf(e.type) !== -1 &&
                 action.handler.call(this, e, newCoord, oldCoord) !== false) {
