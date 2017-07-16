@@ -261,7 +261,10 @@
         },
         newGeneration: function(n) {
             if (!steps.intervalID) {
-                history.save();
+                if (!history.data) {
+                    history.save();
+                }
+
                 newGeneration(n);
                 view.render();
             }
