@@ -146,53 +146,13 @@
 
     var view = CellFieldView(cells, viewOptions);
 
-    var timer = {
-        intervalID: null,
-        MIN_DELAY: 1,
-        MAX_DELAY: 10000,
-        _delay: 30,
-        get delay() {
-            return this._delay;
-        },
-        set delay(value) {
-            this._delay = limitation(value, this.MIN_DELAY, this.MAX_DELAY);
-            if (this.intervalID) {
-                this.stop();
-                this.start();
-            }
-        },
-        MIN_STEPS: 1,
-        MAX_STEPS: 100,
-        _steps: 1,
-        get steps() {
-            return this._steps;
-        },
-        set steps(value) {
-            this._steps = limitation(value, this.MIN_STEPS, this.MAX_STEPS);
-        },
-        start: function() {
-            if (this.intervalID) {
-                return false;
-            }
-
-            this.intervalID = setInterval(() => {
-                newGeneration(this.steps);
-                view.render();
-            }, this.delay);
-
-            return true;
-        },
-        stop: function() {
-            if (!this.intervalID) {
-                return false;
-            }
-
-            clearInterval(this.intervalID);
-            this.intervalID = null;
-
-            return true;
+    var steps = Steps({
+        step: function() {
+            newGeneration(this.generationsPerStep);
+            view.render();
         }
-    };
+    });
+
 
     var history = {
         data: null,
@@ -300,23 +260,23 @@
             view.render();
         },
         newGeneration: function(n) {
-            if (!timer.intervalID) {
+            if (!steps.intervalID) {
                 history.save();
                 newGeneration(n);
                 view.render();
             }
         },
-        get stepsPerStroke() {
-            return timer.steps;
+        get generationsPerStep() {
+            return steps.generationsPerStep;
         },
-        set stepsPerStroke(value) {
-            timer.steps = value;
+        set generationsPerStep(value) {
+            steps.generationsPerStep = value;
         },
-        get strokeDuration() {
-            return timer.delay;
+        get stepDuration() {
+            return steps.stepDuration;
         },
-        set strokeDuration(value) {
-            timer.delay = value;
+        set stepDuration(value) {
+            steps.stepDuration = value;
         },
         get rule() {
             return rule;
@@ -325,7 +285,7 @@
             setRule(code);
         },
         start: function() {
-            var result = timer.start();
+            var result = steps.start();
             if (result) {
                 document.dispatchEvent(new CustomEvent('ca-start'));
                 history.save();
@@ -334,7 +294,7 @@
             return result;
         },
         stop: function() {
-            var result = timer.stop();
+            var result = steps.stop();
             if (result) {
                 document.dispatchEvent(new CustomEvent('ca-stop'));
             }
