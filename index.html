@@ -29,13 +29,13 @@
                 <button id="skip"><span class="ui-icon ui-icon-seek-next"></span></button>
             </div>
             <button id="back" data-action="back" title="Return to the initial configuration"><span class="ui-icon ui-icon-seek-prev"></span></button>
-            <button id="view" data-dialog="ca-view" title="Cells field settings">View...</button>
             <div id="cell-field-mode">
                 <input id="mode-edit" type="radio" name="mode" value="edit"><label for="mode-edit" class="ca-start-disable" title="Edit"><span class="ui-icon ui-icon-pencil"></span></label>
                 <input id="mode-shift" type="radio" name="mode" value="shift"><label for="mode-shift" title="Shift"><span class="ui-icon ui-icon-arrow-4"></span></label>
                 <input id="mode-scale" type="radio" name="mode" value="scale"><label for="mode-scale" title="Scale"><span class="ui-icon ui-icon-zoomin"></span></label>
             </div>
             <button id="brush" data-dialog="ca-brush">Brush...</button>
+            <button id="view" data-dialog="ca-field" title="Cells field settings">Field...</button>
             <div id="cell-field-data">
                 <button id="fill" data-dialog="ca-filling" class="ca-start-disable" title="Cells field filling">Fill...</button>
                 <button id="clear" data-action="clear" class="ca-start-disable" title="Cells field clear">Clear</button>
@@ -65,18 +65,18 @@
     <div id="ca-filling" title="Cells field filling"></div>
     <div id="ca-speed" title="Speed">
         <table class="ca-options-table">
-            <tr><td>Generations per step</td><td><input id="generations-per-step" type="text" maxlength="3"></td></tr>
-            <tr><td>Step duration, ms</td><td><input id="step-duration" type="text" maxlength="4"></td></tr>
+            <tr><td>Generations per step</td><td><input id="generations-per-step" type="text"></td></tr>
+            <tr><td>Step duration, ms</td><td><input id="step-duration" type="text"></td></tr>
         </table>
     </div>
-    <div id="ca-view" title="View">
-        <div id="ca-view-settings">
+    <div id="ca-field" title="Field">
+        <div id="ca-field-settings">
             <ul>
-                <li><a href="#ca-view-field">Cells field</a></li>
-                <li><a href="#ca-view-colors">Colors</a></li>
-                <li><a href="#ca-view-planes">Bit planes</a></li>
+                <li><a href="#ca-field-sizes">Sizes</a></li>
+                <li><a href="#ca-field-colors">Colors</a></li>
+                <li><a href="#ca-field-planes">Bit planes</a></li>
             </ul>
-            <div id="ca-view-field">
+            <div id="ca-field-sizes">
                 <table class="ca-options-table">
                     <tr><td>Field width</td><td><input id="ca-field-x-size" type="text" class="ca-start-disable"></td></tr>
                     <tr><td>Field height</td><td><input id="ca-field-y-size" type="text" class="ca-start-disable"></td></tr>
@@ -84,9 +84,9 @@
                     <tr><td>Cell border</td><td><input id="ca-field-cell-border" type="text"></td></tr>
                 </table>
             </div>
-            <div id="ca-view-colors">
+            <div id="ca-field-colors">
             </div>
-            <div id="ca-view-planes">
+            <div id="ca-field-planes">
             </div>
         </div>
     </div>

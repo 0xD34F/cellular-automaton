@@ -242,9 +242,9 @@ $(document).ready(function() {
         }
     });
 
-    $('#ca-view-settings').tabs();
+    $('#ca-field-settings').tabs();
 
-    $('#ca-view').dialog({
+    $('#ca-field').dialog({
         width: 320,
         height: 460,
         create: function() {
@@ -262,7 +262,7 @@ $(document).ready(function() {
             }));
 
 
-            $this.find('#ca-view-colors').append(templates.colorSetting($.map(ca.view.colors, (n, i) => ({
+            $this.find('#ca-field-colors').append(templates.colorSetting($.map(ca.view.colors, (n, i) => ({
                 color: i,
                 label: isNaN(i) ? i : (+i).toString(16).toUpperCase()
             })))).find('.jscolor').each(function() {
@@ -273,7 +273,7 @@ $(document).ready(function() {
 
 
             $this
-                .find('#ca-view-planes').append(templates.bitPlanesShow(ca.cells.getBitPlanes()))
+                .find('#ca-field-planes').append(templates.bitPlanesShow(ca.cells.getBitPlanes()))
                 .find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
         open: function() {
