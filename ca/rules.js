@@ -246,6 +246,9 @@ makeTable(function(n) {
     extra: ['_center']
 });
 
+steps.duration = 1;
+steps.generations = 8;
+
 function bit(val) {
     return +!!(val & 2);
 }

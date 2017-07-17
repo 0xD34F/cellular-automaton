@@ -19,7 +19,7 @@
             return false;
         }
 
-        this.intervalID = setInterval(this.step.bind(this), this.stepDuration);
+        this.intervalID = setInterval(this.step.bind(this), this.duration);
 
         return true;
     };
@@ -35,7 +35,7 @@
         return true;
     };
 
-    Object.defineProperty(self.prototype, 'stepDuration', {
+    Object.defineProperty(self.prototype, 'duration', {
         get: function() {
             return this._delay;
         },
@@ -48,7 +48,7 @@
         }
     });
 
-    Object.defineProperty(self.prototype, 'generationsPerStep', {
+    Object.defineProperty(self.prototype, 'generations', {
         get: function() {
             return this._generations;
         },

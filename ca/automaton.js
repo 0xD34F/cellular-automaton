@@ -148,7 +148,7 @@
 
     var steps = Steps({
         step: function() {
-            newGeneration(this.generationsPerStep);
+            newGeneration(this.generations);
             view.render();
         }
     });
@@ -270,16 +270,16 @@
             }
         },
         get generationsPerStep() {
-            return steps.generationsPerStep;
+            return steps.generations;
         },
         set generationsPerStep(value) {
-            steps.generationsPerStep = value;
+            steps.generations = value;
         },
         get stepDuration() {
-            return steps.stepDuration;
+            return steps.duration;
         },
         set stepDuration(value) {
-            steps.stepDuration = value;
+            steps.duration = value;
         },
         get rule() {
             return rule;
