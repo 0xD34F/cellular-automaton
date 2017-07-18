@@ -77,8 +77,13 @@ makeTable(function(n) {
     }, {
         name: 'Parity',
         code:
-`makeTable(function(n) {
-    return n.north ^ n.south ^ n.west ^ n.east ^ (n.center & 1);
+`
+setNeighborhoods({
+    main: 'Neumann'
+});
+
+makeTable(function(n) {
+    return n.north ^ n.south ^ n.west ^ n.east ^ n.center;
 });`
     }, {
         name: '1 out of 8',
@@ -111,15 +116,12 @@ makeTable(function(n) {
 view.setColors([ '000000', 'FF0000', '00FF00', 'FFFF00' ], true);
 
 function sum(n, p) {
-    return (
-        !!(n.center & p) + !!(n.north & p) + !!(n.south & p) + !!(n.west & p) + !!(n.east & p) +
-        !!(n.n_west & p) + !!(n.s_west & p) + !!(n.n_east & p) + !!(n.s_east & p)
-    );
+    return rules.sum(p, n.center, n.north, n.south, n.west, n.east, s.n_west, n.n_east, n.s_west, n.s_east);
 }
 
 makeTable(function(n) {
-    var s0 = sum(n, 1),
-        s1 = sum(n, 2);
+    var s0 = sum(n, 0),
+        s1 = sum(n, 1);
 
     return (s0 > 5 || s0 === 4 ? 1 : 0) | ((s1 > 5 || s1 === 4 ? 1 : 0) << 1);
 });`,
@@ -131,10 +133,10 @@ makeTable(function(n) {
 });
 
 makeTable(function(n) {
-    var s = (n.center & 1) + (n.north & 1) + (n.south & 1) + (n.west & 1) + (n.east & 1),
+    var s = rules.sum(0, n.center, n.north, n.south, n.west, n.east),
         r = (+!!(2 & n.center & n.north & n.south & n.west & n.east)) ^ 1,
         p0 = [ 0, 0, r, +!r, 1, 1 ][s],
-        p1 = (n.center & 2) ^ (n.north & 2) ^ (n.south & 2) ^ (n.west & 2) ^ (n.east & 2);
+        p1 = 2 & (n.center ^ n.north ^ n.south ^ n.west ^ n.east);
 
     return p0 | p1;
 });`
@@ -202,7 +204,7 @@ beforeNewGeneration = function() {
 };
 
 makeTable(function(n) {
-    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1),
+    var s = rules.sum(0, n.center, n.cw, n.ccw, n.opp),
         c = n.center ^ 1;
 
     return [ c, c, n.center & 1, n.opp ^ 1, c ][s];
@@ -215,7 +217,7 @@ makeTable(function(n) {
 });
 
 makeTable(function(n) {
-    var s = (n.center & 1) + (n.cw & 1) + (n.ccw & 1) + (n.opp & 1),
+    var s = rules.sum(0, n.center, n.cw, n.ccw, n.opp),
         c = n.center;
 
     return [ 1, c, c, c, 0 ][s];
@@ -249,15 +251,11 @@ makeTable(function(n) {
 steps.duration = 1;
 steps.generations = 8;
 
-function bit(val) {
-    return +!!(val & 2);
-}
-
 makeTable(function(n) {
-    var p1 = bit(n.ccw) & bit(n.opp) ^ bit(n.cw) ^ bit(n.center),
-        rand = bit(n.ccw) ^ bit(n.opp) ^ bit(n.cw) ^ bit(n.center);
+    var p1 = 2 & (n.ccw & n.opp ^ n.cw ^ n.center),
+        rand = 2 & (n.ccw ^ n.opp ^ n.cw ^ n.center);
 
-    return ((rand ? n.cw : n.ccw) & 1) | (p1 << 1);
+    return ((rand ? n.cw : n.ccw) & 1) | p1;
 },  function(n) {
     return (n._center & 1) | n.center;
 });`
@@ -323,6 +321,7 @@ makeTable(function(n) {
                 return ((ruleNumber & (1 << t)) ? 1 : 0) | n.center;
             };
         },
+        sum: (plane, ...values) => values.reduce((p, c) => p + ((c >> plane) & 1), 0),
         get: function(name) {
             var rules = predefinedRules.concat(savedRules);
 
