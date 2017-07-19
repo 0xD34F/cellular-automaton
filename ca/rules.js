@@ -5,7 +5,10 @@
 `makeTable(function(n) {
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
     return s === 3 ? 1 : (s === 2 ? n.center : 0);
-});`
+});
+
+// Same as:
+// makeTable(rules.totalistic2d9(224));`
     }, {
         name: 'Conway\'s Life (trace)',
         code:
@@ -77,14 +80,16 @@ makeTable(function(n) {
     }, {
         name: 'Parity',
         code:
-`
-setNeighborhoods({
+`setNeighborhoods({
     main: 'Neumann'
 });
 
 makeTable(function(n) {
     return n.north ^ n.south ^ n.west ^ n.east ^ n.center;
-});`
+});
+
+// Same rule, for one bit plane:
+// makeTable(rules.totalistic2d5(614));`
     }, {
         name: '1 out of 8',
         code:
@@ -115,16 +120,11 @@ makeTable(function(n) {
 
 view.setColors([ '000000', 'FF0000', '00FF00', 'FFFF00' ], true);
 
-function sum(n, p) {
-    return rules.sum(p, n.center, n.north, n.south, n.west, n.east, s.n_west, n.n_east, n.s_west, n.s_east);
-}
+var ruleID = 260480,
+    p0 = rules.totalistic2d9(ruleID, 0),
+    p1 = rules.totalistic2d9(ruleID, 1);
 
-makeTable(function(n) {
-    var s0 = sum(n, 0),
-        s1 = sum(n, 1);
-
-    return (s0 > 5 || s0 === 4 ? 1 : 0) | ((s1 > 5 || s1 === 4 ? 1 : 0) << 1);
-});`,
+makeTable(n => p0(n) | p1(n));`,
     }, {
         name: 'Rand anneal',
         code:
@@ -292,7 +292,7 @@ function main(n) {
         if (savedRules.length) {
             localStorage.rules = JSON.stringify(savedRules);
         } else {
-            localStorage.removeItem('rules');
+            delete localStorage.rules;
         }
     }
 
@@ -314,15 +314,27 @@ function main(n) {
         return { status, message };
     }
 
-    return {
-        elementary: function(ruleNumber) {
-            ruleNumber = limitation(ruleNumber, 0, 255);
+    function numberedRule(rule, max) {
+        return (ruleNumber, ...rest) => rule(limitation(ruleNumber, 0, Math.pow(2, max) - 1), ...rest);
+    }
 
-            return function(n) {
-                var t = ((n.n_west & 1) << 2) + ((n.north & 1) << 1) + (n.n_east & 1);
-                return ((ruleNumber & (1 << t)) ? 1 : 0) | n.center;
-            };
-        },
+    return {
+        elementary: numberedRule(ruleNumber => function(n) {
+            var t = ((n.n_west & 1) << 2) + ((n.north & 1) << 1) + (n.n_east & 1);
+            return ((ruleNumber & (1 << t)) ? 1 : 0) | n.center;
+        }, 8),
+        totalistic2d5: numberedRule((ruleNumber, bitPlane = 0) => function(n) {
+            var s = rules.sum(bitPlane, n.north, n.south, n.west, n.east),
+                m = 1 << bitPlane;
+
+            return (ruleNumber & (1 << (s * 2 + !!(n.center & m)))) ? m : 0;
+        }, 10),
+        totalistic2d9: numberedRule((ruleNumber, bitPlane = 0) => function(n) {
+            var s = rules.sum(bitPlane, n.north, n.south, n.west, n.east, n.n_west, n.n_east, n.s_west, n.s_east),
+                m = 1 << bitPlane;
+
+            return (ruleNumber & (1 << (s * 2 + !!(n.center & m)))) ? m : 0;
+        }, 18),
         sum: (plane, ...values) => values.reduce((p, c) => p + ((c >> plane) & 1), 0),
         get: function(name) {
             var rules = predefinedRules.concat(savedRules);
