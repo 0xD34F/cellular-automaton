@@ -184,13 +184,13 @@
         }
     };
 
-    self.prototype.gradient = function(from, to, steps) {
+    self.prototype.gradient = function(from, to, items = this.field.numCellStates) {
         var componentsFrom = getColorComponents(from),
             componentsTo = getColorComponents(to),
-            componentsSteps = componentsFrom.map((n, i) => (n - componentsTo[i]) / steps);
+            componentsItems = componentsFrom.map((n, i) => (n - componentsTo[i]) / (items - 1));
 
-        return [...Array(steps + 1)].map((n, i) => {
-            return componentsFrom.map((m, j) => ((m - i * componentsSteps[j]) | 0).toString(16).padStart(2, '0')).join('');
+        return [...Array(items)].map((n, i) => {
+            return componentsFrom.map((m, j) => ((m - i * componentsItems[j]) | 0).toString(16).padStart(2, '0')).join('');
         });
     };
 
@@ -225,9 +225,7 @@
 
 
     function getRenderGroups(view) {
-        var numStates = Math.pow(2, view.field.numBitPlanes);
-
-        return [...Array(numStates)].map(() => []);
+        return [...Array(view.field.numCellStates)].map(() => []);
     }
 
     function detectEventCoord(view, e) {

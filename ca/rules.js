@@ -271,7 +271,7 @@ makeTable(function(n) {
     }, {
         name: 'Cyclic',
         code:
-`view.setColors(view.gradient('#FF0000', '#FFFF00', 15), true);
+`view.setColors(view.gradient('#FF0000', '#FFFF00'), true);
 
 function main(n) {
     var t = (n.center + 1) & 15,

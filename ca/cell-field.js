@@ -7,6 +7,11 @@ Object.defineProperty(CellField.prototype, 'numBitPlanes', {
         return 4;
     }
 });
+Object.defineProperty(CellField.prototype, 'numCellStates', {
+    get: function() {
+        return Math.pow(2, this.numBitPlanes);
+    }
+})
 CellField.prototype.getBitPlanes = function() {
     return [...Array(this.numBitPlanes)].map((n, i) => i);
 };
