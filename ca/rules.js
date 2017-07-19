@@ -271,9 +271,11 @@ makeTable(function(n) {
     }, {
         name: 'Cyclic',
         code:
-`function main(n) {
+`view.setColors(view.gradient('#FF0000', '#FFFF00', 15), true);
+
+function main(n) {
     var t = (n.center + 1) & 15,
-        s = (n.north === t) + (n.south === t) + (n.west === t) + (n.east === t);
+        s = (n.north === t) + (n.south === t) + (n.west === t) + (n.east === t) + (n.n_west === t) + (n.n_east === t) + (n.s_west === t) + (n.s_east === t);
 
     return s ? t : n.center;
 }`
