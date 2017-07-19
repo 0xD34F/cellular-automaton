@@ -29,7 +29,7 @@
             });
         });
 
-        o.setColors();
+        o.setColors(null);
         o.resize(o.cellSide);
 
         o.mode = 'edit';
@@ -164,10 +164,10 @@
     };
 
     self.prototype.setColors = function(colors, render) {
-        colors = Object.assign({}, defaultColors, colors);
-
-        var oldColors = this.colors,
+        var oldColors = this.colors || defaultColors,
             newColors = {};
+
+        colors = Object.assign({}, oldColors, colors === null ? defaultColors : colors);
 
         for (var i in defaultColors) {
             var color = colors[i] || oldColors[i];
