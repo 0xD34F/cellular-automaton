@@ -184,6 +184,17 @@
         }
     };
 
+    self.prototype.gradient = function(from, to, steps) {
+        var componentsFrom = getColorComponents(from),
+            componentsTo = getColorComponents(to),
+            componentsSteps = componentsFrom.map((n, i) => (n - componentsTo[i]) / steps);
+
+        return [...Array(steps + 1)].map((n, i) => {
+            return componentsFrom.map((m, j) => ((m - i * componentsSteps[j]) | 0).toString(16).padStart(2, '0')).join('');
+        });
+    };
+
+
     function changeScale(view, change, coord) {
         if (!view.scaling) {
             return;
