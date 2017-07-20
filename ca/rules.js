@@ -52,21 +52,10 @@ makeTable(function(n) {
     }, {
         name: 'Brian\'s brain',
         code:
-`function ready(n) {
-    return n.center === 0 ? 1 : 0;
-}
+`var ready = n => n.center ? 0 : 1,
+    stimulus = rules.totalistic2d9(48);
 
-function stimulus(n) {
-    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
-    return s === 2 ? 1 : 0;
-}
-
-makeTable(function(n) {
-    var p0 = stimulus(n) & ready(n),
-        p1 = n.center & 1;
-
-    return (p1 << 1) | p0;
-});`
+makeTable(n => (stimulus(n) & ready(n)) | ((n.center & 1) << 1));`
     }, {
         name: 'Wireworld',
         code:
