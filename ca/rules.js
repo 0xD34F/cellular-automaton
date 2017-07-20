@@ -8,7 +8,9 @@
 });
 
 // Same as:
-// makeTable(rules.totalistic2d9(224));`
+// makeTable(rules.totalistic2d9(224));
+// or:
+// makeTable(rules.lifeLike('B3/S23'));`
     }, {
         name: 'Conway\'s Life (trace)',
         code:
@@ -335,6 +337,15 @@ function main(n) {
 
             return (ruleNumber & (1 << (s * 2 + !!(n.center & m)))) ? m : 0;
         }, 18),
+        lifeLike: function(rule) {
+            var bs = rule.split('/');
+                ruleNumber = 0;
+
+            bs[0].slice(1).split('').forEach(n => ruleNumber |= (1 << n * 2));
+            bs[1].slice(1).split('').forEach(n => ruleNumber |= (1 << n * 2 + 1));
+
+            return rules.totalistic2d9(ruleNumber);
+        },
         sum: (plane, ...values) => values.reduce((p, c) => p + ((c >> plane) & 1), 0),
         get: function(name) {
             var rules = predefinedRules.concat(savedRules);
