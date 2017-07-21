@@ -89,6 +89,14 @@ var ruleCode =
 
 makeTable(rules.lifeLike(ruleCode))`
     }, {
+        name: 'Elementary',
+        code:
+`// see also: https://en.wikipedia.org/wiki/Elementary_cellular_automaton
+
+var ruleID = 102;
+
+makeTable(rules.elementary(ruleID));`
+    }, {
         name: 'Parity',
         code:
 `setNeighborhoods({
@@ -249,15 +257,6 @@ makeTable(function(n) {
 },  function(n) {
     return (n._center & 1) | n.center;
 });`
-    }, {
-        name: '30',
-        code: 'makeTable(rules.elementary(30));'
-    }, {
-        name: '110',
-        code: 'makeTable(rules.elementary(110));'
-    }, {
-        name: '126',
-        code: 'makeTable(rules.elementary(126));'
     }, {
         name: 'Cyclic',
         code:
