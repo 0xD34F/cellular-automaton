@@ -69,6 +69,26 @@ makeTable(function(n) {
     return [ 0, 2, 3, s === 1 || s === 2 ? 1 : 3 ][n.center];
 });`
     }, {
+        name: 'Life-like',
+        code:
+`// see also: https://en.wikipedia.org/wiki/Life-like_cellular_automaton
+
+var ruleCode = 
+
+/* Replicator         */ // 'B1357/S1357'
+/* Seeds              */ // 'B2/S'
+/* Life without death */ // 'B3/S01234567'
+/* Life               */ // 'B3/S23'
+/* 34 Life            */ // 'B34/S34'
+/* Diamoeba           */ // 'B35678/S5678'
+/* 2x2                */  'B36/S125'
+/* Highlife           */ // 'B36/S23'
+/* Day & Night        */ // 'B3678/S34678'
+/* Morley             */ // 'B368/S245'
+/* Anneal             */ // 'B4678/S35678'
+
+makeTable(rules.lifeLike(ruleCode))`
+    }, {
         name: 'Parity',
         code:
 `setNeighborhoods({
@@ -81,27 +101,6 @@ makeTable(function(n) {
 
 // Same rule, for one bit plane:
 // makeTable(rules.totalistic2d5(614));`
-    }, {
-        name: '1 out of 8',
-        code:
-`makeTable(function(n) {
-    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
-    return s === 1 ? 1 : n.center;
-});`
-    }, {
-        name: 'Lichens with death',
-        code:
-`makeTable(function(n) {
-    var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
-    return (s === 3) ? 1 : (s === 4 ? 0 : n.center);
-});`
-    }, {
-        name: 'Anneal',
-        code:
-`makeTable(function(n) {
-    var s = (n.center & 1) + n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
-    return s > 5 || s === 4 ? 1 : 0;
-});`
     }, {
         name: 'Anneal x 2',
         code:
