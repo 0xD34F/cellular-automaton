@@ -180,6 +180,7 @@
         beforeNewGeneration = null;
         setNeighborhoods();
         makeTable();
+        view.setColors(null, true);
 
         eval(code);
 
