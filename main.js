@@ -474,12 +474,7 @@ $(document).ready(function() {
 
 
     $('#save-as-image').click(function() {
-        var a = document.createElement('a');
-        a.href = ca.view.canvas.toDataURL();
-        a.download = Math.random().toString(16).slice(2) + '.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
+        ca.view.download();
     });
 
 

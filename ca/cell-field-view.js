@@ -194,6 +194,15 @@
         });
     };
 
+    self.prototype.download = function(filename = Math.random().toString(16).slice(2) + '.png') {
+        var a = document.createElement('a');
+        a.href = this.canvas.toDataURL();
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+    };
+
 
     function changeScale(view, change, coord) {
         if (!view.scaling) {
