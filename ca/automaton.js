@@ -224,11 +224,11 @@
 
     function runTimeLog(f, message) {
         return function() {
-            var startTime = new Date();
+            console.time(message);
 
             var result = f.apply(this, arguments);
 
-            console.log(message, arguments, 'time: ' + (new Date() - startTime));
+            console.timeEnd(message);
 
             return result;
         };
