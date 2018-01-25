@@ -1,6 +1,7 @@
 ﻿var Steps = (function() {
 
-    var MIN_DELAY = 1,
+    const
+        MIN_DELAY = 1,
         MAX_DELAY = 10000,
         MIN_GENERATIONS = 1,
         MAX_GENERATIONS = 100;

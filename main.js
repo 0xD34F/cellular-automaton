@@ -127,7 +127,8 @@ ${bitPlanes.map(n => `
 
 
 $(document).ready(function() {
-    var X_SIZE_MIN = 32,
+    const
+        X_SIZE_MIN = 32,
         Y_SIZE_MIN = 32,
         X_SIZE_MAX = 256,
         Y_SIZE_MAX = 256,
