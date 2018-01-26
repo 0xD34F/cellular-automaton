@@ -194,7 +194,7 @@
         });
     };
 
-    self.prototype.download = function(filename = Math.random().toString(16).slice(2) + '.png') {
+    self.prototype.download = function(filename = `${Date.now().toString()}.png`) {
         var a = document.createElement('a');
         a.href = this.canvas.toDataURL();
         a.download = filename;
