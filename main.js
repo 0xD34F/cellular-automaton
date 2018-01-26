@@ -138,11 +138,11 @@ $(document).ready(function() {
         CELL_BORDER_MAX = 4,
         BRUSH_SIZE = 11;
 
-    var caBrush = CellFieldView(CellField(BRUSH_SIZE), {
+    var caBrush = CellFieldView(new CellField(BRUSH_SIZE), {
         wrapper: '#brush-wrapper',
         cellSide: 12,
         cellBorder: 1,
-        brush: CellField(1).fill(() => 1)
+        brush: new CellField(1).fill(() => 1)
     });
     caBrush.field.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
 

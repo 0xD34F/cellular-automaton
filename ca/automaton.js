@@ -139,7 +139,7 @@
     var calculateNewGeneration = null,
         beforeNewGeneration = null;
 
-    var cells = CellField(xSize, ySize),
+    var cells = new CellField(xSize, ySize),
         newCells = cells.clone(),
         rule = null,
         time = 0;
