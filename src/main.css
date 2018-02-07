@@ -74,6 +74,7 @@ html {
 .controls > * {
     vertical-align: top;
     margin: 5px 1px 5px 0;
+    display: inline-block;
 }
 
 .cells-field-wrapper {
@@ -219,7 +220,12 @@ input.jscolor {
     font-weight: bold;
 }
 
-button, input, textarea, select, li, .ui-selectmenu-button {
+button,
+input,
+textarea,
+select,
+li,
+.ui-selectmenu-button {
     outline: 0;
     border: 1px solid rgb(197, 197, 197);
 }
@@ -233,7 +239,8 @@ button, input, textarea, select, li, .ui-selectmenu-button {
     overflow-x: hidden;
     overflow-y: auto;
 }
-.ui-menu li, .ui-menu .ui-menu-item-wrapper {
+.ui-menu li,
+.ui-menu .ui-menu-item-wrapper {
     border: 0;
 }
 
@@ -254,19 +261,34 @@ button, input, textarea, select, li, .ui-selectmenu-button {
     padding: .2em .4em;
 }
 
-.ui-visual-focus, .ui-state-focus {
+.ui-visual-focus,
+.ui-state-focus {
     box-shadow: none;
+}
+
+.ui-corner-all,
+.ui-corner-top,
+.ui-corner-right,
+.ui-corner-left,
+.ui-corner-bottom,
+.ui-corner-tr {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .ui-controlgroup[role="toolbar"] {
     margin-right: 3px;
 }
 
-[role="toolbar"] .ui-checkboxradio-label.ui-state-active, [role="toolbar"] .ui-checkboxradio-label.ui-state-active:hover {
+[role="toolbar"] .ui-checkboxradio-label.ui-state-active,
+[role="toolbar"] .ui-checkboxradio-label.ui-state-active:hover {
     z-index: 99;
 }
-[role="toolbar"] .ui-checkboxradio-label.ui-state-active .ui-icon, [role="toolbar"] .ui-checkboxradio-label.ui-state-active:hover .ui-icon {
-    background-image: url(lib/jquery-ui/images/ui-icons_ffffff_256x240.png);
+[role="toolbar"] .ui-checkboxradio-label.ui-state-active .ui-icon,
+[role="toolbar"] .ui-checkboxradio-label.ui-state-active:hover .ui-icon {
+    background-image: url(../node_modules/jquery-ui/themes/base/images/ui-icons_ffffff_256x240.png);
 }
 
 .controls > .ui-controlgroup > .ui-controlgroup-item {

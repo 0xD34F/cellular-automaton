@@ -1,4 +1,7 @@
-﻿class CellField {
+﻿import { rotateArray } from '../utils';
+
+export default class CellField {
+
     constructor(x, y) {
         this.resize(x, y);
     }
@@ -81,7 +84,7 @@
         }) : this;
     }
 
-    // bitPlanes объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
+    // bitPlanes - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
     fillRandom(bitPlanes) {
         return Object.keys(bitPlanes).length ? this.fill(function(x, y, value) {
             for (let i in bitPlanes) {
@@ -97,16 +100,16 @@
             return value;
         }) : this;
     }
+
+    get randomFillDensityDescritization() {
+        return 1000;
+    }
+
+    get numBitPlanes() {
+        return 4;
+    }
+
+    get numCellStates() {
+        return Math.pow(2, this.numBitPlanes);
+    }
 }
-
-Object.defineProperty(CellField.prototype, 'randomFillDensityDescritization', {
-    value: 1000
-});
-
-Object.defineProperty(CellField.prototype, 'numBitPlanes', {
-    value: 4
-});
-
-Object.defineProperty(CellField.prototype, 'numCellStates', {
-    value: Math.pow(2, CellField.prototype.numBitPlanes)
-});

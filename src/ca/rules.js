@@ -1,7 +1,12 @@
-﻿var rules = (function() {
-    var predefinedRules = [ {
-        name: 'Conway\'s Life',
-        code:
+﻿import { limitation } from '../utils';
+
+const predefinedRules = [ {
+    name: 'default',
+    code: 'makeTable(n => n.center, n => n.center);',
+    hidden: true
+}, {
+    name: 'Conway\'s Life',
+    code:
 `makeTable(function(n) {
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east;
     return s === 3 ? 1 : (s === 2 ? n.center : 0);
@@ -11,9 +16,9 @@
 // makeTable(rules.totalistic2d9(224));
 // or:
 // makeTable(rules.lifeLike('B3/S23'));`
-    }, {
-        name: 'Conway\'s Life (trace)',
-        code:
+}, {
+    name: 'Conway\'s Life (trace)',
+    code:
 `makeTable(function(n) {
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,
         p0 = s === 3 ? 1 : (s === 2 ? n.center : 0),
@@ -21,9 +26,9 @@
 
     return p0 | (p1 << 1);
 });`
-    }, {
-        name: 'Forest fire',
-        code:
+}, {
+    name: 'Forest fire',
+    code:
 `setNeighborhoods({
     extra: [ {
         name: 'prob',
@@ -49,16 +54,16 @@ makeTable(function(n) {
 
     return tree === 1 ? 0 : tree;
 });`
-    }, {
-        name: 'Brian\'s brain',
-        code:
+}, {
+    name: 'Brian\'s brain',
+    code:
 `var ready = n => n.center ? 0 : 1,
     stimulus = rules.totalistic2d9(48);
 
 makeTable(n => (stimulus(n) & ready(n)) | ((n.center & 1) << 1));`
-    }, {
-        name: 'Wireworld',
-        code:
+}, {
+    name: 'Wireworld',
+    code:
 `setNeighborhoods({
     main: 'Moore-thick'
 });
@@ -68,9 +73,9 @@ makeTable(function(n) {
 
     return [ 0, 2, 3, s === 1 || s === 2 ? 1 : 3 ][n.center];
 });`
-    }, {
-        name: 'Life-like',
-        code:
+}, {
+    name: 'Life-like',
+    code:
 `// see also: https://en.wikipedia.org/wiki/Life-like_cellular_automaton
 
 var ruleCode = 
@@ -88,17 +93,17 @@ var ruleCode =
 /* Anneal             */ // 'B4678/S35678'
 
 makeTable(rules.lifeLike(ruleCode))`
-    }, {
-        name: 'Elementary',
-        code:
+}, {
+    name: 'Elementary',
+    code:
 `// see also: https://en.wikipedia.org/wiki/Elementary_cellular_automaton
 
 var ruleID = 102;
 
 makeTable(rules.elementary(ruleID));`
-    }, {
-        name: 'Parity',
-        code:
+}, {
+    name: 'Parity',
+    code:
 `setNeighborhoods({
     main: 'Neumann'
 });
@@ -109,9 +114,9 @@ makeTable(function(n) {
 
 // Same rule, for one bit plane:
 // makeTable(rules.totalistic2d5(614));`
-    }, {
-        name: 'Anneal x 2',
-        code:
+}, {
+    name: 'Anneal x 2',
+    code:
 `setNeighborhoods({
     main: 'Moore-thick'
 });
@@ -123,9 +128,9 @@ var ruleID = 260480,
     p1 = rules.totalistic2d9(ruleID, 1);
 
 makeTable(n => p0(n) | p1(n));`,
-    }, {
-        name: 'Rand anneal',
-        code:
+}, {
+    name: 'Rand anneal',
+    code:
 `setNeighborhoods({
     main: 'Neumann'
 });
@@ -138,9 +143,9 @@ makeTable(function(n) {
 
     return p0 | p1;
 });`
-    }, {
-        name: 'Time tunnel',
-        code:
+}, {
+    name: 'Time tunnel',
+    code:
 `makeTable(function(n) {
     var s = (n.center & 1) + n.north + n.south + n.west + n.east,
         p0 = (s === 0 || s === 5 ? 0 : 1) ^ ((n.center & 2) >> 1),
@@ -148,9 +153,9 @@ makeTable(function(n) {
 
     return p0 | (p1 << 1);
 });`
-    }, {
-        name: 'Border / hollow',
-        code:
+}, {
+    name: 'Border / hollow',
+    code:
 `setNeighborhoods({
     extra: ['phase']
 });
@@ -167,9 +172,9 @@ function hollow(n) {
 makeTable(function(n) {
     return (n.phase & 1) ? hollow(n) : border(n);
 });`
-    }, {
-        name: 'Safe / pass',
-        code:
+}, {
+    name: 'Safe / pass',
+    code:
 `setNeighborhoods({
     main: 'Neumann'
 });
@@ -190,9 +195,9 @@ makeTable(function(n) {
 
     return p0 | p1;
 });`
-    }, {
-        name: 'Critters',
-        code:
+}, {
+    name: 'Critters',
+    code:
 `setNeighborhoods({
     main: 'Margolus'
 });
@@ -207,9 +212,9 @@ makeTable(function(n) {
 
     return [ c, c, n.center & 1, n.opp ^ 1, c ][s];
 });`
-    }, {
-        name: 'Tron',
-        code:
+}, {
+    name: 'Tron',
+    code:
 `setNeighborhoods({
     main: 'Margolus'
 });
@@ -220,9 +225,9 @@ makeTable(function(n) {
 
     return [ 1, c, c, c, 0 ][s];
 });`
-    }, {
-        name: 'Tube worms',
-        code:
+}, {
+    name: 'Tube worms',
+    code:
 `setNeighborhoods({
     extra: ['_center']
 }, {
@@ -237,9 +242,9 @@ makeTable(function(n) {
 },  function(n) {
     return n._center === 3 ? 3 : ([ 0, 0, 1, 2 ][n.center]);
 });`
-    }, {
-        name: 'Brownian',
-        code:
+}, {
+    name: 'Brownian',
+    code:
 `setNeighborhoods({
     main: 'Margolus'
 }, {
@@ -257,124 +262,125 @@ makeTable(function(n) {
 },  function(n) {
     return (n._center & 1) | n.center;
 });`
-    }, {
-        name: 'Cyclic',
-        code:
+}, {
+    name: 'Cyclic',
+    code:
 `view.setColors(view.gradient('#FF0000', '#FFFF00'), true);
 
-function main(n) {
+main = function(n) {
     var t = (n.center + 1) & 15,
         s = (n.north === t) + (n.south === t) + (n.west === t) + (n.east === t) + (n.n_west === t) + (n.n_east === t) + (n.s_west === t) + (n.s_east === t);
 
     return s ? t : n.center;
 }`
-    } ].map(n => Object.assign(n, { predefined: true }));
+} ].map(n => Object.assign(n, { predefined: true }));
 
 
-    var savedRules = null;
-    try {
-        savedRules = JSON.parse(localStorage.rules);
-    } catch (e) {}
-    savedRules = Array.isArray(savedRules) ? savedRules : [];
+var savedRules = null;
+try {
+    savedRules = JSON.parse(localStorage.rules);
+} catch (e) {}
+savedRules = Array.isArray(savedRules) ? savedRules : [];
 
-    function save() {
-        if (savedRules.length) {
-            localStorage.rules = JSON.stringify(savedRules);
-        } else {
-            delete localStorage.rules;
+function save() {
+    if (savedRules.length) {
+        localStorage.rules = JSON.stringify(savedRules);
+    } else {
+        delete localStorage.rules;
+    }
+}
+
+function isPredefined(name) {
+    return predefinedRules.some(n => n.name === name);
+}
+
+function deleteSaved(name) {
+    var i = savedRules.findIndex(n => n.name === name);
+    if (i === -1) {
+        return false;
+    }
+
+    savedRules.splice(i, 1);
+    return true;
+}
+
+function result(status, message) {
+    return { status, message };
+}
+
+function numberedRule(rule, max) {
+    return (ruleNumber, ...rest) => rule(limitation(ruleNumber, 0, Math.pow(2, max) - 1), ...rest);
+}
+
+const rules = {
+    elementary: numberedRule(ruleNumber => function(n) {
+        var t = ((n.n_west & 1) << 2) + ((n.north & 1) << 1) + (n.n_east & 1);
+        return ((ruleNumber & (1 << t)) ? 1 : 0) | n.center;
+    }, 8),
+    totalistic2d5: numberedRule((ruleNumber, bitPlane = 0) => function(n) {
+        var s = rules.sum(bitPlane, n.north, n.south, n.west, n.east),
+            m = 1 << bitPlane;
+
+        return (ruleNumber & (1 << (s * 2 + !!(n.center & m)))) ? m : 0;
+    }, 10),
+    totalistic2d9: numberedRule((ruleNumber, bitPlane = 0) => function(n) {
+        var s = rules.sum(bitPlane, n.north, n.south, n.west, n.east, n.n_west, n.n_east, n.s_west, n.s_east),
+            m = 1 << bitPlane;
+
+        return (ruleNumber & (1 << (s * 2 + !!(n.center & m)))) ? m : 0;
+    }, 18),
+    lifeLike: function(rule) {
+        var bs = rule.split('/'),
+            ruleNumber = 0;
+
+        bs[0].slice(1).split('').forEach(n => ruleNumber |= (1 << n * 2));
+        bs[1].slice(1).split('').forEach(n => ruleNumber |= (1 << n * 2 + 1));
+
+        return rules.totalistic2d9(ruleNumber);
+    },
+    sum: (plane, ...values) => values.reduce((p, c) => p + ((c >> plane) & 1), 0),
+    get: function(name) {
+        var rules = predefinedRules.concat(savedRules);
+
+        return name ? ((rules.find(n => n.name === name) || {}).code || '') : rules.filter(n => !n.hidden);
+    },
+    save: function(name, code) {
+        var err = [];
+        if (!name) {
+            err.push('no rule name');
         }
-    }
-
-    function isPredefined(name) {
-        return predefinedRules.some(n => n.name === name);
-    }
-
-    function deleteSaved(name) {
-        var i = savedRules.findIndex(n => n.name === name);
-        if (i === -1) {
-            return false;
+        if (!code) {
+            err.push('no rule code');
+        }
+        if (isPredefined(name)) {
+            err.push('predefined rule ("' + name +'") can not be rewritten');
+        }
+        if (err.length) {
+            return result(false, err.join('<br>'));
         }
 
-        savedRules.splice(i, 1);
-        return true;
-    }
+        deleteSaved(name);
 
-    function result(status, message) {
-        return { status, message };
-    }
+        savedRules.push({ name, code });
 
-    function numberedRule(rule, max) {
-        return (ruleNumber, ...rest) => rule(limitation(ruleNumber, 0, Math.pow(2, max) - 1), ...rest);
-    }
-
-    return {
-        elementary: numberedRule(ruleNumber => function(n) {
-            var t = ((n.n_west & 1) << 2) + ((n.north & 1) << 1) + (n.n_east & 1);
-            return ((ruleNumber & (1 << t)) ? 1 : 0) | n.center;
-        }, 8),
-        totalistic2d5: numberedRule((ruleNumber, bitPlane = 0) => function(n) {
-            var s = rules.sum(bitPlane, n.north, n.south, n.west, n.east),
-                m = 1 << bitPlane;
-
-            return (ruleNumber & (1 << (s * 2 + !!(n.center & m)))) ? m : 0;
-        }, 10),
-        totalistic2d9: numberedRule((ruleNumber, bitPlane = 0) => function(n) {
-            var s = rules.sum(bitPlane, n.north, n.south, n.west, n.east, n.n_west, n.n_east, n.s_west, n.s_east),
-                m = 1 << bitPlane;
-
-            return (ruleNumber & (1 << (s * 2 + !!(n.center & m)))) ? m : 0;
-        }, 18),
-        lifeLike: function(rule) {
-            var bs = rule.split('/');
-                ruleNumber = 0;
-
-            bs[0].slice(1).split('').forEach(n => ruleNumber |= (1 << n * 2));
-            bs[1].slice(1).split('').forEach(n => ruleNumber |= (1 << n * 2 + 1));
-
-            return rules.totalistic2d9(ruleNumber);
-        },
-        sum: (plane, ...values) => values.reduce((p, c) => p + ((c >> plane) & 1), 0),
-        get: function(name) {
-            var rules = predefinedRules.concat(savedRules);
-
-            return name ? ((rules.find(n => n.name === name) || {}).code || '') : rules;
-        },
-        save: function(name, code) {
-            var err = [];
-            if (!name) {
-                err.push('no rule name');
-            }
-            if (!code) {
-                err.push('no rule code');
-            }
-            if (isPredefined(name)) {
-                err.push('predefined rule ("' + name +'") can not be rewritten');
-            }
-            if (err.length) {
-                return result(false, err.join('<br>'));
-            }
-
-            deleteSaved(name);
-
-            savedRules.push({ name, code });
-
-            save();
-            return result(true, 'rule "' + name + '" saved');
-        },
-        del: function(name) {
-            if (!name) {
-                return result(false, 'no rule name');
-            }
-            if (isPredefined(name)) {
-                return result(false, 'predefined rule ("' + name +'") can not be deleted');
-            }
-
-            if (!deleteSaved(name)) {
-                return result(false, 'rule "' + name + '" not found');
-            }
-
-            save();
-            return result(true, 'rule "' + name + '" deleted');
+        save();
+        return result(true, 'rule "' + name + '" saved');
+    },
+    del: function(name) {
+        if (!name) {
+            return result(false, 'no rule name');
         }
-    };
-})();
+        if (isPredefined(name)) {
+            return result(false, 'predefined rule ("' + name +'") can not be deleted');
+        }
+
+        if (!deleteSaved(name)) {
+            return result(false, 'rule "' + name + '" not found');
+        }
+
+        save();
+        return result(true, 'rule "' + name + '" deleted');
+    }
+};
+
+export default rules;

@@ -1,4 +1,13 @@
-﻿var CellularAutomaton = function(xSize, ySize, viewOptions) {
+﻿import { bitMask } from '../utils';
+import Rules from './rules';
+import Steps from './steps';
+import neighborhood from './neighborhood';
+import CellField from './cell-field';
+import CellFieldView from './cell-field-view';
+
+var rules = Rules;
+
+var CellularAutomaton = function(xSize, ySize, viewOptions) {
 
     function _CA(shift, neighborhood) {
         this.shift = shift;
@@ -38,50 +47,6 @@
         return codeTemplate.nextStateFromTable(nextStateCode, shift);
     };
 
-    var neighborhood = {
-        base: [
-            { name: 'center', size: 2, code: 'dXCurr[y]' }
-        ],
-        main: {
-            Neumann: [
-                { name: 'north', size: 2, code: 'dXCurr[yPrev]' },
-                { name: 'south', size: 2, code: 'dXCurr[yNext]' },
-                { name:  'west', size: 2, code: 'dXPrev[y]' },
-                { name:  'east', size: 2, code: 'dXNext[y]' }
-            ],
-            Moore: [
-                { name:  'north', size: 1, code: 'dXCurr[yPrev]' },
-                { name:  'south', size: 1, code: 'dXCurr[yNext]' },
-                { name:   'west', size: 1, code: 'dXPrev[y]' },
-                { name:   'east', size: 1, code: 'dXNext[y]' },
-                { name: 'n_west', size: 1, code: 'dXPrev[yPrev]' },
-                { name: 's_west', size: 1, code: 'dXPrev[yNext]' },
-                { name: 'n_east', size: 1, code: 'dXNext[yPrev]' },
-                { name: 's_east', size: 1, code: 'dXNext[yNext]' }
-            ],
-            Margolus: [
-                { name:  'cw', size: 2, code: 't ? (h ^ v ? (h ? dXNext : dXPrev) : dXCurr)[h ^ v ? y : (v ? yNext : yPrev)] : (h ^ v ? (h ? dXPrev : dXNext) : dXCurr)[h ^ v ? y : (v ? yPrev : yNext)]' },
-                { name: 'ccw', size: 2, code: 't ? (h ^ v ? dXCurr : (h ? dXNext : dXPrev))[h ^ v ? (v ? yNext : yPrev) : y] : (h ^ v ? dXCurr : (h ? dXPrev : dXNext))[h ^ v ? (v ? yPrev : yNext) : y]' },
-                { name: 'opp', size: 2, code: 't ? (h ? dXNext : dXPrev)[v ? yNext : yPrev] : (h ? dXPrev : dXNext)[v ? yPrev : yNext]' }
-            ]
-        },
-        extra: {
-            phase: [
-                { name: 'phase', size: 2, code: 'time' }
-            ],
-            hv: [
-                { name: 'horz', size: 1, code: 'x' },
-                { name: 'vert', size: 1, code: 'y' }
-            ],
-            prob: data => ({
-                name: 'prob',
-                size: data.length,
-                code: data.map((n, i) => `((Math.random() < ${n}) << ${i})`).join('|')
-            })
-        }
-    };
-    neighborhood.main['Moore-thick'] = neighborhood.main.Moore.map(n => Object.assign({}, n, { size: 2 }));
-
     var codeTemplate = {
 
         indexToNeighbor: (name, mask, position, index) => `${name}: (i & ${mask << position}) >> ${position}`,
@@ -105,7 +70,7 @@
     return table;
 })`,
 
-        newGeneration: nextStateCode => `
+        nextGeneration: nextStateCode => `
 (function(d, newD) {
     var table_0 = CAA.table,
         table_2 = CAB.table,
@@ -136,7 +101,8 @@
     var CAA = new _CA(0, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] & 12) >> 2' } ] }),
         CAB = new _CA(2, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] &  3) << 2' } ] });
 
-    var calculateNewGeneration = null,
+    var main = null,
+        calculateNewGeneration = null,
         beforeNewGeneration = null;
 
     var cells = new CellField(xSize, ySize),
@@ -144,9 +110,9 @@
         rule = null,
         time = 0;
 
-    var view = CellFieldView(cells, viewOptions);
+    var view = new CellFieldView(cells, viewOptions);
 
-    var steps = Steps({
+    var steps = new Steps({
         step: function() {
             newGeneration(this.generations);
             view.render();
@@ -176,6 +142,7 @@
     function setRule(code) {
         // сброс настроек
         time = 0;
+        main = null;
         calculateNewGeneration = null;
         beforeNewGeneration = null;
         setNeighborhoods();
@@ -186,9 +153,9 @@
 
         var nextStateCode = typeof main === 'function'
             ? codeTemplate.nextStateCalculation(CAA.neighbors)
-            : [ CAA, CAB ].filter(n => n.nextState instanceof Function).map(n => n.getNextStateCode()).join('|')
+            : [ CAA, CAB ].filter(n => n.nextState instanceof Function).map(n => n.getNextStateCode()).join('|');
 
-        calculateNewGeneration = eval(codeTemplate.newGeneration(nextStateCode));
+        calculateNewGeneration = eval(codeTemplate.nextGeneration(nextStateCode));
 
         rule = code;
     }
@@ -237,13 +204,14 @@
     CellFieldView.prototype.render = runTimeLog(CellFieldView.prototype.render, 'CellField render');
     CellFieldView.prototype.renderPartial = runTimeLog(CellFieldView.prototype.renderPartial, 'CellField renderPartial');
     setRule = runTimeLog(setRule, 'rule set');
-    newGeneration = runTimeLog(newGeneration, 'new generation got'); // */
+    newGeneration = runTimeLog(newGeneration, 'new generation'); // */
 
-    setRule('makeTable(function(n) { return n.center; });');
+    setRule(rules.get('default'));
 
     return {
-        cells: cells,
-        view: view,
+        rules,
+        cells,
+        view,
         resize: function(o) {
             o = o instanceof Object ? o : {};
 
@@ -313,3 +281,5 @@
         }
     };
 };
+
+export { CellField, CellFieldView, CellularAutomaton, Rules };

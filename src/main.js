@@ -1,25 +1,32 @@
-﻿function rotateArray(array, rotate) {
-    rotate -= array.length * Math.floor(rotate / array.length);
-    array.push(...array.splice(0, rotate));
-}
+﻿import $ from 'jquery';
 
-function limitation(val, min, max) {
-    val = val >> 0;
+import 'jquery-ui/ui/core';
+import 'jquery-ui/ui/widgets/autocomplete';
+import 'jquery-ui/ui/widgets/button';
+import 'jquery-ui/ui/widgets/dialog';
+import 'jquery-ui/ui/widgets/spinner';
+import 'jquery-ui/ui/widgets/selectmenu';
+import 'jquery-ui/ui/widgets/tabs';
+import 'jquery-ui/themes/base/core.css';
+import 'jquery-ui/themes/base/autocomplete.css';
+import 'jquery-ui/themes/base/button.css';
+import 'jquery-ui/themes/base/controlgroup.css';
+import 'jquery-ui/themes/base/dialog.css';
+import 'jquery-ui/themes/base/spinner.css';
+import 'jquery-ui/themes/base/selectmenu.css';
+import 'jquery-ui/themes/base/tabs.css';
+import 'jquery-ui/themes/base/theme.css';
 
-    if (val < min) {
-        val = min;
-    }
-    if (val > max) {
-        val = max;
-    }
+import 'jscolor-picker';
 
-    return val;
-}
+import toastr from 'toastr';
+import 'toastr/toastr.scss';
 
-function bitMask(size) {
-    return Math.pow(2, size) - 1;
-}
+import { limitation } from './utils';
 
+import { CellField, CellFieldView, CellularAutomaton } from './ca/';
+
+import './main.css';
 
 $.extend($.ui.autocomplete.prototype.options, {
     delay: 0,
@@ -138,7 +145,7 @@ $(document).ready(function() {
         CELL_BORDER_MAX = 4,
         BRUSH_SIZE = 11;
 
-    var caBrush = CellFieldView(new CellField(BRUSH_SIZE), {
+    var caBrush = new CellFieldView(new CellField(BRUSH_SIZE), {
         wrapper: '#brush-wrapper',
         cellSide: 12,
         cellBorder: 1,
@@ -328,7 +335,7 @@ $(document).ready(function() {
                 source: function(request, response) {
                     var term = request.term.toLowerCase();
 
-                    response(rules.get().filter(n => !!n.name.toLowerCase().match(term)).map(n => ({
+                    response(ca.rules.get().filter(n => !!n.name.toLowerCase().match(term)).map(n => ({
                         matched: n.name.replace(new RegExp('(' + request.term + ')', 'i'), '<span class="matched-text">$1</span>'),
                         label: n.name,
                         value: n.code,
@@ -351,10 +358,10 @@ $(document).ready(function() {
             };
 
             $this.find('#ca-rule-save').button().click(function() {
-                var result = rules.save($('#ca-rule-name').val(), $('#ca-rule-code').val());
+                var result = ca.rules.save($('#ca-rule-name').val(), $('#ca-rule-code').val());
                 toastr[result.status ? 'success' : 'error'](result.message);
             }).end().find('#ca-rule-delete').button().click(function() {
-                var result = rules.del($('#ca-rule-name').val());
+                var result = ca.rules.del($('#ca-rule-name').val());
                 toastr[result.status ? 'success' : 'error'](result.message);
             });
 
@@ -480,7 +487,7 @@ $(document).ready(function() {
 
 
     var defaultRule = 'Conway\'s Life';
-    ca.rule = rules.get(defaultRule);
+    ca.rule = ca.rules.get(defaultRule);
     $('#ca-rule-name').val(defaultRule);
 
     $('body').removeClass('ui-helper-hidden');
