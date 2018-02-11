@@ -15,6 +15,10 @@ function getColorComponents(color) {
     return [ 1, 3, 5 ].map(n => parseInt(color.slice(n, n + 2), 16));
 }
 
+function transformColor(color) {
+    return (parseInt(color.slice(5) + color.slice(3, 5) + color.slice(1, 3), 16)) | (0xFF << 24);
+}
+
 function getLineCoord(p0, p1) {
     var x = p0.x,
         y = p0.y,
@@ -46,4 +50,4 @@ function getLineCoord(p0, p1) {
     return coord;
 }
 
-export { rotateArray, limitation, bitMask, getColorComponents, getLineCoord };
+export { rotateArray, limitation, bitMask, getColorComponents, transformColor, getLineCoord };

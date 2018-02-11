@@ -306,7 +306,7 @@ $(document).ready(function() {
                     var $this = $(this);
                     newColors[$this.attr('color-name')] = $this.val();
                 });
-                ca.view.colors = newColors;
+                ca.view.setColors(newColors);
 
                 ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce((prev, curr, i) => prev | (curr.checked << i), 0);
 

@@ -1,5 +1,4 @@
-﻿import { limitation, bitMask, getColorComponents, getLineCoord } from '../utils';
-
+﻿import { limitation, bitMask, getColorComponents, transformColor, getLineCoord } from '../utils';
 
 const defaultColors = {
     background: '#505050',
@@ -147,11 +146,6 @@ function scrollFix(view) {
     w.scrollTop  = Math.round(w.scrollTop  / s) * s;
 };
 
-
-function getRenderGroups(view) {
-    return [...Array(view.field.numCellStates)].map(() => []);
-}
-
 function detectEventCoord(view, e) {
     var b = view.cellBorder,
         t = Math.round(b / 2);
@@ -225,11 +219,14 @@ export default class CellFieldView {
     }
 
     renderPartial(coord) {
-        var m = this.showBitPlanes,
-            rg = getRenderGroups(this),
+        var mask = this.showBitPlanes,
             cells = this.field.data,
             maxX = this.field.xSize,
-            maxY = this.field.ySize;
+            maxY = this.field.ySize,
+            border = this.cellBorder,
+            side = this.cellSide,
+            sideFull = side + border,
+            c = this.context;
 
         for (var x = coord.x, i = 0; i < coord.xSize; i++, x++) {
             if (x === maxX) {
@@ -241,60 +238,42 @@ export default class CellFieldView {
                     y = 0;
                 }
 
-                rg[cells[x][y] & m].push(x, y);
+                c.fillStyle = this.colors[cells[x][y] & mask];
+                c.fillRect(x * sideFull + border, y * sideFull + border, side, side);
             }
         }
 
-        var border = this.cellBorder,
-            side = this.cellSide,
-            sideFull = side + border,
-            c = this.context;
-
-        for (var state = 0; state < rg.length; state++) {
-            c.fillStyle = this.colors[state];
-
-            for (var n = rg[state], p = 0; p < n.length; p += 2) {
-                c.fillRect(n[p] * sideFull + border, n[p + 1] * sideFull + border, side, side);
-            }
-        }
     }
 
     render() {
         var coord = detectViewCoord(this),
-            m = this.showBitPlanes,
-            rg = getRenderGroups(this),
+            mask = this.showBitPlanes,
             cells = this.field.data,
             maxX = limitation(coord.x + coord.xSize, 0, this.field.xSize),
-            maxY = limitation(coord.y + coord.ySize, 0, this.field.ySize);
-
-        for (var i = 0, x = coord.x; x < maxX; x++, i++) {
-            for (var j = 0, y = coord.y; y < maxY; y++, j++) {
-                rg[cells[x][y] & m].push(i, j);
-            }
-        }
-
-        var border = this.cellBorder,
+            maxY = limitation(coord.y + coord.ySize, 0, this.field.ySize),
+            border = this.cellBorder,
             side = this.cellSide,
             sideFull = side + border,
-            image = this.imageData.data,
-            width = this.imageData.width;
+            image = this.buf32,
+            width = this.imageData.width,
+            colors = this.colorsForRender;
 
-        for (var state = 0; state < rg.length; state++) {
-            var [ r, g, b ] = [...getColorComponents(this.colors[state])];
+        for (var i = 0, x = coord.x; x < maxX; x++, i++) {
+            var column = cells[x];
 
-            for (var n = rg[state], p = 0; p < n.length; p += 2) {
-                for (x = n[p] * sideFull + border, i = 0; i < side; i++, x++) {
-                    for (y = n[p + 1] * sideFull + border, j = 0; j < side; j++, y++) {
-                        var k = 4 * x + 4 * y * width;
-                        image[k + 0] =   r;
-                        image[k + 1] =   g;
-                        image[k + 2] =   b;
-                        image[k + 3] = 255;
+            for (var j = 0, y = coord.y; y < maxY; y++, j++) {
+                var color = colors[column[y] & mask];
+
+                for (var imageX = i * sideFull + border, n = 0; n < side; n++, imageX++) {
+                    for (var imageY = j * sideFull + border, m = 0; m < side; m++, imageY++) {
+                        image[imageX + imageY * width] = color;
                     }
                 }
+
             }
         }
 
+        this.imageData.data.set(this.buf8);
         this.context.putImageData(this.imageData, coord.x * sideFull, coord.y * sideFull);
     }
 
@@ -314,7 +293,7 @@ export default class CellFieldView {
         canvas.height = context.height = this.field.ySize * sideFull + border;
 
         var wrapper = this.wrapper,
-            width = parseInt(wrapper.style.width,  10),
+            width = parseInt(wrapper.style.width, 10),
             height = parseInt(wrapper.style.height, 10);
 
         if (context.width > width || context.height > height) {
@@ -328,24 +307,20 @@ export default class CellFieldView {
             Math.ceil(width / sideFull) * sideFull,
             Math.ceil(height / sideFull) * sideFull
         );
+        this.imageBuff = new ArrayBuffer(this.imageData.data.length);
+        this.buf8 = new Uint8ClampedArray(this.imageBuff);
+        this.buf32 = new Uint32Array(this.imageBuff);
 
-        var image = this.imageData.data,
-            [ r, g, b ] = [...getColorComponents(this.colors.background)];
-
-        for (var i = 0; i < image.length; i += 4) {
-            image[i + 0] =   r;
-            image[i + 1] =   g;
-            image[i + 2] =   b;
-            image[i + 3] = 255;
-        }
+        this.buf32.fill(this.colorsForRender.background);
 
         scrollFix(this);
         this.render();
     }
 
-    setColors(colors, render) {
+    setColors(colors, forceRender) {
         var oldColors = this.colors || defaultColors,
-            newColors = {};
+            newColors = {},
+            colorsForRender = {};
 
         colors = Object.assign({}, oldColors, colors === null ? defaultColors : colors);
 
@@ -356,10 +331,13 @@ export default class CellFieldView {
             }
 
             newColors[i] = color;
+            colorsForRender[i] = transformColor(color);
         }
 
         this.colors = newColors;
-        if (render) {
+        this.colorsForRender = colorsForRender;
+
+        if (forceRender) {
             this.render();
         }
     }
