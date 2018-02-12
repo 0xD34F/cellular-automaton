@@ -26,7 +26,7 @@ import { limitation } from './utils';
 
 import { CellField, CellFieldView, CellularAutomaton } from './ca/';
 
-import './main.css';
+import './main.scss';
 
 $.extend($.ui.autocomplete.prototype.options, {
     delay: 0,

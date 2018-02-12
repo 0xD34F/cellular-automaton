@@ -18,8 +18,12 @@ module.exports = {
         }
       },
       {
-        test: /\.s?css$/,
+        test: /\.css$/,
         use: [ 'style-loader', 'css-loader' ]
+      },
+      {
+        test: /\.scss$/,
+        use: [ 'style-loader', 'css-loader', 'sass-loader' ]
       },
       {
         test: /\.(jpe?g|png|gif)$/,
@@ -33,5 +37,6 @@ module.exports = {
       'jQuery': 'jquery',
       'window.jQuery': 'jquery'
     }),
-  ]
+  ],
+  watch: true
 };
