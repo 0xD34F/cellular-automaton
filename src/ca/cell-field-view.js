@@ -129,12 +129,41 @@ function changeScale(view, change, coord) {
     if (oldCellSide !== newCellSide) {
         var w = view.wrapper,
             oldScrollX = w.scrollLeft,
-            oldScrollY = w.scrollTop;
+            oldScrollY = w.scrollTop,
+            newScrollX = coord.x * (newCellSide - oldCellSide) + oldScrollX,
+            newScrollY = coord.y * (newCellSide - oldCellSide) + oldScrollY;
 
         view.resize(newCellSide);
 
-        w.scrollLeft = coord.x * (newCellSide - oldCellSide) + oldScrollX;
-        w.scrollTop  = coord.y * (newCellSide - oldCellSide) + oldScrollY;
+        var maxScrollX = w.scrollWidth - w.clientWidth,
+            maxScrollY = w.scrollHeight - w.clientHeight,
+            fixScrollX = 0,
+            fixScrollY = 0;
+
+        if (newScrollX < 0) {
+            fixScrollX = Math.round(newScrollX / (newCellSide + view.cellBorder));
+            newScrollX = 0;
+        }
+        if (newScrollX > maxScrollX) {
+            fixScrollX = Math.round((newScrollX - maxScrollX) / (newCellSide + view.cellBorder));
+            newScrollX = maxScrollX;
+        }
+        if (newScrollY < 0) {
+            fixScrollY = Math.round(newScrollY / (newCellSide + view.cellBorder));
+            newScrollY = 0;
+        }
+        if (newScrollY > maxScrollY) {
+            fixScrollY = Math.round((newScrollY - maxScrollY) / (newCellSide + view.cellBorder));
+            newScrollY = maxScrollY;
+        }
+
+        w.scrollLeft = newScrollX;
+        w.scrollTop  = newScrollY;
+
+        if (fixScrollX || fixScrollY) {
+            view.field.shift(fixScrollX, fixScrollY);
+            view.render();
+        }
     }
 };
 
