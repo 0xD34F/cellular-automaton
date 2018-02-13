@@ -53,6 +53,6 @@ export default class Steps {
         return this._generations;
     }
     set generations(value) {
-        this._generations = limitation(value, this.MIN_GENERATIONS, this.MAX_GENERATIONS);
+        this._generations = limitation(value, MIN_GENERATIONS, MAX_GENERATIONS);
     }
 }
