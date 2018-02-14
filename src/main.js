@@ -176,11 +176,11 @@ $(document).ready(function() {
             });
         },
         open: function() {
-            var colors = caBrush.colors = ca.view.colors;
+            caBrush.setColors(ca.view.colors);
             caBrush.field.copy(ca.view.brush);
             caBrush.render();
 
-            $(this).find('.ca-state-select').html(templates.brushColorSelect($.map(colors, function(n, i) {
+            $(this).find('.ca-state-select').html(templates.brushColorSelect($.map(caBrush.colors, function(n, i) {
                 return isNaN(i) ? null : {
                     label: (+i).toString(16).toUpperCase(),
                     state: i,
