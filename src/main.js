@@ -425,7 +425,6 @@ $(document).ready(function() {
         }
     });
 
-
     $('#cell-field-mode').buttonset({
         items: 'input'
     }).find('.ui-checkboxradio-radio-label').removeClass('ui-checkboxradio-radio-label').end().click(function(e) {
@@ -446,6 +445,12 @@ $(document).ready(function() {
         });
 
     $('#cell-field-data').buttonset();
+
+    $(window).on({
+        'resize': function() {
+            ca.view.resize();
+        }
+    })
 
     $(document).on({
         'ca-start': function() {
@@ -490,5 +495,5 @@ $(document).ready(function() {
     ca.rule = ca.rules.get(defaultRule);
     $('#ca-rule-name').val(defaultRule);
 
-    $('body').removeClass('ui-helper-hidden');
+    $('.controls').removeClass('ui-helper-hidden');
 });

@@ -193,8 +193,8 @@ function detectViewCoord(view) {
     return {
         x: t ? Math.floor(w.scrollLeft / s) : 0,
         y: t ? Math.floor(w.scrollTop  / s) : 0,
-        xSize: t ? Math.ceil(view.width  / s) : view.field.xSize,
-        ySize: t ? Math.ceil(view.height / s) : view.field.ySize
+        xSize: t ? Math.ceil(view.imageData.width  / s) : view.field.xSize,
+        ySize: t ? Math.ceil(view.imageData.height / s) : view.field.ySize
     };
 };
 
@@ -210,15 +210,10 @@ export default class CellFieldView {
         o.cellBorder = o.cellBorder << 0;
         o.showBitPlanes = isNaN(o.showBitPlanes) ? bitMask(o.field.numBitPlanes) : +o.showBitPlanes;
 
-        if (!o.width) {
-            o.width = field.xSize * (o.cellSide + o.cellBorder) + o.cellBorder;
+        if (!o.wrapper.classList.contains('scrollable')) {
+            o.wrapper.style.width = `${field.xSize * (o.cellSide + o.cellBorder) + o.cellBorder}px`;
+            o.wrapper.style.height = `${field.ySize * (o.cellSide + o.cellBorder) + o.cellBorder}px`;
         }
-        if (!o.height) {
-            o.height = field.ySize * (o.cellSide + o.cellBorder) + o.cellBorder;
-        }
-
-        o.wrapper.style.width = o.width + 'px';
-        o.wrapper.style.height = o.height + 'px';
 
         o.canvas = document.createElement('canvas');
         o.wrapper.appendChild(o.canvas);
@@ -271,7 +266,6 @@ export default class CellFieldView {
                 c.fillRect(x * sideFull + border, y * sideFull + border, side, side);
             }
         }
-
     }
 
     render() {
@@ -306,35 +300,27 @@ export default class CellFieldView {
         this.context.putImageData(this.imageData, coord.x * sideFull, coord.y * sideFull);
     }
 
-    resize(cellSide, cellBorder = this.cellBorder || 0) {
+    resize(cellSide = this.cellSide, cellBorder = this.cellBorder || 0) {
         if (isNaN(cellSide) || cellSide < 1) {
             return;
         }
 
         var canvas = this.canvas,
-            context = this.context = canvas.getContext('2d');
-
-        var side = this.cellSide = cellSide,
+            context = this.context = canvas.getContext('2d'),
+            side = this.cellSide = cellSide,
             border = this.cellBorder = cellBorder,
-            sideFull = side + border;
+            sideFull = side + border,
+            minWidth = this.field.xSize * sideFull + border,
+            minHeight = this.field.ySize * sideFull + border,
+            width = this.wrapper.clientWidth || minWidth,
+            height = this.wrapper.clientHeight || minHeight;
 
-        canvas.width  = context.width  = this.field.xSize * sideFull + border;
-        canvas.height = context.height = this.field.ySize * sideFull + border;
-
-        var wrapper = this.wrapper,
-            width = parseInt(wrapper.style.width, 10),
-            height = parseInt(wrapper.style.height, 10);
-
-        if (context.width > width || context.height > height) {
-            wrapper.classList.add('scrollable');
-        } else {
-            wrapper.classList.remove('scrollable');
-            wrapper.scrollTop = 0;
-        }
+        canvas.width = context.width = Math.max(minWidth, width);
+        canvas.height = context.height = Math.max(minHeight, height);
 
         this.imageData = context.createImageData(
-            Math.ceil(width / sideFull) * sideFull,
-            Math.ceil(height / sideFull) * sideFull
+            Math.min(minWidth, Math.ceil(width / sideFull) * sideFull),
+            Math.min(minHeight, Math.ceil(height / sideFull) * sideFull)
         );
         this.imageBuff = new ArrayBuffer(this.imageData.data.length);
         this.buf8 = new Uint8ClampedArray(this.imageBuff);

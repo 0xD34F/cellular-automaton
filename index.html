@@ -5,9 +5,9 @@
     <link rel="shortcut icon" href="images/favicon.png" type="image/png">
     <script src="dist/build.js"></script>
 </head>
-<body class="ui-helper-hidden">
+<body>
     <div class="content">
-        <div class="controls">
+        <div class="controls ui-helper-hidden">
             <button id="start" data-action="start" class="ca-start-hide"><span class="ui-icon ui-icon-play"></span></button>
             <button id="stop" data-action="stop" class="ca-start-show"><span class="ui-icon ui-icon-pause"></span></button>
             <div class="input-with-button ca-start-disable ui-controlgroup ui-corner-all ui-widget ui-widget-content" title="Skip generations">
@@ -30,7 +30,7 @@
             <button id="speed" data-dialog="ca-speed">Speed...</button>
             <button id="rule" data-dialog="ca-rule" class="ca-start-disable">Rule...</button>
         </div>
-        <div id="cells-wrapper" class="cells-field-wrapper"></div>
+        <div id="cells-wrapper" class="cells-field-wrapper scrollable"></div>
     </div>
 
     <div id="ca-rule" title="Rule">
