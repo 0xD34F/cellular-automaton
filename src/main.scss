@@ -60,7 +60,6 @@ html, body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     box-sizing: border-box;
 }
 
@@ -88,11 +87,18 @@ html, body {
     flex: 1;
 
     &.scrollable {
-        overflow: scroll;
+        overflow: auto;
+        position: relative;
+    }
+
+    .cells-field-wrapper-scroll {
+        position: absolute;
     }
 
     canvas {
-        display: block;
+        position: sticky;
+        left: 0;
+        top: 0;
 
         &[data-mode="edit"] {
             cursor: default;

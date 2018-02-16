@@ -165,25 +165,38 @@ function changeScale(view, change, coord) {
             view.render();
         }
     }
-};
+}
+
+function getFullSize(view) {
+    var f = view.field,
+        b = view.cellBorder,
+        s = view.cellSide + b;
+
+    return {
+        width:  f.xSize * s + b,
+        height: f.ySize * s + b
+    }
+}
 
 function scrollFix(view) {
     var s = view.cellSide + view.cellBorder,
-        w = view.wrapper;
+        w = view.wrapper,
+        size = getFullSize(view);
 
-    w.scrollLeft = Math.round(w.scrollLeft / s) * s;
-    w.scrollTop  = Math.round(w.scrollTop  / s) * s;
-};
+    w.scrollLeft = Math.min(Math.round(w.scrollLeft / s) * s, size.width  - w.clientWidth);
+    w.scrollTop  = Math.min(Math.round(w.scrollTop  / s) * s, size.height - w.clientHeight);
+}
 
 function detectEventCoord(view, e) {
     var b = view.cellBorder,
-        t = Math.round(b / 2);
+        t = Math.round(b / 2),
+        w = view.wrapper;
 
     return {
-        x: Math.floor((e.offsetX - t) / (view.cellSide + b)),
-        y: Math.floor((e.offsetY - t) / (view.cellSide + b))
+        x: Math.floor((e.offsetX + w.scrollLeft - t) / (view.cellSide + b)),
+        y: Math.floor((e.offsetY + w.scrollTop  - t) / (view.cellSide + b))
     };
-};
+}
 
 function detectViewCoord(view) {
     var w = view.wrapper,
@@ -196,7 +209,7 @@ function detectViewCoord(view) {
         xSize: t ? Math.ceil(view.imageData.width  / s) : view.field.xSize,
         ySize: t ? Math.ceil(view.imageData.height / s) : view.field.ySize
     };
-};
+}
 
 
 export default class CellFieldView {
@@ -210,9 +223,14 @@ export default class CellFieldView {
         o.cellBorder = o.cellBorder << 0;
         o.showBitPlanes = isNaN(o.showBitPlanes) ? bitMask(o.field.numBitPlanes) : +o.showBitPlanes;
 
-        if (!o.wrapper.classList.contains('scrollable')) {
-            o.wrapper.style.width = `${field.xSize * (o.cellSide + o.cellBorder) + o.cellBorder}px`;
-            o.wrapper.style.height = `${field.ySize * (o.cellSide + o.cellBorder) + o.cellBorder}px`;
+        if (o.wrapper.classList.contains('scrollable')) {
+            o.wrapperScroll = document.createElement('div');
+            o.wrapperScroll.classList.add('cells-field-wrapper-scroll');
+            o.wrapper.appendChild(o.wrapperScroll);
+        } else {
+            var size = getFullSize(o);
+            o.wrapper.style.width = `${size.width}px`;
+            o.wrapper.style.height = `${size.height}px`;
         }
 
         o.canvas = document.createElement('canvas');
@@ -229,8 +247,6 @@ export default class CellFieldView {
         o.resize(o.cellSide);
 
         o.mode = 'edit';
-
-        return o;
     }
 
     get mode() {
@@ -250,6 +266,8 @@ export default class CellFieldView {
             border = this.cellBorder,
             side = this.cellSide,
             sideFull = side + border,
+            fixX = border - this.wrapper.scrollLeft,
+            fixY = border - this.wrapper.scrollTop,
             c = this.context;
 
         for (var x = coord.x, i = 0; i < coord.xSize; i++, x++) {
@@ -263,7 +281,7 @@ export default class CellFieldView {
                 }
 
                 c.fillStyle = this.colors[cells[x][y] & mask];
-                c.fillRect(x * sideFull + border, y * sideFull + border, side, side);
+                c.fillRect(x * sideFull + fixX, y * sideFull + fixY, side, side);
             }
         }
     }
@@ -297,7 +315,11 @@ export default class CellFieldView {
         }
 
         this.imageData.data.set(this.buf8);
-        this.context.putImageData(this.imageData, coord.x * sideFull, coord.y * sideFull);
+        this.context.putImageData(
+            this.imageData,
+            -(this.wrapper.scrollLeft % sideFull),
+            -(this.wrapper.scrollTop % sideFull)
+        );
     }
 
     resize(cellSide = this.cellSide, cellBorder = this.cellBorder || 0) {
@@ -310,17 +332,22 @@ export default class CellFieldView {
             side = this.cellSide = cellSide,
             border = this.cellBorder = cellBorder,
             sideFull = side + border,
-            minWidth = this.field.xSize * sideFull + border,
-            minHeight = this.field.ySize * sideFull + border,
-            width = this.wrapper.clientWidth || minWidth,
-            height = this.wrapper.clientHeight || minHeight;
+            size = getFullSize(this),
+            isScroll = !!this.wrapperScroll,
+            width = isScroll ? (this.wrapper.clientWidth || 1) : size.width,
+            height = isScroll ? (this.wrapper.clientHeight || 1) : size.height;
 
-        canvas.width = context.width = Math.max(minWidth, width);
-        canvas.height = context.height = Math.max(minHeight, height);
+        if (isScroll) {
+            this.wrapperScroll.style.width = `${Math.max(size.width, width)}px`;
+            this.wrapperScroll.style.height = `${Math.max(size.height, height)}px`;
+        }
+
+        canvas.width = context.width = width;
+        canvas.height = context.height = height;
 
         this.imageData = context.createImageData(
-            Math.min(minWidth, Math.ceil(width / sideFull) * sideFull),
-            Math.min(minHeight, Math.ceil(height / sideFull) * sideFull)
+            Math.min(size.width, Math.ceil(width / sideFull) * sideFull),
+            Math.min(size.height, Math.ceil(height / sideFull) * sideFull)
         );
         this.imageBuff = new ArrayBuffer(this.imageData.data.length);
         this.buf8 = new Uint8ClampedArray(this.imageBuff);

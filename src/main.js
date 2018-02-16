@@ -137,8 +137,8 @@ $(document).ready(function() {
     const
         X_SIZE_MIN = 32,
         Y_SIZE_MIN = 32,
-        X_SIZE_MAX = 256,
-        Y_SIZE_MAX = 256,
+        X_SIZE_MAX = 1024,
+        Y_SIZE_MAX = 1024,
         CELL_SIDE_MIN = 1,
         CELL_SIDE_MAX = 20,
         CELL_BORDER_MIN = 0,
@@ -495,5 +495,7 @@ $(document).ready(function() {
     ca.rule = ca.rules.get(defaultRule);
     $('#ca-rule-name').val(defaultRule);
 
-    $('.controls').removeClass('ui-helper-hidden');
+    $('.ui-helper-hidden').removeClass('ui-helper-hidden');
+
+    ca.view.resize()
 });
