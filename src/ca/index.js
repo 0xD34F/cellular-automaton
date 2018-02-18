@@ -7,7 +7,7 @@ import CellFieldView from './cell-field-view';
 
 var rules = Rules;
 
-var CellularAutomaton = function(xSize, ySize, viewOptions) {
+var CellularAutomaton = function(options) {
 
     function _CA(shift, neighborhood) {
         this.shift = shift;
@@ -105,12 +105,12 @@ var CellularAutomaton = function(xSize, ySize, viewOptions) {
         calculateNewGeneration = null,
         beforeNewGeneration = null;
 
-    var cells = new CellField(xSize, ySize),
+    var cells = new CellField(options.xSize, options.ySize),
         newCells = cells.clone(),
         rule = null,
         time = 0;
 
-    var view = new CellFieldView(cells, viewOptions);
+    var view = new CellFieldView(cells, options.view);
 
     var steps = new Steps({
         step: function() {
@@ -206,7 +206,7 @@ var CellularAutomaton = function(xSize, ySize, viewOptions) {
     setRule = runTimeLog(setRule, 'rule set');
     newGeneration = runTimeLog(newGeneration, 'new generation'); // */
 
-    setRule(rules.get('default'));
+    setRule(options.ruleCode || rules.get(options.ruleName || 'default'));
 
     return {
         rules,
@@ -223,6 +223,14 @@ var CellularAutomaton = function(xSize, ySize, viewOptions) {
             }
 
             view.resize(o.cellSide, o.cellBorder);
+        },
+        fill: function({ invert = [], random = {}, copy = {} } = {}) {
+            cells
+                .invertBitPlane(invert)
+                .fillRandom(random)
+                .copyBitPlane(copy);
+            view.render();
+
         },
         clear: function() {
             cells.fill(() => 0);

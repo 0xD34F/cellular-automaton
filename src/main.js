@@ -153,15 +153,20 @@ $(document).ready(function() {
     });
     caBrush.field.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
 
-    var ca = window.ca = CellularAutomaton(X_SIZE_MAX, Y_SIZE_MAX, {
-        wrapper: '#cells-wrapper',
-        scaling: {
-            min: CELL_SIDE_MIN,
-            max: CELL_SIDE_MAX
-        },
-        cellSide: 2,
-        cellBorder: 1,
-        brush: caBrush.field.clone()
+    var ca = window.ca = CellularAutomaton({
+        xSize: X_SIZE_MAX,
+        ySize: Y_SIZE_MAX,
+        ruleName: 'Conway\'s Life',
+        view: {
+            wrapper: '#cells-wrapper',
+            scaling: {
+                min: CELL_SIDE_MIN,
+                max: CELL_SIDE_MAX
+            },
+            cellSide: 2,
+            cellBorder: 1,
+            brush: caBrush.field.clone()
+        }
     });
 
 
@@ -222,29 +227,24 @@ $(document).ready(function() {
         },
         buttons: {
             'OK': function() {
-                var fillRandom = {},
-                    fillCopy = {},
-                    fillInvert = [];
+                var invert = [],
+                    random = {},
+                    copy = {};
 
                 this.find('.ca-bit-plane-cb:checked').each(function() {
                     var $tr = $(this).closest('tr'),
                         plane = $tr.attr('data-bit-plane');
 
                     switch ($tr.find('.ca-filling-method').val()) {
-                        case 'invert': fillInvert.push(plane); break;
-                        case   'all1': fillRandom[plane] = ca.cells.randomFillDensityDescritization; break;
-                        case   'all0': fillRandom[plane] = 0; break;
-                        case 'random': fillRandom[plane] = $tr.find('.ca-filling-random input').val(); break;
-                        case   'copy': fillCopy[plane] = $tr.find('.ca-filling-copy input').val(); break;
+                        case 'invert': invert.push(plane); break;
+                        case   'all1': random[plane] = ca.cells.randomFillDensityDescritization; break;
+                        case   'all0': random[plane] = 0; break;
+                        case 'random': random[plane] = $tr.find('.ca-filling-random input').val(); break;
+                        case   'copy': copy[plane] = $tr.find('.ca-filling-copy input').val(); break;
                     }
                 });
 
-                ca.cells
-                    .invertBitPlane(fillInvert)
-                    .fillRandom(fillRandom)
-                    .copyBitPlane(fillCopy);
-
-                ca.view.render();
+                ca.fill({ invert, random, copy });
             },
             'Cancel': null
         }
@@ -450,7 +450,7 @@ $(document).ready(function() {
         'resize': function() {
             ca.view.resize();
         }
-    })
+    });
 
     $(document).on({
         'ca-start': function() {
@@ -491,11 +491,7 @@ $(document).ready(function() {
     });
 
 
-    var defaultRule = 'Conway\'s Life';
-    ca.rule = ca.rules.get(defaultRule);
-    $('#ca-rule-name').val(defaultRule);
-
     $('.ui-helper-hidden').removeClass('ui-helper-hidden');
 
-    ca.view.resize()
+    ca.view.resize();
 });

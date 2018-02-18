@@ -88,7 +88,7 @@ export default class CellField {
     fillRandom(bitPlanes) {
         return Object.keys(bitPlanes).length ? this.fill(function(x, y, value) {
             for (let i in bitPlanes) {
-                const mask = (1 << i);
+                const mask = 1 << i;
 
                 if ((Math.random() * this.randomFillDensityDescritization | 0) < bitPlanes[i]) {
                     value |= mask;
