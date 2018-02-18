@@ -211,6 +211,56 @@ function detectViewCoord(view) {
     };
 }
 
+const limit = limitation;
+
+const MAX_CELL_SIDE_WITH_OWN_RENDER = 20;
+
+const cellFieldRenderFunction = cellRenderCode => eval(`
+(function() {
+    var coord = detectViewCoord(this),
+        mask = this.showBitPlanes,
+        cells = this.field.data,
+        maxX = limit(coord.x + coord.xSize, 0, this.field.xSize),
+        maxY = limit(coord.y + coord.ySize, 0, this.field.ySize),
+        border = this.cellBorder,
+        side = this.cellSide,
+        sideFull = side + border,
+        image = this.buf32,
+        width = this.imageData.width,
+        colors = this.colorsForRender;
+
+    for (var i = 0, x = coord.x; x < maxX; x++, i++) {
+        var column = cells[x];
+
+        for (var j = 0, y = coord.y; y < maxY; y++, j++) {
+            var color = colors[column[y] & mask];
+
+            ${cellRenderCode}
+        }
+    }
+
+    this.imageData.data.set(this.buf8);
+    this.context.putImageData(
+        this.imageData,
+        -(this.wrapper.scrollLeft % sideFull),
+        -(this.wrapper.scrollTop % sideFull)
+    );
+})
+`);
+
+const cellPixelRenderCode = (i, j) => `image[i * sideFull + border + ${i} + (j * sideFull + border + ${j}) * width] = color;`;
+
+const cellRenderCode = cellSide => [...Array(cellSide * cellSide)].map((n, i) => cellPixelRenderCode(i / cellSide | 0, i % cellSide)).join('');
+
+const renderFunctions = {
+    default: cellFieldRenderFunction(`
+        for (var imageX = i * sideFull + border, n = 0; n < side; n++, imageX++) {
+            for (var imageY = j * sideFull + border, m = 0; m < side; m++, imageY++) {
+                image[imageX + imageY * width] = color;
+            }
+        }
+    `)
+};
 
 export default class CellFieldView {
 
@@ -287,39 +337,7 @@ export default class CellFieldView {
     }
 
     render() {
-        var coord = detectViewCoord(this),
-            mask = this.showBitPlanes,
-            cells = this.field.data,
-            maxX = limitation(coord.x + coord.xSize, 0, this.field.xSize),
-            maxY = limitation(coord.y + coord.ySize, 0, this.field.ySize),
-            border = this.cellBorder,
-            side = this.cellSide,
-            sideFull = side + border,
-            image = this.buf32,
-            width = this.imageData.width,
-            colors = this.colorsForRender;
-
-        for (var i = 0, x = coord.x; x < maxX; x++, i++) {
-            var column = cells[x];
-
-            for (var j = 0, y = coord.y; y < maxY; y++, j++) {
-                var color = colors[column[y] & mask];
-
-                for (var imageX = i * sideFull + border, n = 0; n < side; n++, imageX++) {
-                    for (var imageY = j * sideFull + border, m = 0; m < side; m++, imageY++) {
-                        image[imageX + imageY * width] = color;
-                    }
-                }
-
-            }
-        }
-
-        this.imageData.data.set(this.buf8);
-        this.context.putImageData(
-            this.imageData,
-            -(this.wrapper.scrollLeft % sideFull),
-            -(this.wrapper.scrollTop % sideFull)
-        );
+        (renderFunctions[this.cellSide] || renderFunctions['default']).call(this);
     }
 
     resize(cellSide = this.cellSide, cellBorder = this.cellBorder || 0) {
@@ -354,6 +372,10 @@ export default class CellFieldView {
         this.buf32 = new Uint32Array(this.imageBuff);
 
         this.buf32.fill(this.colorsForRender.background);
+
+        if (!renderFunctions.hasOwnProperty(cellSide) && cellSide <= MAX_CELL_SIDE_WITH_OWN_RENDER) {
+            renderFunctions[cellSide] = cellFieldRenderFunction(cellRenderCode(cellSide));
+        }
 
         scrollFix(this);
         this.render();
