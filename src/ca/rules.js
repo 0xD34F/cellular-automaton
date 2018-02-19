@@ -202,8 +202,8 @@ makeTable(function(n) {
     main: 'Margolus'
 });
 
-beforeNewGeneration = function() {
-    view.setColors(time & 1 ? [ '000000', 'FFFFFF' ] : [ 'FFFFFF', '000000' ]);
+on.beforeNewGeneration = function() {
+    view.setColors(this.time & 1 ? [ '000000', 'FFFFFF' ] : [ 'FFFFFF', '000000' ]);
 };
 
 makeTable(function(n) {
@@ -250,9 +250,6 @@ makeTable(function(n) {
 }, {
     extra: ['_center']
 });
-
-steps.duration = 1;
-steps.generations = 8;
 
 makeTable(function(n) {
     var p1 = 2 & (n.ccw & n.opp ^ n.cw ^ n.center),

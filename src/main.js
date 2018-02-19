@@ -24,7 +24,7 @@ import 'toastr/toastr.scss';
 
 import { limitation } from './utils';
 
-import { CellField, CellFieldView, CellularAutomaton } from './ca/';
+import { CellField, CellFieldView, CellularAutomaton, Rules } from './ca/';
 
 import './main.scss';
 
@@ -153,7 +153,7 @@ $(document).ready(function() {
     });
     caBrush.field.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
 
-    var ca = window.ca = CellularAutomaton({
+    var ca = window.ca = new CellularAutomaton({
         xSize: X_SIZE_MAX,
         ySize: Y_SIZE_MAX,
         ruleName: 'Conway\'s Life',
@@ -335,7 +335,7 @@ $(document).ready(function() {
                 source: function(request, response) {
                     var term = request.term.toLowerCase();
 
-                    response(ca.rules.get().filter(n => !!n.name.toLowerCase().match(term)).map(n => ({
+                    response(Rules.get().filter(n => !!n.name.toLowerCase().match(term)).map(n => ({
                         matched: n.name.replace(new RegExp('(' + request.term + ')', 'i'), '<span class="matched-text">$1</span>'),
                         label: n.name,
                         value: n.code,
@@ -358,10 +358,10 @@ $(document).ready(function() {
             };
 
             $this.find('#ca-rule-save').button().click(function() {
-                var result = ca.rules.save($('#ca-rule-name').val(), $('#ca-rule-code').val());
+                var result = Rules.save($('#ca-rule-name').val(), $('#ca-rule-code').val());
                 toastr[result.status ? 'success' : 'error'](result.message);
             }).end().find('#ca-rule-delete').button().click(function() {
-                var result = ca.rules.del($('#ca-rule-name').val());
+                var result = Rules.del($('#ca-rule-name').val());
                 toastr[result.status ? 'success' : 'error'](result.message);
             });
 
