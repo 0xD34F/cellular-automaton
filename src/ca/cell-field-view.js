@@ -1,4 +1,4 @@
-﻿import { limitation, bitMask, getColorComponents, transformColor, getLineCoord } from '../utils';
+﻿import { limitation, bitMask, getColorComponents, transformColor, getLineCoord, logExecutionTime } from '../utils';
 
 const defaultColors = {
     background: '#505050',
@@ -308,6 +308,7 @@ export default class CellFieldView {
         this.canvas.setAttribute('data-mode', value);
     }
 
+    @logExecutionTime('renderPartial')
     renderPartial(coord) {
         var mask = this.showBitPlanes,
             cells = this.field.data,
@@ -336,6 +337,7 @@ export default class CellFieldView {
         }
     }
 
+    @logExecutionTime('render')
     render() {
         (renderFunctions[this.cellSide] || renderFunctions['default']).call(this);
     }

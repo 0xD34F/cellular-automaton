@@ -1,4 +1,4 @@
-﻿import { bitMask } from '../utils';
+﻿import { bitMask, logExecutionTime } from '../utils';
 import Rules from './rules';
 import neighborhood from './neighborhood';
 
@@ -147,6 +147,7 @@ export default class Generations {
         this.CAB.nextState = b;
     }
 
+    @logExecutionTime('new generation')
     next(count) {
         if (isNaN(count) || count < 1) {
             count = 1;

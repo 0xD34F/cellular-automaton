@@ -50,4 +50,22 @@ function getLineCoord(p0, p1) {
     return coord;
 }
 
-export { rotateArray, limitation, bitMask, getColorComponents, transformColor, getLineCoord };
+function logExecutionTime(message) {
+    return function(target, key, descriptor) {
+        const original = descriptor.value;
+
+        descriptor.value = function(...args) {
+            const
+              start = performance.now(),
+              result = original.apply(this, args);
+
+            console.log(`${message}: ${performance.now() - start}`);
+
+            return result;
+        };
+
+        return descriptor;
+    }
+}
+
+export { rotateArray, limitation, bitMask, getColorComponents, transformColor, getLineCoord, logExecutionTime };
