@@ -30,8 +30,8 @@
             { name: 'phase', size: 2, code: 'time' }
         ],
         hv: [
-            { name: 'horz', size: 1, code: 'x' },
-            { name: 'vert', size: 1, code: 'y' }
+            { name: 'horz', size: 1, code: 'h' },
+            { name: 'vert', size: 1, code: 'v' }
         ],
         prob: data => ({
             name: 'prob',

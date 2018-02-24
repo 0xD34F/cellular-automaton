@@ -14,7 +14,7 @@
 
     back() {
         if (this.data) {
-            this.cells.copy(this.data.cells);
+            this.cells.conform(this.data.cells);
             this.generations.time = this.data.time;
             this.data = null;
         }

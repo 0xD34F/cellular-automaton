@@ -31,6 +31,8 @@ var table_0 = this.CAA.table,
     table_2 = this.CAB.table,
     xSize = d.length,
     ySize = d[0].length,
+    fixX = cells._shift.x,
+    fixY = cells._shift.y,
     time = this.time,
     t = time & 1;
 
@@ -41,12 +43,12 @@ for (var x = 0; x < xSize; x++) {
         dXCurr = d[x],
         dXPrev = d[xPrev],
         dXNext = d[xNext],
-        h = x & 1;
+        h = (x ^ fixX) & 1;
 
     for (var y = 0; y < ySize; y++) {
         var yPrev = y === 0 ? ySize - 1 : y - 1,
             yNext = y === ySize - 1 ? 0 : y + 1,
-            v = y & 1;
+            v = (y ^ fixY) & 1;
 
         newDX[y] = ${nextStateCode};
     }

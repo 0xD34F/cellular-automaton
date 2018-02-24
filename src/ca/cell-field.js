@@ -6,9 +6,10 @@ export default class CellField {
         this.resize(x, y);
     }
 
-    resize(x, y = x) {
+    resize(x, y = x, shift = { x: 0, y: 0 }) {
         this.xSize = x;
         this.ySize = y;
+        this._shift = Object.assign({}, shift);
         this.data = [...Array(x)].map(() => Array(y).fill(0));
 
         return this;
@@ -21,14 +22,25 @@ export default class CellField {
     }
 
     shift(x, y) {
+        x = x | 0;
+        y = y | 0;
+
         rotateArray(this.data, x);
         this.data.forEach(col => rotateArray(col, y));
+
+        this._shift.x = (this._shift.x + x) % this.xSize;
+        this._shift.y = (this._shift.y + y) % this.ySize;
 
         return this;
     }
 
     clone() {
-        return new CellField(this.xSize, this.ySize).copy(this);
+        return new CellField(this.xSize, this.ySize, this._shift).copy(this);
+    }
+
+    conform(f) {
+        Object.assign(this._shift, f._shift);
+        return this.copy(f);
     }
 
     copy(source, options) {

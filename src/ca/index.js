@@ -23,6 +23,7 @@ class CellularAutomaton {
 
         this.cells = new CellField(options.xSize, options.ySize);
         this.newCells = this.cells.clone();
+        this.newCells._shift = this.cells._shift; // чтобы не заниматься синхронизацией, просто сделаем объект смещения общим
 
         this.view = new CellFieldView(this.cells, options.view);
 
