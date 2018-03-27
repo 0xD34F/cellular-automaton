@@ -20,6 +20,16 @@ const defaultColors = {
     15: '#80FFFF'
 };
 
+const mouseButtons = {
+    left: 1,
+    right: 2
+};
+
+const scale = {
+    up: 1,
+    down: -1
+};
+
 const eventHandlers = [ {
     events: [ 'contextmenu' ],
     handler: function(e) {
@@ -35,7 +45,7 @@ const eventHandlers = [ {
     handler: function(e) {
         e.preventDefault();
 
-        if (e.buttons !== 1 && e.buttons !== 2) {
+        if (![ mouseButtons.left, mouseButtons.right ].includes(e.buttons)) {
             return;
         }
 
@@ -67,7 +77,7 @@ const eventHandlers = [ {
         e.preventDefault();
         e.stopPropagation();
 
-        changeScale(this, e.deltaY > 0 ? -1 : 1, detectEventCoord(this, e));
+        changeScale(this, e.deltaY > 0 ? scale.down : scale.up, detectEventCoord(this, e));
     }
 } ];
 
@@ -93,7 +103,7 @@ const userActions = {
                     x: x,
                     y: y,
                     skipZeros: true,
-                    setZeros: e.buttons === 2
+                    setZeros: e.buttons === mouseButtons.right
                 });
                 this.renderPartial({ x: x, y: y, xSize: b.xSize, ySize: b.ySize });
             }
@@ -110,8 +120,8 @@ const userActions = {
         events: [ 'mousedown' ],
         handler: function(e, newCoord, oldCoord) {
             changeScale(this, ({
-                1:  1,
-                2: -1
+                [mouseButtons.left]:  scale.up,
+                [mouseButtons.right]: scale.down
             })[e.buttons] || 0, newCoord);
         }
     }
