@@ -94,7 +94,7 @@ const userActions = {
                 return false;
             }
 
-            var coord = getLineCoord(newCoord, Object.assign({}, newCoord, oldCoord));
+            var coord = getLineCoord(newCoord, { ...newCoord, ...oldCoord });
             for (var i = 0; i < coord.length; i++) {
                 x = (coord[i].x - Math.floor(b.xSize / 2) + f.xSize) % f.xSize;
                 y = (coord[i].y - Math.floor(b.ySize / 2) + f.ySize) % f.ySize;

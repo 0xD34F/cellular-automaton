@@ -40,6 +40,6 @@
         })
     }
 };
-neighborhood.main['Moore-thick'] = neighborhood.main.Moore.map(n => Object.assign({}, n, { size: 2 }));
+neighborhood.main['Moore-thick'] = neighborhood.main.Moore.map(n => ({ ...n, size: 2 }));
 
 export default neighborhood;

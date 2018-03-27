@@ -270,7 +270,7 @@ main = function(n) {
 
     return s ? t : n.center;
 }`
-} ].map(n => Object.assign(n, { predefined: true }));
+} ].map(n => ({ ...n, predefined: true }));
 
 
 var savedRules = null;

@@ -9,7 +9,7 @@ export default class CellField {
     resize(x, y = x, shift = { x: 0, y: 0 }) {
         this.xSize = x;
         this.ySize = y;
-        this._shift = Object.assign({}, shift);
+        this._shift = { ...shift };
         this.data = [...Array(x)].map(() => Array(y).fill(0));
 
         return this;
@@ -44,7 +44,7 @@ export default class CellField {
     }
 
     copy(source, options) {
-        options = Object.assign({ x: 0, y: 0 }, options);
+        options = { x: 0, y: 0, ...options };
 
         for (let i = 0, x = options.x; i < source.xSize; i++, x++) {
             if (x === this.xSize) {
