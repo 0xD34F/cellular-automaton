@@ -70,7 +70,7 @@ export default class CellField {
         return [...Array(this.numBitPlanes)].map((n, i) => i);
     }
 
-    // btiPlanes - массив номеров битовых плоскостей
+    // bitPlanes - массив номеров битовых плоскостей
     invertBitPlane(bitPlanes) {
         const mask = bitPlanes.reduce((mask, plane) => mask | (1 << plane), 0);
 

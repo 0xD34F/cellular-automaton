@@ -188,6 +188,7 @@ function getFullSize(view) {
     }
 }
 
+// левый верхний угол canvas'а совпадает с левым верхним углом клетки (если возможно)
 function scrollFix(view) {
     var s = view.cellSide + view.cellBorder,
         w = view.wrapper,
@@ -224,7 +225,12 @@ function detectViewCoord(view) {
 const limit = limitation;
 
 const MAX_CELL_SIDE_WITH_OWN_RENDER = 20;
-
+/*
+ * собственные методы отрисовки под различные размеры клетки
+ *
+ * прирост скорости отрисовки - до ~2 раз (чем меньше размер - тем больше эффект),
+ * за счёт отсутствия накладных расходов на организацию циклов по пикселям отдельной клетки
+ */
 const cellFieldRenderFunction = cellRenderCode => eval(`
 (function() {
     var coord = detectViewCoord(this),
