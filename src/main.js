@@ -177,7 +177,7 @@ $(document).ready(function() {
                 var $this = $(this);
                 $this.parent().find('.ui-state-active').removeClass('ui-state-active');
                 $this.addClass('ui-state-active');
-                caBrush.brush.data[0][0] = $this.attr('ca-state');
+                caBrush.brush.data[0][0] = +$this.attr('ca-state');
             });
         },
         open: function() {
