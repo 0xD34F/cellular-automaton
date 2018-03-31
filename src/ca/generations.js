@@ -62,10 +62,24 @@ class Compiler {
         this.customNeighborhood = neighborhood instanceof Object ? neighborhood : {};
     }
 
-    setNeighborhoods({ main = 'Moore', extra = [] } = {}) {
+    setNeighborhoods(neighborhoods) {
+        var
+            // основная окрестность может быть одна и только одна
+            main = neighborhood.main['Moore'],
+            // дополнительных окрестностей можно подключить сколько угодно
+            extra = [];
+
+        [].concat(neighborhoods).forEach(n => {
+            if (neighborhood.main[n]) {
+                main = neighborhood.main[n];
+            } else {
+                extra.push(n);
+            }
+        });
+
         this.neighbors = Array.prototype.concat.apply([], [
             neighborhood.base,
-            neighborhood.main[main],
+            main,
             ...extra.map(n => {
                 let name = n instanceof Object ? n.name : n,
                     val = this.customNeighborhood[name] || neighborhood.extra[name];

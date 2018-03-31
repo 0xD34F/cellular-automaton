@@ -30,10 +30,8 @@ const predefinedRules = [ {
     name: 'Forest fire',
     code:
 `setNeighborhoods({
-    extra: [ {
-        name: 'prob',
-        data: [ 0.00001, 0.005 ]
-    } ]
+    name: 'prob',
+    data: [ 0.00001, 0.005 ]
 });
 
 view.setColors([ '000000', 'FF0000', '00FF00' ], true);
@@ -64,9 +62,7 @@ makeTable(n => (stimulus(n) & ready(n)) | ((n.center & 1) << 1));`
 }, {
     name: 'Wireworld',
     code:
-`setNeighborhoods({
-    main: 'Moore-thick'
-});
+`setNeighborhoods('Moore-thick');
 
 makeTable(function(n) {
     var s = (n.north === 1) + (n.south === 1) + (n.west === 1) + (n.east === 1) + (n.n_west === 1) + (n.s_west === 1) + (n.n_east === 1) + (n.s_east === 1);
@@ -104,9 +100,7 @@ makeTable(rules.elementary(ruleID));`
 }, {
     name: 'Parity',
     code:
-`setNeighborhoods({
-    main: 'Neumann'
-});
+`setNeighborhoods('Neumann');
 
 makeTable(function(n) {
     return n.north ^ n.south ^ n.west ^ n.east ^ n.center;
@@ -117,9 +111,7 @@ makeTable(function(n) {
 }, {
     name: 'Anneal x 2',
     code:
-`setNeighborhoods({
-    main: 'Moore-thick'
-});
+`setNeighborhoods('Moore-thick');
 
 view.setColors([ '000000', 'FF0000', '00FF00', 'FFFF00' ], true);
 
@@ -131,9 +123,7 @@ makeTable(n => p0(n) | p1(n));`,
 }, {
     name: 'Rand anneal',
     code:
-`setNeighborhoods({
-    main: 'Neumann'
-});
+`setNeighborhoods('Neumann');
 
 makeTable(function(n) {
     var s = rules.sum(0, n.center, n.north, n.south, n.west, n.east),
@@ -156,9 +146,7 @@ makeTable(function(n) {
 }, {
     name: 'Border / hollow',
     code:
-`setNeighborhoods({
-    extra: ['phase']
-});
+`setNeighborhoods('phase');
 
 function border(n) {
     return 1 & (n.center | n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east);
@@ -175,9 +163,7 @@ makeTable(function(n) {
 }, {
     name: 'Safe / pass',
     code:
-`setNeighborhoods({
-    main: 'Neumann'
-});
+`setNeighborhoods('Neumann');
 
 makeTable(function(n) {
     var p0 = n.center & 1,
@@ -198,9 +184,7 @@ makeTable(function(n) {
 }, {
     name: 'Critters',
     code:
-`setNeighborhoods({
-    main: 'Margolus'
-});
+`setNeighborhoods('Margolus');
 
 on.beforeNewGeneration = function() {
     view.setColors(this.time & 1 ? [ '000000', 'FFFFFF' ] : [ 'FFFFFF', '000000' ]);
@@ -215,9 +199,7 @@ makeTable(function(n) {
 }, {
     name: 'Tron',
     code:
-`setNeighborhoods({
-    main: 'Margolus'
-});
+`setNeighborhoods('Margolus');
 
 makeTable(function(n) {
     var s = rules.sum(0, n.center, n.cw, n.ccw, n.opp),
@@ -228,11 +210,7 @@ makeTable(function(n) {
 }, {
     name: 'Tube worms',
     code:
-`setNeighborhoods({
-    extra: ['_center']
-}, {
-    extra: ['_center']
-});
+`setNeighborhoods('_center', '_center');
 
 makeTable(function(n) {
     var s = n.north + n.south + n.west + n.east + n.n_west + n.s_west + n.n_east + n.s_east,
@@ -245,11 +223,7 @@ makeTable(function(n) {
 }, {
     name: 'Brownian',
     code:
-`setNeighborhoods({
-    main: 'Margolus'
-}, {
-    extra: ['_center']
-});
+`setNeighborhoods('Margolus', '_center');
 
 makeTable(function(n) {
     var p1 = 2 & (n.ccw & n.opp ^ n.cw ^ n.center),
