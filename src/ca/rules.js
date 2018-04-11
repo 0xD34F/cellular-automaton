@@ -324,7 +324,7 @@ const rules = {
             err.push('no rule code');
         }
         if (isPredefined(name)) {
-            err.push('predefined rule ("' + name +'") can not be rewritten');
+            err.push(`predefined rule ("${name}") can not be rewritten`);
         }
         if (err.length) {
             return result(false, err.join('<br>'));
@@ -335,22 +335,22 @@ const rules = {
         savedRules.push({ name, code });
 
         save();
-        return result(true, 'rule "' + name + '" saved');
+        return result(true, `rule "${name}" saved`);
     },
     del: function(name) {
         if (!name) {
             return result(false, 'no rule name');
         }
         if (isPredefined(name)) {
-            return result(false, 'predefined rule ("' + name +'") can not be deleted');
+            return result(false, `predefined rule ("${name}") can not be deleted`);
         }
 
         if (!deleteSaved(name)) {
-            return result(false, 'rule "' + name + '" not found');
+            return result(false, `rule "${name}" not found`);
         }
 
         save();
-        return result(true, 'rule "' + name + '" deleted');
+        return result(true, `rule "${name}" deleted`);
     }
 };
 

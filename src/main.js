@@ -191,7 +191,7 @@ $(document).ready(function() {
                     state: i,
                     color: n
                 };
-            }))).find('[ca-state="' + caBrush.brush.data[0][0] + '"]').addClass('ui-state-active');
+            }))).find(`[ca-state="${caBrush.brush.data[0][0]}"]`).addClass('ui-state-active');
         },
         buttons: {
             'OK': function() {
@@ -216,7 +216,7 @@ $(document).ready(function() {
             }).val(max / 2).end().find('select').selectmenu({
                 width: 100
             }).on('selectmenuchange', function(e, ui) {
-                $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find('.ca-filling-' + (ui ? ui.item.value : this.value)).show();
+                $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find(`.ca-filling-${ui ? ui.item.value : this.value}`).show();
             }).trigger('selectmenuchange').end().find('.ca-filling-copy > input').autocomplete({
                 source: function(request, response) {
                     var ownPlane = +this.element.closest('tr').attr('data-bit-plane');
@@ -336,7 +336,7 @@ $(document).ready(function() {
                     var term = request.term.toLowerCase();
 
                     response(Rules.get().filter(n => !!n.name.toLowerCase().match(term)).map(n => ({
-                        matched: n.name.replace(new RegExp('(' + request.term + ')', 'i'), '<span class="matched-text">$1</span>'),
+                        matched: n.name.replace(new RegExp(`(${request.term})`, 'i'), '<span class="matched-text">$1</span>'),
                         label: n.name,
                         value: n.code,
                         predefined: n.predefined
@@ -432,13 +432,13 @@ $(document).ready(function() {
         if (mode && ca.view.mode !== mode) {
             ca.view.mode = mode;
         }
-    }).find('[for="mode-' + ca.view.mode + '"]').click();
+    }).find(`[for="mode-${ca.view.mode}"]`).click();
 
 
     $('.content > .controls')
         .find('button').button().end()
         .on('click.ca-dialog', '[data-dialog]', function() {
-            $('#' + $(this).attr('data-dialog')).dialog('open');
+            $(`#${$(this).attr('data-dialog')}`).dialog('open');
         })
         .on('click.ca-action', '[data-action]', function() {
             ca[$(this).attr('data-action')]();
@@ -472,7 +472,7 @@ $(document).ready(function() {
     }).trigger('ca-stop');
 
     $(ca.view.canvas).on('cell-field-mode', function() {
-        $('#cell-field-mode').find('[for="mode-' + ca.view.mode + '"]').click();
+        $('#cell-field-mode').find(`[for="mode-${ca.view.mode}"]`).click();
     });
 
 

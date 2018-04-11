@@ -305,7 +305,7 @@ export default class CellFieldView {
         eventHandlers.forEach(function(eh) {
             eh.events.forEach(function(eventName) {
                 var elem = eh.wrapper ? o.wrapper : o.canvas;
-                elem['on' + eventName] = eh.handler.bind(o);
+                elem[`on${eventName}`] = eh.handler.bind(o);
             });
         });
 
@@ -409,7 +409,7 @@ export default class CellFieldView {
         for (var i in defaultColors) {
             var color = colors[i] || oldColors[i];
             if (color[0] !== '#') {
-                color = '#' + color;
+                color = `#${color}`;
             }
 
             newColors[i] = color;
