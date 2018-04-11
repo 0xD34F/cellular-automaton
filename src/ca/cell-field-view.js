@@ -33,7 +33,8 @@ const scale = {
 const eventHandlers = [ {
     events: [ 'contextmenu' ],
     handler: function(e) {
-        return false;
+        // контекстное меню доступно при зажатом ctrl
+        return e.ctrlKey;
     }
 }, {
     events: [ 'mouseup', 'mouseleave' ],
@@ -90,7 +91,7 @@ const userActions = {
                 f = this.field,
                 b = this.brush;
 
-            if (x >= f.xSize || y >= f.ySize || x < 0 || y < 0 || !b) {
+            if (x >= f.xSize || y >= f.ySize || x < 0 || y < 0 || !b || e.ctrlKey) {
                 return false;
             }
 
