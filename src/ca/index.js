@@ -4,17 +4,12 @@ import History from './history';
 import Generations from './generations';
 import CellField from './cell-field';
 import CellFieldView from './cell-field-view';
-
-const
-    MIN_DELAY = 1,
-    MAX_DELAY = 10000,
-    MIN_GENERATIONS = 1,
-    MAX_GENERATIONS = 100;
+import config from '../config';
 
 const defaultOptions = {
     _intervalID: null,
-    _stepDuration: 30,
-    _generationsPerStep: 1
+    _stepDuration: config.DEFAULT_STEP_DURATION,
+    _generationsPerStep: config.DEFAULT_GENERATIONS_PER_STEP
 };
 
 class CellularAutomaton {
@@ -83,14 +78,14 @@ class CellularAutomaton {
         return this._generationsPerStep;
     }
     set generationsPerStep(value) {
-        this._generationsPerStep = limitation(value, MIN_GENERATIONS, MAX_GENERATIONS);
+        this._generationsPerStep = limitation(value, config.GENERATIONS_PER_STEP_MIN, config.GENERATIONS_PER_STEP_MAX);
     }
 
     get stepDuration() {
         return this._stepDuration;
     }
     set stepDuration(value) {
-        this._stepDuration = limitation(value, MIN_DELAY, MAX_DELAY);
+        this._stepDuration = limitation(value, config.STEP_DURATION_MIN, config.STEP_DURATION_MAX);
         if (this._intervalID) {
             this.stop();
             this.start();

@@ -1,24 +1,7 @@
 ﻿import { limitation, bitMask, getColorComponents, transformColor, getLineCoord, logExecutionTime } from '../utils';
+import config from '../config';
 
-const defaultColors = {
-    background: '#505050',
-     0: '#000000',
-     1: '#FFFFFF',
-     2: '#666666',
-     3: '#A8A8A8',
-     4: '#FF0000',
-     5: '#00FF00',
-     6: '#0000FF',
-     7: '#00FFFF',
-     8: '#FF00FF',
-     9: '#FFFF00',
-    10: '#FF8080',
-    11: '#80FF80',
-    12: '#8080FF',
-    13: '#FFFF80',
-    14: '#FF80FF',
-    15: '#80FFFF'
-};
+const defaultColors = config.DEFAULT_COLORS;
 
 const mouseButtons = {
     left: 1,
@@ -225,7 +208,6 @@ function detectViewCoord(view) {
 
 const limit = limitation;
 
-const MAX_CELL_SIDE_WITH_OWN_RENDER = 20;
 /*
  * собственные методы отрисовки под различные размеры клетки
  *
@@ -392,7 +374,7 @@ export default class CellFieldView {
 
         this.buf32.fill(this.colorsForRender.background);
 
-        if (!renderFunctions.hasOwnProperty(cellSide) && cellSide <= MAX_CELL_SIDE_WITH_OWN_RENDER) {
+        if (!renderFunctions.hasOwnProperty(cellSide) && cellSide <= config.MAX_CELL_SIDE_WITH_OWN_RENDER) {
             renderFunctions[cellSide] = cellFieldRenderFunction(cellRenderCode(cellSide));
         }
 
@@ -405,7 +387,7 @@ export default class CellFieldView {
             newColors = {},
             colorsForRender = {};
 
-        colors = Object.assign({}, oldColors, colors === null ? defaultColors : colors);
+        colors = Object.assign({}, oldColors, colors || defaultColors);
 
         for (var i in defaultColors) {
             var color = colors[i] || oldColors[i];

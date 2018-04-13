@@ -26,6 +26,8 @@ import { limitation } from './utils';
 
 import { CellField, CellFieldView, CellularAutomaton, Rules } from './ca/';
 
+import config from './config';
+
 import './main.scss';
 
 $.extend($.ui.autocomplete.prototype.options, {
@@ -134,16 +136,17 @@ ${bitPlanes.map(n => `
 
 
 $(document).ready(function() {
-    const
-        X_SIZE_MIN = 32,
-        Y_SIZE_MIN = 32,
-        X_SIZE_MAX = 1024,
-        Y_SIZE_MAX = 1024,
-        CELL_SIDE_MIN = 1,
-        CELL_SIDE_MAX = 20,
-        CELL_BORDER_MIN = 0,
-        CELL_BORDER_MAX = 4,
-        BRUSH_SIZE = 11;
+    const {
+        X_SIZE_MIN,
+        Y_SIZE_MIN,
+        X_SIZE_MAX,
+        Y_SIZE_MAX,
+        CELL_SIDE_MIN,
+        CELL_SIDE_MAX,
+        CELL_BORDER_MIN,
+        CELL_BORDER_MAX,
+        BRUSH_SIZE,
+    } = config;
 
     var caBrush = new CellFieldView(new CellField(BRUSH_SIZE), {
         wrapper: '#brush-wrapper',
@@ -154,17 +157,17 @@ $(document).ready(function() {
     caBrush.field.data[Math.floor(BRUSH_SIZE / 2)][Math.floor(BRUSH_SIZE / 2)] = 1;
 
     var ca = window.ca = new CellularAutomaton({
-        xSize: X_SIZE_MAX,
-        ySize: Y_SIZE_MAX,
-        ruleName: 'Conway\'s Life',
+        xSize: config.DEFAULT_X_SIZE,
+        ySize: config.DEFAULT_Y_SIZE,
+        ruleName: config.DEFAULT_RULE,
         view: {
             wrapper: '#cells-wrapper',
             scaling: {
                 min: CELL_SIDE_MIN,
                 max: CELL_SIDE_MAX
             },
-            cellSide: 2,
-            cellBorder: 1,
+            cellSide: config.DEFAULT_CELL_SIDE,
+            cellBorder: config.DEFAULT_CELL_BORDER,
             brush: caBrush.field.clone()
         }
     });
@@ -210,7 +213,7 @@ $(document).ready(function() {
                 min: 0,
                 max: max,
                 step: 1
-            }).val(max / 2).end().find('select').selectmenu({
+            }).val(max * config.DEFAULT_FILL_DENSITY | 0).end().find('select').selectmenu({
                 width: 100
             }).on('selectmenuchange', function(e, ui) {
                 $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find(`.ca-filling-${ui ? ui.item.value : this.value}`).show();
@@ -390,13 +393,13 @@ $(document).ready(function() {
         width: 320,
         create: function() {
             $(this).find('#generations-per-step').spinner({
-                min: 1,
-                max: 100,
-                step: 1
+                min: config.GENERATIONS_PER_STEP_MIN,
+                max: config.GENERATIONS_PER_STEP_MAX,
+                step: config.GENERATIONS_PER_STEP_CHANGE
             }).end().find('#step-duration').spinner({
-                min: 10,
-                max: 5000,
-                step: 10
+                min: config.STEP_DURATION_MIN,
+                max: config.STEP_DURATION_MAX,
+                step: config.STEP_DURATION_CHANGE
             });
         },
         open: function() {
@@ -462,13 +465,13 @@ $(document).ready(function() {
 
 
     $('#skip').click(function() {
-        var $steps = $(this).parent().find('input'),
-            steps = limitation($steps.val(), 1, Math.pow(10, $steps.attr('maxlength')) - 1);
+        ca.newGeneration($(this).parent().find('input').val());
+    }).parent().find('input').width(50).on('input', function() {
+        var $this = $(this),
+            val = parseInt($this.val(), 10);
 
-        $steps.val(steps);
-
-        ca.newGeneration(steps);
-    }).parent().find('input').width(50).val('1');
+        $this.val(limitation(val, config.SKIP_GENERATIONS_MIN, config.SKIP_GENERATIONS_MAX));
+    }).val(config.SKIP_GENERATIONS_MIN);
 
 
     $('#save-as-image').click(function() {
