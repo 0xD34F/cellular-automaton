@@ -46,7 +46,7 @@ $.widget('ui.spinner', $.ui.spinner, {
     }
 });
 
-$.widget('ui.dialog', $.ui.dialog, {
+$.widget('ui.confirmDialog', $.ui.dialog, {
     options: {
         modal: true,
         autoOpen: false,
@@ -59,22 +59,22 @@ $.widget('ui.dialog', $.ui.dialog, {
 
             $.when(run).always(function(result) {
                 if (result !== false) {
-                    $this.dialog('close');
+                    $this.confirmDialog('close');
                 }
             });
         };
     },
     _create: function() {
-        var buttons = this.options.buttons;
-        for (var i in buttons) {
-            buttons[i] = this._closeDialog(buttons[i]);
-        }
+        this.options.buttons = {
+            OK: this._closeDialog(this.options.ok || null),
+            Cancel: this._closeDialog(this.options.cancel || null)
+        };
 
         return this._super();
     },
     open: function() {
         this._super();
-        this.overlay.on('click', () => this.element.dialog('close'));
+        this.overlay.on('click', () => this.element.confirmDialog('close'));
 
         return this;
     }
@@ -170,7 +170,7 @@ $(document).ready(function() {
     });
 
 
-    $('#ca-brush').dialog({
+    $('#ca-brush').confirmDialog({
         width: 380,
         create: function() {
             $(this).find('.ca-state-select').on('click', '.ca-state', function() {
@@ -193,16 +193,13 @@ $(document).ready(function() {
                 };
             }))).find(`[ca-state="${caBrush.brush.data[0][0]}"]`).addClass('ui-state-active');
         },
-        buttons: {
-            'OK': function() {
-                ca.view.brush.copy(caBrush.field);
-            },
-            'Cancel': null
+        ok: function() {
+            ca.view.brush.copy(caBrush.field);
         }
     });
 
 
-    $('#ca-filling').dialog({
+    $('#ca-filling').confirmDialog({
         width: 480,
         create: function() {
             var planesList = ca.cells.getBitPlanes(),
@@ -225,34 +222,31 @@ $(document).ready(function() {
                 }
             }).end().find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
-        buttons: {
-            'OK': function() {
-                var invert = [],
-                    random = {},
-                    copy = {};
+        ok: function() {
+            var invert = [],
+                random = {},
+                copy = {};
 
-                this.find('.ca-bit-plane-cb:checked').each(function() {
-                    var $tr = $(this).closest('tr'),
-                        plane = $tr.attr('data-bit-plane');
+            this.find('.ca-bit-plane-cb:checked').each(function() {
+                var $tr = $(this).closest('tr'),
+                    plane = $tr.attr('data-bit-plane');
 
-                    switch ($tr.find('.ca-filling-method').val()) {
-                        case 'invert': invert.push(plane); break;
-                        case   'all1': random[plane] = ca.cells.randomFillDensityDescritization; break;
-                        case   'all0': random[plane] = 0; break;
-                        case 'random': random[plane] = $tr.find('.ca-filling-random input').val(); break;
-                        case   'copy': copy[plane] = $tr.find('.ca-filling-copy input').val(); break;
-                    }
-                });
+                switch ($tr.find('.ca-filling-method').val()) {
+                    case 'invert': invert.push(plane); break;
+                    case   'all1': random[plane] = ca.cells.randomFillDensityDescritization; break;
+                    case   'all0': random[plane] = 0; break;
+                    case 'random': random[plane] = $tr.find('.ca-filling-random input').val(); break;
+                    case   'copy': copy[plane] = $tr.find('.ca-filling-copy input').val(); break;
+                }
+            });
 
-                ca.fill({ invert, random, copy });
-            },
-            'Cancel': null
+            ca.fill({ invert, random, copy });
         }
     });
 
     $('#ca-field-settings').tabs();
 
-    $('#ca-field').dialog({
+    $('#ca-field').confirmDialog({
         width: 320,
         height: 460,
         create: function() {
@@ -299,30 +293,27 @@ $(document).ready(function() {
                     this.checked = !!(ca.view.showBitPlanes & (1 << i));
                 }).change();
         },
-        buttons: {
-            'OK': function() {
-                var newColors = {};
-                this.find('.jscolor').each(function() {
-                    var $this = $(this);
-                    newColors[$this.attr('color-name')] = $this.val();
-                });
-                ca.view.setColors(newColors);
+        ok: function() {
+            var newColors = {};
+            this.find('.jscolor').each(function() {
+                var $this = $(this);
+                newColors[$this.attr('color-name')] = $this.val();
+            });
+            ca.view.setColors(newColors);
 
-                ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce((prev, curr, i) => prev | (curr.checked << i), 0);
+            ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce((planes, cb, i) => planes | (cb.checked << i), 0);
 
-                ca.resize({
-                    xSize: limitation(this.find('#ca-field-x-size').val(), X_SIZE_MIN, X_SIZE_MAX),
-                    ySize: limitation(this.find('#ca-field-y-size').val(), Y_SIZE_MIN, Y_SIZE_MAX),
-                    cellSide: limitation(this.find('#ca-field-cell-side').val(), CELL_SIDE_MIN, CELL_SIDE_MAX),
-                    cellBorder: limitation(this.find('#ca-field-cell-border').val(), CELL_BORDER_MIN, CELL_BORDER_MAX)
-                });
-            },
-            'Cancel': null
+            ca.resize({
+                xSize: limitation(this.find('#ca-field-x-size').val(), X_SIZE_MIN, X_SIZE_MAX),
+                ySize: limitation(this.find('#ca-field-y-size').val(), Y_SIZE_MIN, Y_SIZE_MAX),
+                cellSide: limitation(this.find('#ca-field-cell-side').val(), CELL_SIDE_MIN, CELL_SIDE_MAX),
+                cellBorder: limitation(this.find('#ca-field-cell-border').val(), CELL_BORDER_MIN, CELL_BORDER_MAX)
+            });
         }
     });
 
 
-    $('#ca-rule').dialog({
+    $('#ca-rule').confirmDialog({
         width: '80%',
         create: function() {
             var $this = $(this);
@@ -384,21 +375,18 @@ $(document).ready(function() {
         open: function() {
             $('#ca-rule-code').val(ca.rule);
         },
-        buttons: {
-            'OK': function() {
-                try {
-                    ca.rule = $('#ca-rule-code').val();
-                } catch (e) {
-                    toastr.error(e.message);
-                    return false;
-                }
-            },
-            'Cancel': null
+        ok: function() {
+            try {
+                ca.rule = $('#ca-rule-code').val();
+            } catch (e) {
+                toastr.error(e.message);
+                return false;
+            }
         }
     });
 
 
-    $('#ca-speed').dialog({
+    $('#ca-speed').confirmDialog({
         width: 320,
         create: function() {
             $(this).find('#generations-per-step').spinner({
@@ -416,12 +404,9 @@ $(document).ready(function() {
                 .find('#generations-per-step').val(ca.generationsPerStep).end()
                 .find('#step-duration').val(ca.stepDuration);
         },
-        buttons: {
-            'OK': function() {
-                ca.generationsPerStep = this.find('#generations-per-step').val();
-                ca.stepDuration = this.find('#step-duration').val();
-            },
-            'Cancel': null
+        ok: function() {
+            ca.generationsPerStep = this.find('#generations-per-step').val();
+            ca.stepDuration = this.find('#step-duration').val();
         }
     });
 
@@ -438,7 +423,7 @@ $(document).ready(function() {
     $('.content > .controls')
         .find('button').button().end()
         .on('click.ca-dialog', '[data-dialog]', function() {
-            $(`#${$(this).attr('data-dialog')}`).dialog('open');
+            $(`#${$(this).attr('data-dialog')}`).confirmDialog('open');
         })
         .on('click.ca-action', '[data-action]', function() {
             ca[$(this).attr('data-action')]();
