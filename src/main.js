@@ -205,10 +205,10 @@ $(document).ready(function() {
     $('#ca-filling').confirmDialog({
         width: 480,
         create: function() {
-            var planesList = ca.cells.getBitPlanes(),
+            var planesList = ca.cells.curr.getBitPlanes(),
                 planesHTML = templates.fieldFilling(planesList);
 
-            var max = ca.cells.randomFillDensityDescritization;
+            var max = ca.cells.curr.randomFillDensityDescritization;
             $(this).append(planesHTML).find('.ca-filling-random > input').spinner({
                 min: 0,
                 max: max,
@@ -236,7 +236,7 @@ $(document).ready(function() {
 
                 switch ($tr.find('.ca-filling-method').val()) {
                     case 'invert': invert.push(plane); break;
-                    case   'all1': random[plane] = ca.cells.randomFillDensityDescritization; break;
+                    case   'all1': random[plane] = ca.cells.curr.randomFillDensityDescritization; break;
                     case   'all0': random[plane] = 0; break;
                     case 'random': random[plane] = $tr.find('.ca-filling-random input').val(); break;
                     case   'copy': copy[plane] = $tr.find('.ca-filling-copy input').val(); break;
@@ -278,13 +278,13 @@ $(document).ready(function() {
 
 
             $this
-                .find('#ca-field-planes').append(templates.bitPlanesShow(ca.cells.getBitPlanes()))
+                .find('#ca-field-planes').append(templates.bitPlanesShow(ca.cells.curr.getBitPlanes()))
                 .find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
         },
         open: function() {
             $(this)
-                .find('#ca-field-x-size').val(ca.cells.xSize).end()
-                .find('#ca-field-y-size').val(ca.cells.ySize).end()
+                .find('#ca-field-x-size').val(ca.cells.curr.xSize).end()
+                .find('#ca-field-y-size').val(ca.cells.curr.ySize).end()
                 .find('#ca-field-cell-side').val(ca.view.cellSide).end()
                 .find('#ca-field-cell-border').val(ca.view.cellBorder).end()
                 .find('.jscolor').each(function() {
@@ -432,7 +432,7 @@ $(document).ready(function() {
             ca[$(this).attr('data-action')]();
         });
 
-    $('#cell-field-data').buttonset();
+    $('.toolbar').buttonset();
 
     $(window).on({
         'resize': function() {

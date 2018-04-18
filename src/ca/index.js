@@ -16,17 +16,16 @@ class CellularAutomaton {
     constructor(options) {
         Object.assign(this, defaultOptions);
 
-        this.cells = new CellField(options.xSize, options.ySize);
-        this.newCells = this.cells.clone();
-        this.newCells._shift = this.cells._shift; // чтобы не заниматься синхронизацией, просто сделаем объект смещения общим
+        this.cells = {
+            curr: new CellField(options.xSize, options.ySize)
+        };
+        this.cells.next = this.cells.curr.clone();
+        this.cells.next._shift = this.cells.curr._shift; // чтобы не заниматься синхронизацией, просто сделаем объект смещения общим
 
-        this.view = new CellFieldView(this.cells, options.view);
+        this.view = new CellFieldView(this.cells.curr, options.view);
 
         this.generations = new Generations({
-            cells: {
-                curr: this.cells,
-                next: this.newCells
-            },
+            cells: this.cells,
             view: this.view
         });
 
@@ -40,9 +39,9 @@ class CellularAutomaton {
 
     resize(sizes = {}) {
         if (!isNaN(sizes.xSize) && !isNaN(sizes.ySize)) {
-            if (this.cells.xSize !== sizes.xSize || this.cells.ySize !== sizes.ySize) {
-                this.cells.resize(sizes.xSize, sizes.ySize);
-                this.newCells.resize(sizes.xSize, sizes.ySize);
+            if (this.cells.curr.xSize !== sizes.xSize || this.cells.curr.ySize !== sizes.ySize) {
+                this.cells.curr.resize(sizes.xSize, sizes.ySize);
+                this.cells.next.conform(this.cells.curr);
             }
         }
 
@@ -50,16 +49,15 @@ class CellularAutomaton {
     }
 
     fill({ invert = [], random = {}, copy = {} } = {}) {
-        this.cells
+        this.cells.curr
             .invertBitPlane(invert)
             .fillRandom(random)
             .copyBitPlane(copy);
         this.view.render();
-
     }
 
     clear() {
-        this.cells.fill(() => 0);
+        this.cells.curr.fill(() => 0);
         this.view.render();
     }
 
@@ -97,6 +95,17 @@ class CellularAutomaton {
     }
     set rule(code) {
         this.generations.rule = code;
+    }
+
+    rotateClockwise() {
+        this.cells.curr.rotateClockwise();
+        this.cells.next.conform(this.cells.curr);
+        this.view.resize();
+    }
+    rotateCounterclockwise() {
+        this.cells.curr.rotateCounterclockwise();
+        this.cells.next.conform(this.cells.curr);
+        this.view.resize();
     }
 
     start() {
@@ -137,7 +146,7 @@ class CellularAutomaton {
         if (this.history.data) {
             this.stop();
             this.history.back();
-            this.view.render();
+            this.view.resize();
         }
     }
 }

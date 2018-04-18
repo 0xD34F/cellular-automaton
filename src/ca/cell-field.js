@@ -1,5 +1,22 @@
 ﻿import { rotateArray } from '../utils';
 
+
+function rotateField(sizeField) {
+    return function(target, key, descriptor) {
+        const original = descriptor.value;
+
+        descriptor.value = function() {
+            this.data = original(this.data, this._shift, this[sizeField]);
+            [ this.xSize, this.ySize ] = [ this.ySize, this.xSize ];
+
+            return this;
+        };
+
+        return descriptor;
+    };
+}
+
+
 export default class CellField {
 
     constructor(x, y) {
@@ -34,13 +51,27 @@ export default class CellField {
         return this;
     }
 
+    @rotateField('ySize')
+    rotateClockwise(data, shift, size) {
+        Object.assign(shift, { x: (size - shift.y) % size, y: shift.x });
+        return data[0].map((cell, y) => data.map((col, x) => data[x][size - y - 1]));
+    }
+
+    @rotateField('xSize')
+    rotateCounterclockwise(data, shift, size) {
+        Object.assign(shift, { x: shift.y, y: (size - shift.x) % size });
+        return data[0].map((cell, y) => data.map((col, x) => data[size - x - 1][y]));
+    }
+
     clone() {
         return new CellField(this.xSize, this.ySize, this._shift).copy(this);
     }
 
     conform(f) {
+        this.data = f.data.map(col => [...col]);
+        [ this.xSize, this.ySize ] = [ f.xSize, f.ySize ];
         Object.assign(this._shift, f._shift);
-        return this.copy(f);
+        return this;
     }
 
     copy(source, options) {

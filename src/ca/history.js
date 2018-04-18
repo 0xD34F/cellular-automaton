@@ -7,14 +7,15 @@
 
     save() {
         this.data = {
-            cells: this.cells.clone(),
+            cells: this.cells.curr.clone(),
             time: this.generations.time
         };
     }
 
     back() {
         if (this.data) {
-            this.cells.conform(this.data.cells);
+            this.cells.curr.conform(this.data.cells);
+            this.cells.next.conform(this.data.cells);
             this.generations.time = this.data.time;
             this.data = null;
         }

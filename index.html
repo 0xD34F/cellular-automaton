@@ -21,9 +21,13 @@
                 <input id="mode-shift" type="radio" name="mode" value="shift"><label for="mode-shift" title="Shift"><span class="ui-icon ui-icon-arrow-4"></span></label>
                 <input id="mode-scale" type="radio" name="mode" value="scale"><label for="mode-scale" title="Scale"><span class="ui-icon ui-icon-zoomin"></span></label>
             </div>
+            <div class="toolbar">
+                <button id="rotate-counterclockwise" data-action="rotateCounterclockwise" title="Rotate counterclockwise"><span class="ui-icon ui-icon-triangle-1-w"></span></button>
+                <button id="rotate-clockwise" data-action="rotateClockwise" title="Rotate clockwise"><span class="ui-icon ui-icon-triangle-1-e"></span></button>
+            </div>
             <button id="brush" data-dialog="ca-brush">Brush...</button>
             <button id="view" data-dialog="ca-field" title="Cells field settings">Field...</button>
-            <div id="cell-field-data">
+            <div class="toolbar">
                 <button id="fill" data-dialog="ca-filling" class="ca-start-disable" title="Cells field filling">Fill...</button>
                 <button id="clear" data-action="clear" class="ca-start-disable" title="Cells field clear">Clear</button>
             </div>
