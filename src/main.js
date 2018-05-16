@@ -382,7 +382,7 @@ $(document).ready(function() {
             try {
                 ca.rule = $('#ca-rule-code').val();
             } catch (e) {
-                toastr.error(e.message);
+                toastr.error(e.message || e);
                 return false;
             }
         }

@@ -65,6 +65,10 @@ const rules = {
   }, 18),
 
   lifeLike(rule) {
+    if (!rule.match(/^B\d*\/S\d*$/)) {
+      throw `rules.lifeLike: wrong rule name: ${rule}`;
+    }
+
     let
       bs = rule.split('/'),
       ruleNumber = 0;
