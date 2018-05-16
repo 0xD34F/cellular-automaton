@@ -4,7 +4,7 @@ import neighborhood from './neighborhood';
 
 const codeTemplate = {
 
-    indexToNeighbor: (name, mask, position, index) => `${name}: (i & ${mask << position}) >> ${position}`,
+    indexToNeighbor: (name, mask, position) => `${name}: (i & ${mask << position}) >> ${position}`,
 
     neighborToIndex: (code, mask, position, shift) => `((((${code}) & ${mask << shift}) >> ${shift}) << ${position})`,
 
@@ -14,45 +14,45 @@ const codeTemplate = {
 
     tableProc: neighborsCode => `
 (function(nextState, neighborhoodSize) {
-var table = new Array(Math.pow(2, neighborhoodSize));
+    var table = new Array(Math.pow(2, neighborhoodSize));
 
-for (var i = 0; i < table.length; i++) {
-    table[i] = nextState({
-        ${neighborsCode.join(',')}
-    }) & 3;
-}
+    for (var i = 0; i < table.length; i++) {
+        table[i] = nextState({
+            ${neighborsCode.join(',')}
+        }) & 3;
+    }
 
-return table;
+    return table;
 })`,
 
     nextGeneration: nextStateCode => `
 (function(d, newD) {
-var table_0 = this.CAA.table,
-    table_2 = this.CAB.table,
-    xSize = d.length,
-    ySize = d[0].length,
-    fixX = cells._shift.x,
-    fixY = cells._shift.y,
-    time = this.time,
-    t = time & 1;
+    var table_0 = this.CAA.table,
+        table_2 = this.CAB.table,
+        xSize = d.length,
+        ySize = d[0].length,
+        fixX = cells._shift.x,
+        fixY = cells._shift.y,
+        time = this.time,
+        t = time & 1;
 
-for (var x = 0; x < xSize; x++) {
-    var newDX = newD[x],
-        xPrev = x === 0 ? xSize - 1 : x - 1,
-        xNext = x === xSize - 1 ? 0 : x + 1,
-        dXCurr = d[x],
-        dXPrev = d[xPrev],
-        dXNext = d[xNext],
-        h = (x ^ fixX) & 1;
+    for (var x = 0; x < xSize; x++) {
+        var newDX = newD[x],
+            xPrev = x === 0 ? xSize - 1 : x - 1,
+            xNext = x === xSize - 1 ? 0 : x + 1,
+            dXCurr = d[x],
+            dXPrev = d[xPrev],
+            dXNext = d[xNext],
+            h = (x ^ fixX) & 1;
 
-    for (var y = 0; y < ySize; y++) {
-        var yPrev = y === 0 ? ySize - 1 : y - 1,
-            yNext = y === ySize - 1 ? 0 : y + 1,
-            v = (y ^ fixY) & 1;
+        for (var y = 0; y < ySize; y++) {
+            var yPrev = y === 0 ? ySize - 1 : y - 1,
+                yNext = y === ySize - 1 ? 0 : y + 1,
+                v = (y ^ fixY) & 1;
 
-        newDX[y] = ${nextStateCode};
+            newDX[y] = ${nextStateCode};
+        }
     }
-}
 })`
 };
 
@@ -124,7 +124,7 @@ export default class Generations {
         this.setNeighborhoods = this.setNeighborhoods.bind(this);
         this.makeTable = this.makeTable.bind(this);
 
-        this.CAA = new Compiler(0, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] & 12) >> 2' } ] }),
+        this.CAA = new Compiler(0, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] & 12) >> 2' } ] });
         this.CAB = new Compiler(2, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] &  3) << 2' } ] });
 
         this.rules = Rules;

@@ -1,15 +1,15 @@
 function rotateArray(array, rotate) {
     rotate -= array.length * Math.floor(rotate / array.length);
     array.push(...array.splice(0, rotate));
-};
+}
 
 function limitation(val, min, max) {
     return Math.min(max, Math.max(min, val >> 0));
-};
+}
 
 function bitMask(size) {
     return Math.pow(2, size) - 1;
-};
+}
 
 function getColorComponents(color) {
     return [ 1, 3, 5 ].map(n => parseInt(color.slice(n, n + 2), 16));
@@ -65,7 +65,7 @@ function logExecutionTime(message) {
         };
 
         return descriptor;
-    }
+    };
 }
 
 export { rotateArray, limitation, bitMask, getColorComponents, transformColor, getLineCoord, logExecutionTime };
