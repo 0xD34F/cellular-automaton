@@ -1,5 +1,5 @@
 ﻿import { limitation } from '../utils';
-import Rules from './rules';
+import Rules from './rules/';
 import History from './history';
 import Generations from './generations';
 import CellField from './cell-field';

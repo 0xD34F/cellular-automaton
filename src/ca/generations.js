@@ -1,5 +1,5 @@
 ﻿import { bitMask, logExecutionTime } from '../utils';
-import Rules from './rules';
+import Rules from './rules/';
 import neighborhood from './neighborhood';
 
 const codeTemplate = {
