@@ -29,22 +29,23 @@
     code:
 `setNeighborhoods({
     name: 'prob',
-    data: [ 0.00001, 0.005 ]
+    data: {
+        treeBirth: 0.005,
+        treeIgnite: 0.00001
+    }
 });
 
 view.setColors([ '000000', 'FF0000', '00FF00' ], true);
 
 makeTable(function(n) {
     var fire = 1 & (n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east),
-        tree = n.center,
-        treeIgnite = n.prob & 1,
-        treeBirth = n.prob & 2;
+        tree = n.center;
 
-    if (tree === 2 && (fire || treeIgnite)) {
+    if (tree === 2 && (fire || n.treeIgnite)) {
         return 1;
     }
 
-    if (tree === 0 && treeBirth) {
+    if (tree === 0 && n.treeBirth) {
         return 2;
     }
 

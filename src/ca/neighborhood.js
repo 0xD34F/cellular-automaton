@@ -33,11 +33,11 @@
             { name: 'horz', size: 1, code: 'h' },
             { name: 'vert', size: 1, code: 'v' }
         ],
-        prob: data => ({
-            name: 'prob',
-            size: data.length,
-            code: data.map((n, i) => `((Math.random() < ${n}) << ${i})`).join('|')
-        })
+        prob: data => Object.entries(data).map(([ name, probability ]) => ({
+            name,
+            size: 1,
+            code: `(Math.random() < ${probability})`
+        }))
     }
 };
 neighborhood.main['Moore-thick'] = neighborhood.main.Moore.map(n => ({ ...n, size: 2 }));
