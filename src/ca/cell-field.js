@@ -1,4 +1,4 @@
-﻿import { rotateArray } from '../utils';
+﻿import { rotateArray } from 'utils';
 
 
 function rotateField(sizeField) {

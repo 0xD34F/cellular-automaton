@@ -1,5 +1,5 @@
-﻿import { limitation, bitMask, getColorComponents, transformColor, getLineCoord, logExecutionTime } from '../utils';
-import config from '../config';
+﻿import { limitation, bitMask, getColorComponents, transformColor, getLineCoord, logExecutionTime } from 'utils';
+import config from 'config';
 
 const defaultColors = config.DEFAULT_COLORS;
 
@@ -261,41 +261,59 @@ const renderFunctions = {
     `)
 };
 
+
+function afterLoad(o) {
+    o.wrapper = o.wrapper instanceof HTMLElement ? o.wrapper : document.querySelector(o.wrapper);
+    o.cellSide = o.cellSide | 0;
+    o.cellBorder = o.cellBorder | 0;
+    o.showBitPlanes = isNaN(o.showBitPlanes) ? bitMask(o.field.numBitPlanes) : +o.showBitPlanes;
+
+    if (o.wrapper.classList.contains('scrollable')) {
+        o.wrapperScroll = document.createElement('div');
+        o.wrapperScroll.classList.add('cells-field-wrapper-scroll');
+        o.wrapper.appendChild(o.wrapperScroll);
+    } else {
+        var size = getFullSize(o);
+        o.wrapper.style.width = `${size.width}px`;
+        o.wrapper.style.height = `${size.height}px`;
+    }
+
+    o.canvas = document.createElement('canvas');
+    o.wrapper.appendChild(o.canvas);
+
+    eventHandlers.forEach(function(eh) {
+        eh.events.forEach(function(eventName) {
+            var elem = eh.wrapper ? o.wrapper : o.canvas;
+            elem[`on${eventName}`] = eh.handler.bind(o);
+        });
+    });
+
+    o.setColors(null);
+    o.resize(o.cellSide);
+
+    o.mode = 'edit';
+}
+
+let loaded = false;
+const waitLoad = [];
+
+document.addEventListener('DOMContentLoaded', function() {
+    loaded = true;
+    waitLoad.forEach(afterLoad);
+    waitLoad.length = 0;
+});
+
+
 export default class CellFieldView {
 
-    constructor(field, options) {
-        var o = Object.assign(this, options);
+    constructor(options) {
+        Object.assign(this, options);
 
-        o.field = field;
-        o.wrapper = o.wrapper instanceof HTMLElement ? o.wrapper : document.querySelector(o.wrapper);
-        o.cellSide = o.cellSide << 0;
-        o.cellBorder = o.cellBorder << 0;
-        o.showBitPlanes = isNaN(o.showBitPlanes) ? bitMask(o.field.numBitPlanes) : +o.showBitPlanes;
-
-        if (o.wrapper.classList.contains('scrollable')) {
-            o.wrapperScroll = document.createElement('div');
-            o.wrapperScroll.classList.add('cells-field-wrapper-scroll');
-            o.wrapper.appendChild(o.wrapperScroll);
+        if (loaded) {
+            afterLoad(this);
         } else {
-            var size = getFullSize(o);
-            o.wrapper.style.width = `${size.width}px`;
-            o.wrapper.style.height = `${size.height}px`;
+            waitLoad.push(this);
         }
-
-        o.canvas = document.createElement('canvas');
-        o.wrapper.appendChild(o.canvas);
-
-        eventHandlers.forEach(function(eh) {
-            eh.events.forEach(function(eventName) {
-                var elem = eh.wrapper ? o.wrapper : o.canvas;
-                elem[`on${eventName}`] = eh.handler.bind(o);
-            });
-        });
-
-        o.setColors(null);
-        o.resize(o.cellSide);
-
-        o.mode = 'edit';
     }
 
     get mode() {
@@ -303,7 +321,7 @@ export default class CellFieldView {
     }
     set mode(value) {
         this._mode = value;
-        this.canvas.dispatchEvent(new CustomEvent('cell-field-mode'));
+        this.canvas.dispatchEvent(new CustomEvent('cell-field-mode', { bubbles: true }));
         this.canvas.setAttribute('data-mode', value);
     }
 
@@ -402,7 +420,7 @@ export default class CellFieldView {
         this.colors = newColors;
         this.colorsForRender = colorsForRender;
 
-        if (forceRender) {
+        if (forceRender && this.canvas) {
             this.render();
         }
     }

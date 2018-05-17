@@ -1,4 +1,4 @@
-﻿import { limitation } from '../../utils';
+﻿import { limitation } from 'utils';
 import predefinedRules from './predefined';
 
 

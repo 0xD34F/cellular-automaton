@@ -1,4 +1,6 @@
-const webpack = require('webpack');
+const
+  webpack = require('webpack'),
+  path = require('path');
 
 module.exports = {
   entry: './src/main.js',
@@ -25,6 +27,13 @@ module.exports = {
         use: [ 'file-loader?name=dist/images/[name].[ext]' ]
       }
     ]
+  },
+  resolve: {
+    alias: {
+      config: path.resolve(__dirname, 'src/config'),
+      ca: path.resolve(__dirname, 'src/ca'),
+      utils: path.resolve(__dirname, 'src/utils')
+    }
   },
   plugins: [
     new webpack.ProvidePlugin({

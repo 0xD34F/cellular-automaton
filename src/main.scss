@@ -81,12 +81,11 @@ html, body {
 }
 
 .cells-field-wrapper {
-    display: flex;
-    overflow: hidden;
-    padding: 0;
-    flex: 1;
-
     &.scrollable {
+        display: flex;
+        overflow: hidden;
+        padding: 0;
+        flex: 1;
         overflow: scroll;
         position: relative;
     }
@@ -108,6 +107,32 @@ html, body {
         }
         &[data-mode="scale"] {
             cursor: zoom-in;
+        }
+    }
+}
+
+#ca-field {
+    fieldset {
+        display: inline-block;
+        border: 1px solid #bbb;
+        padding: 0 10px 10px 10px;
+        margin: 0 5px;
+        height: 100%;
+        box-sizing: border-box;
+        legend {
+            padding: 0 5px;
+        }
+
+        &#ca-field-sizes {
+            width: 250px;
+        }
+
+        &#ca-field-planes {
+            width: 150px;
+        }
+
+        tr {
+            height: 55px;
         }
     }
 }
@@ -272,29 +297,6 @@ li,
         border: 0;
     }
 }
-
-.ui-tabs {
-    &.ui-widget.ui-widget-content {
-        border: 0;
-        padding: 0;
-    }
-
-    .ui-tabs-nav {
-        border: 0;
-        padding-top: 0;
-        background-color: transparent;
-
-        .ui-tabs-anchor {
-            padding: .2em .4em;
-        }
-    }
-
-    .ui-tabs-panel {
-        border-top-width: 1px;
-        padding: .5em 0 0 0;
-    }
-}
-
 
 .ui-visual-focus,
 .ui-state-focus {

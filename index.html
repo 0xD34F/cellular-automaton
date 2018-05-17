@@ -16,16 +16,13 @@
             </div>
             <button id="back" data-action="back" title="Return to the initial configuration"><span class="ui-icon ui-icon-seek-prev"></span></button>
             <button id="save-as-image" title="Save cells field as image"><span class="ui-icon ui-icon-disk"></span></button>
-            <div id="cell-field-mode">
-                <input id="mode-edit" type="radio" name="mode" value="edit"><label for="mode-edit" class="ca-start-disable" title="Edit"><span class="ui-icon ui-icon-pencil"></span></label>
-                <input id="mode-shift" type="radio" name="mode" value="shift"><label for="mode-shift" title="Shift"><span class="ui-icon ui-icon-arrow-4"></span></label>
-                <input id="mode-scale" type="radio" name="mode" value="scale"><label for="mode-scale" title="Scale"><span class="ui-icon ui-icon-zoomin"></span></label>
-            </div>
+            <div id="cell-field-mode"></div>
             <div class="toolbar">
                 <button id="rotate-counterclockwise" data-action="rotateCounterclockwise" title="Rotate counterclockwise"><span class="ui-icon ui-icon-triangle-1-w"></span></button>
                 <button id="rotate-clockwise" data-action="rotateClockwise" title="Rotate clockwise"><span class="ui-icon ui-icon-triangle-1-e"></span></button>
             </div>
             <button id="brush" data-dialog="ca-brush">Brush...</button>
+            <button id="colors" data-dialog="ca-colors">Colors...</button>
             <button id="view" data-dialog="ca-field" title="Cells field settings">Field...</button>
             <div class="toolbar">
                 <button id="fill" data-dialog="ca-filling" class="ca-start-disable" title="Cells field filling">Fill...</button>
@@ -35,51 +32,6 @@
             <button id="rule" data-dialog="ca-rule" class="ca-start-disable">Rule...</button>
         </div>
         <div id="cells-wrapper" class="cells-field-wrapper scrollable"></div>
-    </div>
-
-    <div id="ca-rule" title="Rule">
-        <div class="controls">
-            <div class="input-with-button ui-controlgroup ui-corner-all ui-widget ui-widget-content">
-                <input id="ca-rule-name" class="ui-spinner-input" placeholder="enter rule name...">
-                <button id="ca-rule-name-clear" class="ui-button"><span class="ui-icon ui-icon-close" title="Clear rule name"></span></button>
-            </div>
-            <button id="ca-rule-save" title="Save rule into localStorage"><span class="ui-icon ui-icon-disk"></span></button>
-            <button id="ca-rule-delete" title="Delete rule from localStorage"><span class="ui-icon ui-icon-trash"></span></button>
-            <textarea id="ca-rule-code" autofocus></textarea>
-        </div>
-    </div>
-    <div id="ca-brush" title="Brush">
-        <div id="brush-wrapper" class="cells-field-wrapper"></div>
-        <div class="ca-state-select grid"></div>
-    </div>
-    <div id="ca-colors" title="Colors"></div>
-    <div id="ca-filling" title="Cells field filling"></div>
-    <div id="ca-speed" title="Speed">
-        <table class="ca-options-table">
-            <tr><td>Generations per step</td><td><input id="generations-per-step" type="text"></td></tr>
-            <tr><td>Step duration, ms</td><td><input id="step-duration" type="text"></td></tr>
-        </table>
-    </div>
-    <div id="ca-field" title="Field">
-        <div id="ca-field-settings">
-            <ul>
-                <li><a href="#ca-field-sizes">Sizes</a></li>
-                <li><a href="#ca-field-colors">Colors</a></li>
-                <li><a href="#ca-field-planes">Bit planes</a></li>
-            </ul>
-            <div id="ca-field-sizes">
-                <table class="ca-options-table">
-                    <tr><td>Field width</td><td><input id="ca-field-x-size" type="text" class="ca-start-disable"></td></tr>
-                    <tr><td>Field height</td><td><input id="ca-field-y-size" type="text" class="ca-start-disable"></td></tr>
-                    <tr><td>Cell side</td><td><input id="ca-field-cell-side" type="text"></td></tr>
-                    <tr><td>Cell border</td><td><input id="ca-field-cell-border" type="text"></td></tr>
-                </table>
-            </div>
-            <div id="ca-field-colors">
-            </div>
-            <div id="ca-field-planes">
-            </div>
-        </div>
     </div>
 </body>
 </html>

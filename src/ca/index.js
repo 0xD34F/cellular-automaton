@@ -1,10 +1,10 @@
-﻿import { limitation } from '../utils';
+﻿import { limitation } from 'utils';
 import Rules from './rules/';
 import History from './history';
 import Generations from './generations';
 import CellField from './cell-field';
 import CellFieldView from './cell-field-view';
-import config from '../config';
+import config from 'config';
 
 const defaultOptions = {
     _intervalID: null,
@@ -22,7 +22,7 @@ class CellularAutomaton {
         this.cells.next = this.cells.curr.clone();
         this.cells.next._shift = this.cells.curr._shift; // чтобы не заниматься синхронизацией, просто сделаем объект смещения общим
 
-        this.view = new CellFieldView(this.cells.curr, options.view);
+        this.view = new CellFieldView({ ...options.view, field: this.cells.curr });
 
         this.generations = new Generations({
             cells: this.cells,
@@ -120,6 +120,10 @@ class CellularAutomaton {
 
         this.history.save();
 
+        if (this.view.mode === 'edit') {
+            this.view.mode = 'shift';
+        }
+
         document.dispatchEvent(new CustomEvent('ca-start', {
             detail: this
         }));
@@ -134,6 +138,8 @@ class CellularAutomaton {
 
         clearInterval(this._intervalID);
         this._intervalID = null;
+
+        this.view.mode = 'edit';
 
         document.dispatchEvent(new CustomEvent('ca-stop', {
             detail: this

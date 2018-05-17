@@ -1,4 +1,4 @@
-﻿import { bitMask, logExecutionTime } from '../utils';
+﻿import { bitMask, logExecutionTime } from 'utils';
 import Rules from './rules/';
 import neighborhood from './neighborhood';
 
