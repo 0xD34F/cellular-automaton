@@ -1,6 +1,5 @@
 import config from 'config';
 import ca from 'ca';
-import { limitation } from 'utils';
 
 
 const {
@@ -78,10 +77,10 @@ export default {
     ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce((planes, cb, i) => planes | (cb.checked << i), 0);
 
     ca.resize({
-      xSize: limitation(this.find('#ca-field-x-size').val(), X_SIZE_MIN, X_SIZE_MAX),
-      ySize: limitation(this.find('#ca-field-y-size').val(), Y_SIZE_MIN, Y_SIZE_MAX),
-      cellSide: limitation(this.find('#ca-field-cell-side').val(), CELL_SIDE_MIN, CELL_SIDE_MAX),
-      cellBorder: limitation(this.find('#ca-field-cell-border').val(), CELL_BORDER_MIN, CELL_BORDER_MAX)
+      xSize: this.find('#ca-field-x-size').val() | 0,
+      ySize: this.find('#ca-field-y-size').val() | 0,
+      cellSide: this.find('#ca-field-cell-side').val() | 0,
+      cellBorder: this.find('#ca-field-cell-border').val() | 0,
     });
   }
 };

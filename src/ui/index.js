@@ -18,6 +18,7 @@ import 'jscolor-picker';
 import 'toastr/toastr.scss';
 
 import ca from 'ca';
+import { limitation } from 'utils';
 
 import dialogs from './dialogs/';
 import cellFieldModeSwitch from './cell-field-mode';
@@ -36,7 +37,14 @@ $.extend($.ui.autocomplete.prototype.options, {
 
 $.widget('ui.spinner', $.ui.spinner, {
   _create() {
-    this.element.attr('maxlength', this.options.max.toString(10).length);
+    const {
+      element,
+      options
+    } = this;
+
+    element.on('input', function() {
+      element.val(limitation(parseInt(element.val(), 10), options.min, options.max));
+    });
 
     return this._super();
   }
