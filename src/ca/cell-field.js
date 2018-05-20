@@ -97,10 +97,6 @@ export default class CellField {
         return this;
     }
 
-    getBitPlanes() {
-        return [...Array(this.numBitPlanes)].map((n, i) => i);
-    }
-
     // bitPlanes - массив номеров битовых плоскостей
     invertBitPlane(bitPlanes) {
         const mask = bitPlanes.reduce((mask, plane) => mask | (1 << plane), 0);
@@ -155,4 +151,9 @@ export default class CellField {
     get numCellStates() {
         return Math.pow(2, this.numBitPlanes);
     }
+
+    get bitPlanesList() {
+        return [...Array(this.numBitPlanes)].map((n, i) => i);
+    }
+
 }

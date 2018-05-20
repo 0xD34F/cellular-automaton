@@ -46,7 +46,7 @@ export default {
   width: 480,
   create() {
     const
-      planesList = ca.cells.curr.getBitPlanes(),
+      planesList = ca.cells.curr.bitPlanesList,
       planesHTML = bitPlanesListTemplate(planesList),
       max = ca.cells.curr.randomFillDensityDescritization;
 

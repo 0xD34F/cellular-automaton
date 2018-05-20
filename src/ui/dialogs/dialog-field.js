@@ -60,7 +60,7 @@ export default {
     }).filter('.ca-start-disable').closest('td').find('.ui-button').addClass('ca-start-disable'));
 
     $this
-      .find('#ca-field-planes').append(bitPlanesListTemplate(ca.cells.curr.getBitPlanes()))
+      .find('#ca-field-planes').append(bitPlanesListTemplate(ca.cells.curr.bitPlanesList))
       .find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
   },
   open() {
