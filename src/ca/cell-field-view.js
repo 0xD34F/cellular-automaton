@@ -321,8 +321,10 @@ export default class CellFieldView {
     }
     set mode(value) {
         this._mode = value;
-        this.canvas.dispatchEvent(new CustomEvent('cell-field-mode', { bubbles: true }));
         this.canvas.setAttribute('data-mode', value);
+        document.dispatchEvent(new CustomEvent('cell-field-mode', {
+            detail: this
+        }));
     }
 
     @logExecutionTime('renderPartial')

@@ -36,7 +36,7 @@ export default {
       .find(`[for="mode-${ca.view.mode}"]`).click();
 
     $(document).on('cell-field-mode', function(e) {
-      if (e.target === ca.view.canvas) {
+      if (e.detail === ca.view) {
         update();
       }
     });
