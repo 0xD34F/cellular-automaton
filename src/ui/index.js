@@ -18,11 +18,13 @@ import 'jscolor-picker';
 import 'toastr/toastr.scss';
 
 import ca from 'ca';
+import config from 'config';
 import { limitation } from 'utils';
+
+import './input-with-button/';
 
 import dialogs from './dialogs/';
 import cellFieldModeSwitch from './cell-field-mode';
-import generationsSkip from './generations-skip';
 
 
 $.extend($.ui.autocomplete.prototype.options, {
@@ -54,7 +56,6 @@ $.widget('ui.spinner', $.ui.spinner, {
 $(document).ready(function() {
   dialogs.init();
   cellFieldModeSwitch.init();
-  generationsSkip.init();
 
   $('.toolbar').buttonset();
 
@@ -70,6 +71,20 @@ $(document).ready(function() {
 
   $('#save-as-image').click(function() {
     ca.view.download();
+  });
+
+  $('#skip').inputWithButton({
+    icon: 'ui-icon-seek-next',
+    value: config.SKIP_GENERATIONS_MIN,
+    click() {
+      ca.newGeneration($(this).inputWithButton('value'));
+    }
+  }).find('input').width(50).on('input', function() {
+    const
+      $this = $(this),
+      val = parseInt($this.val(), 10);
+
+    $this.val(limitation(val, config.SKIP_GENERATIONS_MIN, config.SKIP_GENERATIONS_MAX));
   });
 }).on({
   'ca-start'() {

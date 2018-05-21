@@ -8,12 +8,7 @@ export default {
   template: `
 <div id="ca-rule" title="Rule">
   <div class="controls">
-    <div class="input-with-button ui-controlgroup ui-corner-all ui-widget ui-widget-content">
-      <input id="ca-rule-name" class="ui-spinner-input" placeholder="enter rule name...">
-      <button id="ca-rule-name-clear" class="ui-button">
-        <span class="ui-icon ui-icon-close" title="Clear rule name"></span>
-      </button>
-    </div>
+    <div id="ca-rule-name"></div>
     <button id="ca-rule-save" title="Save rule into localStorage">
       <span class="ui-icon ui-icon-disk"></span>
     </button>
@@ -27,11 +22,14 @@ export default {
   create() {
     var $this = $(this);
 
-    $this.find('#ca-rule-name-clear').click(function() {
-      $('#ca-rule-name').val('');
-    });
-
-    $this.find('#ca-rule-name').autocomplete({
+    $this.find('#ca-rule-name').inputWithButton({
+      icon: 'ui-icon-close',
+      title: 'Clear rule name',
+      placeholder: 'enter rule name...',
+      click() {
+        $(this).inputWithButton('value', '');
+      }
+    }).find('input').autocomplete({
       source(request, response) {
         var term = request.term.toLowerCase();
 
@@ -58,10 +56,10 @@ export default {
     };
 
     $this.find('#ca-rule-save').button().click(function() {
-      var result = CA.Rules.save($('#ca-rule-name').val(), $('#ca-rule-code').val());
+      var result = CA.Rules.save($('#ca-rule-name').inputWithButton('value'), $('#ca-rule-code').val());
       toastr[result.status ? 'success' : 'error'](result.message);
     }).end().find('#ca-rule-delete').button().click(function() {
-      var result = CA.Rules.del($('#ca-rule-name').val());
+      var result = CA.Rules.del($('#ca-rule-name').inputWithButton('value'));
       toastr[result.status ? 'success' : 'error'](result.message);
     });
 
