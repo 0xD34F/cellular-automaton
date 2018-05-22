@@ -1,0 +1,30 @@
+.cells-field-wrapper {
+  &.scrollable {
+    display: flex;
+    overflow: hidden;
+    padding: 0;
+    flex: 1;
+    overflow: scroll;
+    position: relative;
+  }
+
+  .cells-field-wrapper-scroll {
+    position: absolute;
+  }
+
+  canvas {
+    position: sticky;
+    left: 0;
+    top: 0;
+
+    &[data-mode="edit"] {
+      cursor: default;
+    }
+    &[data-mode="shift"] {
+      cursor: move;
+    }
+    &[data-mode="scale"] {
+      cursor: zoom-in;
+    }
+  }
+}

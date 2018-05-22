@@ -41,7 +41,7 @@ $.widget('ui.confirmDialog', $.ui.dialog, {
 
 
 const
-  context = require.context('./', false, /dialog-[\w\-]+\.js$/),
+  context = require.context('./', true, /dialog-[\w\-]+((\.js)|(\/))$/),
   dialogsList = context.keys().map(key => context(key).default);
 
 export default {

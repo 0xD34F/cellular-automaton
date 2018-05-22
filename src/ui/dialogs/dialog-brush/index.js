@@ -1,5 +1,6 @@
 import config from 'config';
 import ca, { CA } from 'ca';
+import './style.scss';
 
 
 const colorSelectTemplate = colors => colors.map(n => `
@@ -17,7 +18,7 @@ export default {
   template: `
 <div id="ca-brush" title="Brush">
   <div id="brush-wrapper" class="cells-field-wrapper"></div>
-  <div class="ca-state-select grid"></div>
+  <div class="ca-state-select"></div>
 </div>`,
   width: 400,
   create() {

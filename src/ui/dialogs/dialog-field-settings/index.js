@@ -1,5 +1,6 @@
 import config from 'config';
 import ca from 'ca';
+import './style.scss';
 
 
 const {

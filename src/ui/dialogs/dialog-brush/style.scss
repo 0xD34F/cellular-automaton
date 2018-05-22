@@ -1,0 +1,13 @@
+#ca-brush {
+  display: flex;
+  justify-content: space-between;
+
+  .ca-state-select {
+    display: inline-grid;
+    grid: repeat(4, 1fr) / repeat(4, 1fr);
+
+    .ca-state {
+      cursor: pointer;
+    }
+  }
+}

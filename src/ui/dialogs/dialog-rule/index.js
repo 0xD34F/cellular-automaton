@@ -1,7 +1,7 @@
 import config from 'config';
 import ca, { CA } from 'ca';
-
 import toastr from 'toastr';
+import './style.scss';
 
 
 export default {

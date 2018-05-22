@@ -1,0 +1,19 @@
+#ca-colors {
+  .ca-state-select {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-end;
+
+    .ca-state {
+      padding: 5px 10px;
+
+      input.jscolor {
+        width: 6em;
+        text-align: right;
+        font-family: "Lucida Console", monospace;
+        padding-right: .2em;
+        box-sizing: border-box;
+      }
+    }
+  }
+}

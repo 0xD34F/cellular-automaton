@@ -79,63 +79,6 @@ html, body {
     }
 }
 
-.cells-field-wrapper {
-    &.scrollable {
-        display: flex;
-        overflow: hidden;
-        padding: 0;
-        flex: 1;
-        overflow: scroll;
-        position: relative;
-    }
-
-    .cells-field-wrapper-scroll {
-        position: absolute;
-    }
-
-    canvas {
-        position: sticky;
-        left: 0;
-        top: 0;
-
-        &[data-mode="edit"] {
-            cursor: default;
-        }
-        &[data-mode="shift"] {
-            cursor: move;
-        }
-        &[data-mode="scale"] {
-            cursor: zoom-in;
-        }
-    }
-}
-
-#ca-field {
-    fieldset {
-        display: inline-block;
-        border: 1px solid #bbb;
-        padding: 0 10px 10px 10px;
-        margin: 0 5px;
-        height: 100%;
-        box-sizing: border-box;
-        legend {
-            padding: 0 5px;
-        }
-
-        &#ca-field-sizes {
-            width: 250px;
-        }
-
-        &#ca-field-planes {
-            width: 150px;
-        }
-
-        tr {
-            height: 55px;
-        }
-    }
-}
-
 .ca-options-table {
     width: 100%;
 
@@ -158,72 +101,9 @@ html, body {
     .ca-bit-plane {
         text-align: center;
     }
-
-    .ca-filling-options {
-        .ca-filling-options-note {
-            display: inline-block;
-            width: 5em;
-            vertical-align: middle;
-        }
-
-        .ui-spinner-input {
-            padding: 6px 6px 4px 6px;
-            margin: 0;
-            margin-right: 2em;
-        }
-
-        .ca-filling-copy > input {
-            padding: 6px 6px 4px 6px;
-            margin: 0 .4em;
-            vertical-align: middle;
-
-            &[type="text"] {
-                width: 4.5em;
-            }
-        }
-
-        .ca-filling-random > .ui-spinner {
-            margin: 0 .4em;
-
-            > input {
-                width: 2.5em;
-            }
-        }
-    }
-}
-
-#ca-brush {
-    display: flex;
-    justify-content: space-between;
 }
 
 .ca-state-select {
-    &.grid {
-        display: inline-grid;
-        grid: repeat(4, 1fr) / repeat(4, 1fr);
-
-        .ca-state {
-            cursor: pointer;
-        }
-    }
-    &.row {
-        display: flex;
-        flex-flow: row wrap;
-        justify-content: flex-end;
-
-        .ca-state {
-            padding: 5px 10px;
-
-            input.jscolor {
-                width: 6em;
-                text-align: right;
-                font-family: "Lucida Console", monospace;
-                padding-right: .2em;
-                box-sizing: border-box;
-            }
-        }
-    }
-
     .ca-state {
         display: flex;
         flex-direction: column;
@@ -248,26 +128,6 @@ html, body {
             box-sizing: border-box;
         }
     }
-}
-
-#ca-rule-code {
-    width: 100%;
-    height: 100%;
-    min-width: 400px;
-    min-height: 300px;
-    padding: 5px;
-    font-family: monospace;
-    box-sizing: border-box;
-    resize: none;
-}
-
-.predefined-rule {
-    background-color: #eee;
-}
-
-.matched-text {
-    text-decoration: underline;
-    font-weight: bold;
 }
 
 button,

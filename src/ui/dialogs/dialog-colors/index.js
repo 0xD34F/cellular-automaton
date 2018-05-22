@@ -1,9 +1,10 @@
 import config from 'config';
 import ca from 'ca';
+import './style.scss';
 
 
 const colorsListTemplate = colors => `
-  <div class="ca-state-select row">
+  <div class="ca-state-select">
     ${colors.map(n => `
     <div class="ca-state">
       <div>

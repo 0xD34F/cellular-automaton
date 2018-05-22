@@ -3,7 +3,7 @@ import Rules from './rules/';
 import History from './history';
 import Generations from './generations';
 import CellField from './cell-field';
-import CellFieldView from './cell-field-view';
+import CellFieldView from './cell-field-view/';
 import config from 'config';
 
 const defaultOptions = {

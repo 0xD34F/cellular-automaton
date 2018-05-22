@@ -1,5 +1,7 @@
 ﻿import { limitation, bitMask, getColorComponents, transformColor, getLineCoord, logExecutionTime } from 'utils';
 import config from 'config';
+import './style.scss';
+
 
 const defaultColors = config.DEFAULT_COLORS;
 
