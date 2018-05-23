@@ -10,9 +10,9 @@ const mouseButtons = {
     right: 2
 };
 
-const scale = {
-    up: 1,
-    down: -1
+const zoom = {
+    in: 1,
+    out: -1
 };
 
 const eventHandlers = [ {
@@ -42,7 +42,7 @@ const eventHandlers = [ {
             return;
         }
 
-        var action = userActions[this.mode];
+        var action = userActions[this.mode.split('.')[0]];
         if (action.events.indexOf(e.type) !== -1 &&
             action.handler.call(this, e, newCoord, oldCoord) !== false) {
 
@@ -63,7 +63,7 @@ const eventHandlers = [ {
         e.preventDefault();
         e.stopPropagation();
 
-        changeScale(this, e.deltaY > 0 ? scale.down : scale.up, detectEventCoord(this, e));
+        changeZoom(this, e.deltaY > 0 ? zoom.out : zoom.in, detectEventCoord(this, e));
     }
 } ];
 
@@ -102,25 +102,26 @@ const userActions = {
             this.render();
         }
     },
-    scale: {
+    zoom: {
         events: [ 'mousedown' ],
         handler: function(e, newCoord, oldCoord) {
-            changeScale(this, ({
-                [mouseButtons.left]:  scale.up,
-                [mouseButtons.right]: scale.down
+            var subMode = this.mode.split('.')[1] === 'in';
+            changeZoom(this, ({
+                [mouseButtons.left]:  subMode ? zoom.in  : zoom.out,
+                [mouseButtons.right]: subMode ? zoom.out : zoom.in
             })[e.buttons] || 0, newCoord);
         }
     }
 };
 
 
-function changeScale(view, change, coord) {
-    if (!view.scaling) {
+function changeZoom(view, change, coord) {
+    if (!view.zoom) {
         return;
     }
 
     var oldCellSide = view.cellSide,
-        newCellSide = limitation(oldCellSide + change, view.scaling.min, view.scaling.max);
+        newCellSide = limitation(oldCellSide + change, view.zoom.min, view.zoom.max);
 
     if (oldCellSide !== newCellSide) {
         var w = view.wrapper,

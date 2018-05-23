@@ -23,8 +23,11 @@
     &[data-mode="shift"] {
       cursor: move;
     }
-    &[data-mode="scale"] {
+    &[data-mode="zoom.in"] {
       cursor: zoom-in;
+    }
+    &[data-mode="zoom.out"] {
+      cursor: zoom-out;
     }
   }
 }

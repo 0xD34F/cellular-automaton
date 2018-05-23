@@ -8,7 +8,7 @@ const ca = new CA.CellularAutomaton({
   ruleName: config.DEFAULT_RULE,
   view: {
     wrapper: '#cells-wrapper',
-    scaling: {
+    zoom: {
       min: config.CELL_SIDE_MIN,
       max: config.CELL_SIDE_MAX
     },
