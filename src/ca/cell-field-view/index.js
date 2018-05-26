@@ -74,16 +74,20 @@ const userActions = {
             var x = newCoord.x,
                 y = newCoord.y,
                 f = this.field,
-                b = this.brush;
+                fx = f.xSize,
+                fy = f.ySize,
+                b = this.brush,
+                bx = b.xSize,
+                by = b.ySize;
 
-            if (x >= f.xSize || y >= f.ySize || x < 0 || y < 0 || !b || e.ctrlKey) {
+            if (x >= fx || y >= fy || x < 0 || y < 0 || !b || e.ctrlKey) {
                 return false;
             }
 
             var coord = getLineCoord(newCoord, { ...newCoord, ...oldCoord });
             for (var i = 0; i < coord.length; i++) {
-                x = (coord[i].x - Math.floor(b.xSize / 2) + f.xSize) % f.xSize;
-                y = (coord[i].y - Math.floor(b.ySize / 2) + f.ySize) % f.ySize;
+                x = (coord[i].x - Math.floor(bx / 2) + fx) % fx;
+                y = (coord[i].y - Math.floor(by / 2) + fy) % fy;
 
                 f.copy(b, {
                     x: x,
@@ -91,7 +95,7 @@ const userActions = {
                     skipZeros: true,
                     setZeros: e.buttons === mouseButtons.right
                 });
-                this.renderPartial({ x: x, y: y, xSize: b.xSize, ySize: b.ySize });
+                this.renderPartial({ x: x, y: y, xSize: bx, ySize: by });
             }
         }
     },

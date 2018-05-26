@@ -1,22 +1,6 @@
 ﻿import { rotateArray } from 'utils';
 
 
-function rotateField(sizeField) {
-    return function(target, key, descriptor) {
-        const original = descriptor.value;
-
-        descriptor.value = function() {
-            this.data = original(this.data, this._shift, this[sizeField]);
-            [ this.xSize, this.ySize ] = [ this.ySize, this.xSize ];
-
-            return this;
-        };
-
-        return descriptor;
-    };
-}
-
-
 export default class CellField {
 
     constructor(x, y) {
@@ -24,10 +8,8 @@ export default class CellField {
     }
 
     resize(x, y = x, shift = { x: 0, y: 0 }) {
-        this.xSize = x;
-        this.ySize = y;
         this._shift = { ...shift };
-        this.data = [...Array(x)].map(() => Array(y).fill(0));
+        this.data = [...Array(Math.max(1, x | 0))].map(() => Array(Math.max(1, y | 0)).fill(0));
 
         return this;
     }
@@ -51,16 +33,22 @@ export default class CellField {
         return this;
     }
 
-    @rotateField('ySize')
-    rotateClockwise(data, shift, size) {
-        Object.assign(shift, { x: (size - shift.y) % size, y: shift.x });
-        return data[0].map((cell, y) => data.map((col, x) => data[x][size - y - 1]));
+    rotateClockwise() {
+        const { data, _shift, ySize } = this;
+
+        Object.assign(_shift, { x: (ySize - _shift.y) % ySize, y: _shift.x });
+        this.data = data[0].map((cell, y) => data.map((col, x) => data[x][ySize - y - 1]));
+
+        return this;
     }
 
-    @rotateField('xSize')
-    rotateCounterclockwise(data, shift, size) {
-        Object.assign(shift, { x: shift.y, y: (size - shift.x) % size });
-        return data[0].map((cell, y) => data.map((col, x) => data[size - x - 1][y]));
+    rotateCounterclockwise() {
+        const { data, _shift, xSize } = this;
+
+        Object.assign(_shift, { x: _shift.y, y: (xSize - _shift.x) % xSize });
+        this.data = data[0].map((cell, y) => data.map((col, x) => data[xSize - x - 1][y]));
+
+        return this;
     }
 
     clone() {
@@ -69,8 +57,8 @@ export default class CellField {
 
     conform(f) {
         this.data = f.data.map(col => [...col]);
-        [ this.xSize, this.ySize ] = [ f.xSize, f.ySize ];
         Object.assign(this._shift, f._shift);
+
         return this;
     }
 
@@ -138,6 +126,14 @@ export default class CellField {
 
             return value;
         }) : this;
+    }
+
+    get xSize() {
+        return this.data.length;
+    }
+
+    get ySize() {
+        return this.data[0].length;
     }
 
     get randomFillDensityDescritization() {
