@@ -27,6 +27,13 @@ const bitPlanesListTemplate = bitPlanes => `
     `).join('')}
   </table>`;
 
+const sizesMeta = [
+  { name: 'xSize',      label: 'Field width',  min: X_SIZE_MIN,      max: X_SIZE_MAX, classes: [ 'ca-start-disable' ] },
+  { name: 'ySize',      label: 'Field height', min: Y_SIZE_MIN,      max: Y_SIZE_MAX, classes: [ 'ca-start-disable' ] },
+  { name: 'cellSide',   label: 'Cell side',    min: CELL_SIDE_MIN,   max: CELL_SIDE_MAX },
+  { name: 'cellBorder', label: 'Cell border',  min: CELL_BORDER_MIN, max: CELL_BORDER_MAX }
+];
+
 
 export default {
   template: `
@@ -34,10 +41,12 @@ export default {
   <fieldset id="ca-field-sizes">
     <legend>Sizes</legend>
     <table class="ca-options-table">
-      <tr><td>Field width</td><td><input id="ca-field-x-size" type="text" class="ca-start-disable"></td></tr>
-      <tr><td>Field height</td><td><input id="ca-field-y-size" type="text" class="ca-start-disable"></td></tr>
-      <tr><td>Cell side</td><td><input id="ca-field-cell-side" type="text"></td></tr>
-      <tr><td>Cell border</td><td><input id="ca-field-cell-border" type="text"></td></tr>
+    ${sizesMeta.map(n => `
+      <tr>
+        <td>${n.label}</td>
+        <td><input name="${n.name}" type="text" class="${(n.classes || []).join('')}"></td>
+      </tr>
+    `).join('')}
     </table>
   </fieldset>
   <fieldset id="ca-field-planes">
@@ -47,16 +56,11 @@ export default {
   width: 460,
   height: 380,
   create() {
-    var $this = $(this);
+    const $this = $(this);
 
-    [
-      [ '#ca-field-x-size',      X_SIZE_MIN,      X_SIZE_MAX ],
-      [ '#ca-field-y-size',      Y_SIZE_MIN,      Y_SIZE_MAX ],
-      [ '#ca-field-cell-side',   CELL_SIDE_MIN,   CELL_SIDE_MAX ],
-      [ '#ca-field-cell-border', CELL_BORDER_MIN, CELL_BORDER_MAX ]
-    ].forEach(n => $this.find(n[0]).spinner({
-      min: n[1],
-      max: n[2],
+    sizesMeta.forEach(n => $this.find(`[name="${n.name}"]`).spinner({
+      min: n.min,
+      max: n.max,
       step: 1
     }).filter('.ca-start-disable').closest('td').find('.ui-button').addClass('ca-start-disable'));
 
@@ -65,23 +69,27 @@ export default {
       .find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
   },
   open() {
-    $(this)
-      .find('#ca-field-x-size').val(ca.cells.curr.xSize).end()
-      .find('#ca-field-y-size').val(ca.cells.curr.ySize).end()
-      .find('#ca-field-cell-side').val(ca.view.cellSide).end()
-      .find('#ca-field-cell-border').val(ca.view.cellBorder).end()
-      .find('.ca-bit-plane-cb').each(function(i) {
-        this.checked = !!(ca.view.showBitPlanes & (1 << i));
-      }).change();
+    const
+      $this = $(this),
+      sizes = ca.sizes();
+
+    sizesMeta.forEach(n => $this.find(`[name="${n.name}"]`).val(sizes[n.name]));
+
+    $this.find('.ca-bit-plane-cb').each(function(i) {
+      this.checked = !!(ca.view.showBitPlanes & (1 << i));
+    }).change();
   },
   ok() {
     ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce((planes, cb, i) => planes | (cb.checked << i), 0);
 
-    ca.resize({
-      xSize: this.find('#ca-field-x-size').val() | 0,
-      ySize: this.find('#ca-field-y-size').val() | 0,
-      cellSide: this.find('#ca-field-cell-side').val() | 0,
-      cellBorder: this.find('#ca-field-cell-border').val() | 0,
+    const sizes = {};
+    sizesMeta.forEach(n => {
+      const $el = this.find(`[name="${n.name}"]`);
+      if (!$el.hasClass('ui-state-disabled')) {
+        sizes[n.name] = $el.val() | 0;
+      }
     });
+
+    ca.resize(sizes);
   }
 };

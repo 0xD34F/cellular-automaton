@@ -37,6 +37,15 @@ class CellularAutomaton {
         this.generations.rule = options.ruleCode || Rules.get(options.ruleName || 'default');
     }
 
+    sizes() {
+        return {
+            xSize: this.cells.curr.xSize,
+            ySize: this.cells.curr.ySize,
+            cellSide: this.view.cellSide,
+            cellBorder: this.view.cellBorder
+        }
+    }
+
     resize(sizes = {}) {
         if (!isNaN(sizes.xSize) && !isNaN(sizes.ySize)) {
             if (this.cells.curr.xSize !== sizes.xSize || this.cells.curr.ySize !== sizes.ySize) {
