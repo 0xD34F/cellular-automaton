@@ -4,7 +4,9 @@
   "description": "[https://0xd34f.github.io/cellular-automaton/](https://0xd34f.github.io/cellular-automaton/)",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --progress -p",
+    "watch": "webpack --progress --watch"
   },
   "repository": {
     "type": "git",

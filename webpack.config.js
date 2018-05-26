@@ -42,5 +42,4 @@ module.exports = {
       'window.jQuery': 'jquery'
     }),
   ],
-  watch: true
 };
