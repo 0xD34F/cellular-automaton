@@ -42,9 +42,8 @@ export default {
     });
   },
   open() {
-    brush.setColors(ca.view.colors);
     brush.field.copy(ca.view.brush);
-    brush.render();
+    brush.setColors(ca.view.colors, true);
 
     $(this).find('.ca-state-select').html(colorSelectTemplate($.map(brush.colors, function(n, i) {
       return isNaN(i) ? null : {

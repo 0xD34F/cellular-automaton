@@ -46,7 +46,6 @@ export default {
       newColors[$this.attr('color-name')] = $this.val();
     });
 
-    ca.view.setColors(newColors);
-    ca.view.resize();
+    ca.view.setColors(newColors, true);
   }
 };
