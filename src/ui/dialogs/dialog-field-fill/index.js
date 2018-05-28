@@ -3,17 +3,11 @@ import ca from 'ca';
 import './style.scss';
 
 
-const bitPlanesListTemplate = bitPlanes => `
-  <table class="ca-options-table" style="table-layout: fixed;">
-    <tr>
-      <th width="65px">Bit plane</th>
-      <th width="100px">Method</th>
-      <th width="185px"></th>
-      <th width="35px">Fill</th>
-    </tr>
-    ${bitPlanes.map(n => `
-    <tr data-bit-plane="${n}">
-      <td class="ca-bit-plane">${n}</td>
+const bitPlanesOptions = {
+  meta: ca.cells.curr.bitPlanesList,
+  row: r =>
+    `<tr data-bit-plane="${r}">
+      <td class="center">${r}</td>
       <td>
         <select class="ca-filling-method" dir="rtl">
           <option value="random">Random</option>
@@ -33,39 +27,54 @@ const bitPlanesListTemplate = bitPlanes => `
           <input type="text" readonly="readonly">
         </div>
       </td>
-      <td class="ca-bit-plane">
-        <input type="checkbox" id="ca-filling-fill-plane-${n}" class="ca-bit-plane-cb">
-        <label for="ca-filling-fill-plane-${n}"></label>
+      <td class="center">
+        <input type="checkbox" id="ca-filling-fill-plane-${r}" class="ca-bit-plane-cb">
+        <label for="ca-filling-fill-plane-${r}"></label>
       </td>
-    </tr>
-    `).join('')}
-  </table>`;
+    </tr>`
+};
 
 
 export default {
-  template: '<div id="ca-filling" title="Cells field filling"></div>',
+  template: `
+<div id="ca-filling" title="Cells field filling">
+  <table style="table-layout: fixed;">
+    <tr>
+      <th width="65px">Bit plane</th>
+      <th width="100px">Method</th>
+      <th width="185px"></th>
+      <th width="35px">Fill</th>
+    </tr>
+  </table>
+</div>`,
   width: 480,
   create() {
-    const
-      planesList = ca.cells.curr.bitPlanesList,
-      planesHTML = bitPlanesListTemplate(planesList),
-      max = ca.cells.curr.randomFillDensityDescritization;
+    const max = ca.cells.curr.randomFillDensityDescritization;
 
-    $(this).append(planesHTML).find('.ca-filling-random > input').spinner({
-      min: 0,
-      max: max,
-      step: 1
-    }).val(max * config.DEFAULT_FILL_DENSITY | 0).end().find('select').selectmenu({
-      width: 100
-    }).on('selectmenuchange', function(e, ui) {
-      $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find(`.ca-filling-${ui ? ui.item.value : this.value}`).show();
-    }).trigger('selectmenuchange').end().find('.ca-filling-copy > input').autocomplete({
-      source(request, response) {
-        const ownPlane = +this.element.closest('tr').attr('data-bit-plane');
+    $(this)
+      .find('table').settingsTable(bitPlanesOptions)
 
-        response(planesList.filter(n => n !== ownPlane).map(n => n.toString()));
-      }
-    }).end().find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
+      .find('.ca-filling-random > input').spinner({
+        min: 0,
+        max: max,
+        step: 1
+      }).val(max * config.DEFAULT_FILL_DENSITY | 0).end()
+
+      .find('select').selectmenu({
+        width: 100
+      }).on('selectmenuchange', function(e, ui) {
+        $(this).closest('tr').find('.ca-filling-options').find('>').hide().end().find(`.ca-filling-${ui ? ui.item.value : this.value}`).show();
+      }).trigger('selectmenuchange').end()
+
+      .find('.ca-filling-copy > input').autocomplete({
+        source(request, response) {
+          const ownPlane = +this.element.closest('tr').attr('data-bit-plane');
+
+          response(bitPlanesOptions.meta.filter(n => n !== ownPlane).map(n => n.toString()));
+        }
+      }).end()
+
+      .find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
   },
   ok() {
     const

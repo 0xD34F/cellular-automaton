@@ -1,0 +1,23 @@
+.ca-options-table {
+  width: 100%;
+
+  td,
+  th {
+    padding: 10px 0 10px 15px;
+    vertical-align: middle;
+  }
+
+  input {
+    &[type="text"] {
+      width: 3em;
+    }
+    &[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  .center {
+    text-align: center;
+  }
+}

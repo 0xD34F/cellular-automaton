@@ -14,25 +14,33 @@ const {
   CELL_BORDER_MAX,
 } = config;
 
-const bitPlanesListTemplate = bitPlanes => `
-  <table class="ca-options-table">
-    ${bitPlanes.map(n => `
-    <tr>
-      <td class="ca-bit-plane">${n}</td>
-      <td class="ca-bit-plane">
-        <input type="checkbox" id="ca-show-plane-${n}" class="ca-bit-plane-cb">
-        <label for="ca-show-plane-${n}"></label>
+const bitPlanesOptions = {
+  meta: ca.cells.curr.bitPlanesList,
+  row: r =>
+    `<tr>
+      <td class="center">${r}</td>
+      <td class="center">
+        <input type="checkbox" id="ca-show-plane-${r}" class="ca-bit-plane-cb">
+        <label for="ca-show-plane-${r}"></label>
       </td>
-    </tr>
-    `).join('')}
-  </table>`;
+    </tr>`
+}
 
-const sizesMeta = [
-  { name: 'xSize',      label: 'Field width',  min: X_SIZE_MIN,      max: X_SIZE_MAX, classes: [ 'ca-start-disable' ] },
-  { name: 'ySize',      label: 'Field height', min: Y_SIZE_MIN,      max: Y_SIZE_MAX, classes: [ 'ca-start-disable' ] },
-  { name: 'cellSide',   label: 'Cell side',    min: CELL_SIDE_MIN,   max: CELL_SIDE_MAX },
-  { name: 'cellBorder', label: 'Cell border',  min: CELL_BORDER_MIN, max: CELL_BORDER_MAX }
-];
+const sizesOptions = {
+  meta: [
+    { name: 'xSize',      label: 'Field width',  spinner: { min: X_SIZE_MIN,      max: X_SIZE_MAX }, classes: 'ca-start-disable' },
+    { name: 'ySize',      label: 'Field height', spinner: { min: Y_SIZE_MIN,      max: Y_SIZE_MAX }, classes: 'ca-start-disable' },
+    { name: 'cellSide',   label: 'Cell side',    spinner: { min: CELL_SIDE_MIN,   max: CELL_SIDE_MAX } },
+    { name: 'cellBorder', label: 'Cell border',  spinner: { min: CELL_BORDER_MIN, max: CELL_BORDER_MAX } }
+  ],
+  row: r =>
+    `<tr>
+      <td>${r.label}</td>
+      <td>
+        <input name="${r.name}" type="text" class="${r.classes || ''}">
+      </td>
+    </tr>`
+};
 
 
 export default {
@@ -40,14 +48,6 @@ export default {
 <div id="ca-field" title="Cells field">
   <fieldset id="ca-field-sizes">
     <legend>Sizes</legend>
-    <table class="ca-options-table">
-    ${sizesMeta.map(n => `
-      <tr>
-        <td>${n.label}</td>
-        <td><input name="${n.name}" type="text" class="${(n.classes || []).join('')}"></td>
-      </tr>
-    `).join('')}
-    </table>
   </fieldset>
   <fieldset id="ca-field-planes">
     <legend>Show bit planes</legend>
@@ -58,22 +58,18 @@ export default {
   create() {
     const $this = $(this);
 
-    sizesMeta.forEach(n => $this.find(`[name="${n.name}"]`).spinner({
-      min: n.min,
-      max: n.max,
-      step: 1
-    }).filter('.ca-start-disable').closest('td').find('.ui-button').addClass('ca-start-disable'));
+    $this
+      .find('#ca-field-sizes').append($('<table />').settingsTable(sizesOptions))
+      .find('.ca-start-disable').closest('td').find('.ui-button').addClass('ca-start-disable');
 
     $this
-      .find('#ca-field-planes').append(bitPlanesListTemplate(ca.cells.curr.bitPlanesList))
+      .find('#ca-field-planes').append($('<table />').settingsTable(bitPlanesOptions))
       .find('.ca-bit-plane-cb').checkboxradio().attr('checked', 'checked').change();
   },
   open() {
-    const
-      $this = $(this),
-      sizes = ca.sizes();
+    const $this = $(this);
 
-    sizesMeta.forEach(n => $this.find(`[name="${n.name}"]`).val(sizes[n.name]));
+    $this.find('#ca-field-sizes table').settingsTable('set', ca.sizes());
 
     $this.find('.ca-bit-plane-cb').each(function(i) {
       this.checked = !!(ca.view.showBitPlanes & (1 << i));
@@ -82,14 +78,6 @@ export default {
   ok() {
     ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce((planes, cb, i) => planes | (cb.checked << i), 0);
 
-    const sizes = {};
-    sizesMeta.forEach(n => {
-      const $el = this.find(`[name="${n.name}"]`);
-      if (!$el.hasClass('ui-state-disabled')) {
-        sizes[n.name] = $el.val() | 0;
-      }
-    });
-
-    ca.resize(sizes);
+    ca.resize(this.find('#ca-field-sizes table').settingsTable('get'));
   }
 };

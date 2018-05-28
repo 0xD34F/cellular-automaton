@@ -22,6 +22,7 @@ import config from 'config';
 import { limitation } from 'utils';
 
 import './input-with-button/';
+import './settings-table/';
 
 import dialogs from './dialogs/';
 import cellFieldModeSwitch from './cell-field-mode';
