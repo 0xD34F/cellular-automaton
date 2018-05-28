@@ -75,11 +75,12 @@ $(document).ready(function() {
 
   $('#skip').inputWithButton({
     icon: 'ui-icon-seek-next',
+    title: 'Skip generations',
     value: config.SKIP_GENERATIONS_MIN,
     click() {
-      ca.newGeneration($(this).inputWithButton('value'));
+      ca.newGeneration(this.val());
     }
-  }).find('input').width(50).on('input', function() {
+  }).width(50).on('input', function() {
     const
       $this = $(this),
       val = parseInt($this.val(), 10);

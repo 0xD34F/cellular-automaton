@@ -8,7 +8,7 @@ export default {
   template: `
 <div id="ca-rule" title="Rule">
   <div class="controls">
-    <div id="ca-rule-name"></div>
+    <input id="ca-rule-name">
     <button id="ca-rule-save" title="Save rule into localStorage">
       <span class="ui-icon ui-icon-disk"></span>
     </button>
@@ -27,9 +27,9 @@ export default {
       title: 'Clear rule name',
       placeholder: 'enter rule name...',
       click() {
-        $(this).inputWithButton('value', '');
+        this.val('');
       }
-    }).find('input').autocomplete({
+    }).autocomplete({
       source(request, response) {
         var term = request.term.toLowerCase();
 
@@ -56,10 +56,10 @@ export default {
     };
 
     $this.find('#ca-rule-save').button().click(function() {
-      var result = CA.Rules.save($('#ca-rule-name').inputWithButton('value'), $('#ca-rule-code').val());
+      var result = CA.Rules.save($('#ca-rule-name').val(), $('#ca-rule-code').val());
       toastr[result.status ? 'success' : 'error'](result.message);
     }).end().find('#ca-rule-delete').button().click(function() {
-      var result = CA.Rules.del($('#ca-rule-name').inputWithButton('value'));
+      var result = CA.Rules.del($('#ca-rule-name').val());
       toastr[result.status ? 'success' : 'error'](result.message);
     });
 
