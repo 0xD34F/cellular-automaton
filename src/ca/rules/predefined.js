@@ -35,7 +35,7 @@
     }
 });
 
-view.setColors([ '000000', 'FF0000', '00FF00' ], true);
+view.setColors([ '000000', 'FF0000', '00FF00' ]);
 
 makeTable(function(n) {
     var fire = 1 & (n.north | n.south | n.west | n.east | n.n_west | n.n_east | n.s_west | n.s_east),
@@ -112,7 +112,7 @@ makeTable(function(n) {
     code:
 `setNeighborhoods('Moore-thick');
 
-view.setColors([ '000000', 'FF0000', '00FF00', 'FFFF00' ], true);
+view.setColors([ '000000', 'FF0000', '00FF00', 'FFFF00' ]);
 
 var ruleID = 260480,
     p0 = rules.totalistic2d9(ruleID, 0),
@@ -186,7 +186,7 @@ makeTable(function(n) {
 `setNeighborhoods('Margolus');
 
 on.beforeNewGeneration = function() {
-    view.setColors(this.time & 1 ? [ '000000', 'FFFFFF' ] : [ 'FFFFFF', '000000' ]);
+    view.setColors(this.time & 1 ? [ '000000', 'FFFFFF' ] : [ 'FFFFFF', '000000' ], true);
 };
 
 makeTable(function(n) {
@@ -235,7 +235,7 @@ makeTable(function(n) {
 }, {
     name: 'Cyclic',
     code:
-`view.setColors(utils.gradient('#FF0000', '#FFFF00', 16), true);
+`view.setColors(utils.gradient('#FF0000', '#FFFF00', 16));
 
 main = function(n) {
     var t = (n.center + 1) & 15,

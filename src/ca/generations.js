@@ -136,7 +136,7 @@ export default class Generations {
     }
     set rule(code) {
         Object.assign(this, defaultOptions());
-        this.view.setColors(null, true);
+        this.view.setColors(null);
         this.setNeighborhoods();
 
         let

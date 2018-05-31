@@ -46,7 +46,7 @@ export default {
   },
   open() {
     brushField.copy(ca.view.brush);
-    brush.setColors(ca.view.colors, true);
+    brush.setColors(ca.view.colors);
 
     $(this).find('.ca-state-select').html(colorSelectTemplate($.map(brush.colors, function(n, i) {
       return isNaN(i) ? null : {

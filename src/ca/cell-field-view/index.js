@@ -214,7 +214,7 @@ export default class CellFieldView {
       elem[`on${eventName}`] = eh.handler.bind(this);
     }));
 
-    this.setColors(null);
+    this.setColors(null, true);
     this.resize();
 
     this.mode = 'edit';
@@ -341,7 +341,7 @@ export default class CellFieldView {
     this.render();
   }
 
-  setColors(colors, forceRender) {
+  setColors(colors, noRender) {
     const
       props = _props.get(this),
       oldColors = props.colors || defaultColors,
@@ -363,7 +363,7 @@ export default class CellFieldView {
     props.colors = newColors;
     props.colorsForRender = colorsForRender;
 
-    if (forceRender) {
+    if (!noRender) {
       this.render();
     }
   }
