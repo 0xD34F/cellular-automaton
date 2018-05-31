@@ -71,7 +71,26 @@ $(document).ready(function() {
 
 
   $('#save-as-image').click(function() {
-    ca.view.download();
+    /*
+     * отдельный canvas - чтобы результирующее изображение содержало
+     * только данные из view.imageData; актуально для случаев, когда
+     * размеры view.imageData меньше, чем размеры wrapper'а
+     */
+    const
+      canvas = document.createElement('canvas'),
+      ctx = canvas.getContext('2d'),
+      image = ca.view.imageData;
+
+    canvas.width = image.width;
+    canvas.height = image.height;
+    ctx.putImageData(image, 0, 0);
+
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL();
+    a.download = `${Date.now().toString()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
   });
 
   $('#skip').inputWithButton({

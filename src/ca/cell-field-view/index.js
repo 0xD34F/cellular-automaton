@@ -443,24 +443,4 @@ export default class CellFieldView {
             return componentsFrom.map((m, j) => ((m - i * componentsItems[j]) | 0).toString(16).padStart(2, '0')).join('');
         });
     }
-
-    download(filename = `${Date.now().toString()}.png`) {
-        /*
-         * отдельный canvas - чтобы результирующее изображение содержало
-         * только данные из this.imageData; актуально для случаев, когда
-         * размеры this.imageData меньше, чем размеры wrapper'а
-         */
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        canvas.width = this.imageData.width;
-        canvas.height = this.imageData.height;
-        ctx.putImageData(this.imageData, 0, 0);
-
-        var a = document.createElement('a');
-        a.href = canvas.toDataURL();
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-    }
 }
