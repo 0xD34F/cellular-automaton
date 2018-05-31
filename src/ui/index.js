@@ -60,7 +60,9 @@ $(document).ready(function() {
 
   $('.toolbar').buttonset();
 
-  $('.content > .controls')
+  $('.content')
+    .append(ca.view.wrapper)
+    .find(' > .controls')
     .find('button').button().end()
     .on('click.ca-dialog', '[data-dialog]', function() {
       $(`#${$(this).attr('data-dialog')}`).confirmDialog('open');

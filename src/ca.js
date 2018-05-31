@@ -2,12 +2,15 @@ import config from 'config';
 import * as CA from './ca/';
 
 
+const wrapper = document.createElement('div');
+wrapper.classList.add('cells-field-wrapper', 'scrollable');
+
 const ca = new CA.CellularAutomaton({
   xSize: config.DEFAULT_X_SIZE,
   ySize: config.DEFAULT_Y_SIZE,
   ruleName: config.DEFAULT_RULE,
   view: {
-    wrapper: '#cells-wrapper',
+    wrapper,
     zoom: {
       min: config.CELL_SIDE_MIN,
       max: config.CELL_SIDE_MAX
