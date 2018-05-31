@@ -215,7 +215,7 @@ export default class CellFieldView {
     }));
 
     this.setColors(null, true);
-    this.resize();
+    this.refresh();
 
     this.mode = 'edit';
   }
@@ -299,16 +299,21 @@ export default class CellFieldView {
   }
 
   resize(cellSide = _props.get(this).cellSide, cellBorder = _props.get(this).cellBorder || 0) {
-    if (isNaN(cellSide) || cellSide < 1) {
-      return;
-    }
+    Object.assign(_props.get(this), {
+      cellSide: Math.max(1, cellSide | 0),
+      cellBorder: Math.max(0, cellBorder | 0)
+    });
 
+    this.refresh();
+  }
+
+  refresh() {
     const
       props = _props.get(this),
       canvas = props.canvas,
       context = props.context = canvas.getContext('2d'),
-      side = props.cellSide = cellSide,
-      border = props.cellBorder = cellBorder,
+      side = props.cellSide,
+      border = props.cellBorder,
       sideFull = side + border,
       size = this[_getFullSize](),
       isScroll = !!props.wrapperScroll,
@@ -333,8 +338,8 @@ export default class CellFieldView {
 
     props.buf32.fill(props.colorsForRender.background);
 
-    if (!renderFunctions.hasOwnProperty(cellSide) && cellSide <= config.MAX_CELL_SIDE_WITH_OWN_RENDER) {
-      renderFunctions[cellSide] = cellFieldRenderFunction(cellRenderCode(cellSide));
+    if (!renderFunctions.hasOwnProperty(side) && side <= config.MAX_CELL_SIDE_WITH_OWN_RENDER) {
+      renderFunctions[side] = cellFieldRenderFunction(cellRenderCode(side));
     }
 
     this[_scrollFix]();

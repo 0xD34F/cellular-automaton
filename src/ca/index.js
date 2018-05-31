@@ -106,12 +106,12 @@ class CellularAutomaton {
     rotateClockwise() {
         this.cells.curr.rotateClockwise();
         this.cells.next.conform(this.cells.curr);
-        this.view.resize();
+        this.view.refresh();
     }
     rotateCounterclockwise() {
         this.cells.curr.rotateCounterclockwise();
         this.cells.next.conform(this.cells.curr);
-        this.view.resize();
+        this.view.refresh();
     }
 
     start() {
@@ -158,7 +158,7 @@ class CellularAutomaton {
         if (this.history.data) {
             this.stop();
             this.history.back();
-            this.view.resize();
+            this.view.refresh();
         }
     }
 }

@@ -6,7 +6,7 @@ import './main.scss';
 
 
 $(window).on('resize', function() {
-  ca.view.resize();
+  ca.view.refresh();
 });
 
 $(document).ready(function() {
@@ -14,5 +14,5 @@ $(document).ready(function() {
 
   $('.ui-helper-hidden').removeClass('ui-helper-hidden');
 
-  ca.view.resize();
+  ca.view.refresh();
 });
