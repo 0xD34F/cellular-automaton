@@ -15,6 +15,13 @@ const zoom = {
   out: -1
 };
 
+const
+  _changeZoom = Symbol(),
+  _getFullSize = Symbol(),
+  _detectEventCoord = Symbol(),
+  _detectViewCoord = Symbol(),
+  _scrollFix = Symbol();
+
 const eventHandlers = [ {
   events: [ 'contextmenu' ],
   handler(e) {
@@ -37,7 +44,7 @@ const eventHandlers = [ {
 
     const
       oldCoord = this.oldEventCoord || {},
-      newCoord = detectEventCoord(this, e);
+      newCoord = this[_detectEventCoord](e);
 
     if (newCoord.x === oldCoord.x && newCoord.y === oldCoord.y) {
       return;
@@ -52,7 +59,7 @@ const eventHandlers = [ {
   wrapper: true,
   events: [ 'scroll' ],
   handler(e) {
-    scrollFix(this);
+    this[_scrollFix]();
     this.render();
   }
 }, {
@@ -62,7 +69,7 @@ const eventHandlers = [ {
     e.preventDefault();
     e.stopPropagation();
 
-    changeZoom(this, e.deltaY > 0 ? zoom.out : zoom.in, detectEventCoord(this, e));
+    this[_changeZoom](e.deltaY > 0 ? zoom.out : zoom.in, this[_detectEventCoord](e));
   }
 } ];
 
@@ -109,7 +116,7 @@ const userActions = {
     events: [ 'mousedown' ],
     handler(e, newCoord, oldCoord) {
       const subMode = this.mode.split('.')[1] === 'in';
-      changeZoom(this, ({
+      this[_changeZoom](({
         [mouseButtons.left]:  subMode ? zoom.in  : zoom.out,
         [mouseButtons.right]: subMode ? zoom.out : zoom.in
       })[e.buttons] || 0, newCoord);
@@ -117,109 +124,6 @@ const userActions = {
   }
 };
 
-
-function changeZoom(view, change, coord) {
-  if (!view.zoom) {
-    return;
-  }
-
-  const
-    oldCellSide = view.cellSide,
-    newCellSide = limitation(oldCellSide + change, view.zoom.min, view.zoom.max);
-
-  if (oldCellSide !== newCellSide) {
-    const
-      w = view.wrapper,
-      oldScrollX = w.scrollLeft,
-      oldScrollY = w.scrollTop;
-
-    let
-      newScrollX = coord.x * (newCellSide - oldCellSide) + oldScrollX,
-      newScrollY = coord.y * (newCellSide - oldCellSide) + oldScrollY,
-      fixScrollX = 0,
-      fixScrollY = 0;
-
-    view.resize(newCellSide);
-
-    const
-      maxScrollX = w.scrollWidth - w.clientWidth,
-      maxScrollY = w.scrollHeight - w.clientHeight;
-
-    if (newScrollX < 0) {
-      fixScrollX = Math.round(newScrollX / (newCellSide + view.cellBorder));
-      newScrollX = 0;
-    }
-    if (newScrollX > maxScrollX) {
-      fixScrollX = Math.round((newScrollX - maxScrollX) / (newCellSide + view.cellBorder));
-      newScrollX = maxScrollX;
-    }
-    if (newScrollY < 0) {
-      fixScrollY = Math.round(newScrollY / (newCellSide + view.cellBorder));
-      newScrollY = 0;
-    }
-    if (newScrollY > maxScrollY) {
-      fixScrollY = Math.round((newScrollY - maxScrollY) / (newCellSide + view.cellBorder));
-      newScrollY = maxScrollY;
-    }
-
-    w.scrollLeft = newScrollX;
-    w.scrollTop  = newScrollY;
-
-    if (fixScrollX || fixScrollY) {
-      view.field.shift(fixScrollX, fixScrollY);
-      view.render();
-    }
-  }
-}
-
-function getFullSize(view) {
-  const
-    f = view.field,
-    b = view.cellBorder,
-    s = view.cellSide + b;
-
-  return {
-    width:  f.xSize * s + b,
-    height: f.ySize * s + b
-  };
-}
-
-// левый верхний угол canvas'а совпадает с левым верхним углом клетки (если возможно)
-function scrollFix(view) {
-  const
-    s = view.cellSide + view.cellBorder,
-    w = view.wrapper,
-    size = getFullSize(view);
-
-  w.scrollLeft = Math.min(Math.round(w.scrollLeft / s) * s, size.width  - w.clientWidth);
-  w.scrollTop  = Math.min(Math.round(w.scrollTop  / s) * s, size.height - w.clientHeight);
-}
-
-function detectEventCoord(view, e) {
-  const
-    b = view.cellBorder,
-    t = Math.round(b / 2),
-    w = view.wrapper;
-
-  return {
-    x: Math.floor((e.offsetX + w.scrollLeft - t) / (view.cellSide + b)),
-    y: Math.floor((e.offsetY + w.scrollTop  - t) / (view.cellSide + b))
-  };
-}
-
-function detectViewCoord(view) {
-  const
-    w = view.wrapper,
-    t = w.classList.contains('scrollable'),
-    s = view.cellSide + view.cellBorder;
-
-  return {
-    x: t ? Math.floor(w.scrollLeft / s) : 0,
-    y: t ? Math.floor(w.scrollTop  / s) : 0,
-    xSize: t ? Math.ceil(view.imageData.width  / s) : view.field.xSize,
-    ySize: t ? Math.ceil(view.imageData.height / s) : view.field.ySize
-  };
-}
 
 const limit = limitation;
 
@@ -232,7 +136,7 @@ const limit = limitation;
 const cellFieldRenderFunction = cellRenderCode => eval(`
 (function() {
   var
-    coord = detectViewCoord(this),
+    coord = this[_detectViewCoord](),
     mask = this.showBitPlanes,
     cells = this.field.data,
     maxX = limit(coord.x + coord.xSize, 0, this.field.xSize),
@@ -293,7 +197,7 @@ export default class CellFieldView {
       o.wrapperScroll.classList.add('cells-field-wrapper-scroll');
       o.wrapper.appendChild(o.wrapperScroll);
     } else {
-      const size = getFullSize(o);
+      const size = o[_getFullSize]();
       o.wrapper.style.width = `${size.width}px`;
       o.wrapper.style.height = `${size.height}px`;
     }
@@ -371,7 +275,7 @@ export default class CellFieldView {
       side = this.cellSide = cellSide,
       border = this.cellBorder = cellBorder,
       sideFull = side + border,
-      size = getFullSize(this),
+      size = this[_getFullSize](),
       isScroll = !!this.wrapperScroll,
       width = isScroll ? (this.wrapper.clientWidth || 1) : size.width,
       height = isScroll ? (this.wrapper.clientHeight || 1) : size.height;
@@ -398,7 +302,7 @@ export default class CellFieldView {
       renderFunctions[cellSide] = cellFieldRenderFunction(cellRenderCode(cellSide));
     }
 
-    scrollFix(this);
+    this[_scrollFix]();
     this.render();
   }
 
@@ -426,6 +330,109 @@ export default class CellFieldView {
     if (forceRender && this.canvas) {
       this.render();
     }
+  }
+
+  [_changeZoom](change, coord) {
+    if (!this.zoom) {
+      return;
+    }
+
+    const
+      oldCellSide = this.cellSide,
+      newCellSide = limitation(oldCellSide + change, this.zoom.min, this.zoom.max);
+
+    if (oldCellSide !== newCellSide) {
+      const
+        w = this.wrapper,
+        oldScrollX = w.scrollLeft,
+        oldScrollY = w.scrollTop;
+
+      let
+        newScrollX = coord.x * (newCellSide - oldCellSide) + oldScrollX,
+        newScrollY = coord.y * (newCellSide - oldCellSide) + oldScrollY,
+        fixScrollX = 0,
+        fixScrollY = 0;
+
+      this.resize(newCellSide);
+
+      const
+        maxScrollX = w.scrollWidth - w.clientWidth,
+        maxScrollY = w.scrollHeight - w.clientHeight;
+
+      if (newScrollX < 0) {
+        fixScrollX = Math.round(newScrollX / (newCellSide + this.cellBorder));
+        newScrollX = 0;
+      }
+      if (newScrollX > maxScrollX) {
+        fixScrollX = Math.round((newScrollX - maxScrollX) / (newCellSide + this.cellBorder));
+        newScrollX = maxScrollX;
+      }
+      if (newScrollY < 0) {
+        fixScrollY = Math.round(newScrollY / (newCellSide + this.cellBorder));
+        newScrollY = 0;
+      }
+      if (newScrollY > maxScrollY) {
+        fixScrollY = Math.round((newScrollY - maxScrollY) / (newCellSide + this.cellBorder));
+        newScrollY = maxScrollY;
+      }
+
+      w.scrollLeft = newScrollX;
+      w.scrollTop  = newScrollY;
+
+      if (fixScrollX || fixScrollY) {
+        this.field.shift(fixScrollX, fixScrollY);
+        this.render();
+      }
+    }
+  }
+
+  [_getFullSize]() {
+    const
+      f = this.field,
+      b = this.cellBorder,
+      s = this.cellSide + b;
+
+    return {
+      width:  f.xSize * s + b,
+      height: f.ySize * s + b
+    };
+  }
+
+  // левый верхний угол canvas'а совпадает с левым верхним углом клетки (если возможно)
+  [_scrollFix]() {
+    const
+      s = this.cellSide + this.cellBorder,
+      w = this.wrapper,
+      size = this[_getFullSize]();
+
+    w.scrollLeft = Math.min(Math.round(w.scrollLeft / s) * s, size.width  - w.clientWidth);
+    w.scrollTop  = Math.min(Math.round(w.scrollTop  / s) * s, size.height - w.clientHeight);
+  }
+
+  [_detectEventCoord](e) {
+    const
+      b = this.cellBorder,
+      t = Math.round(b / 2),
+      w = this.wrapper;
+
+    return {
+      x: Math.floor((e.offsetX + w.scrollLeft - t) / (this.cellSide + b)),
+      y: Math.floor((e.offsetY + w.scrollTop  - t) / (this.cellSide + b))
+    };
+  }
+
+  [_detectViewCoord]() {
+    const
+      w = this.wrapper,
+      t = w.classList.contains('scrollable'),
+      s = this.cellSide + this.cellBorder;
+
+    return {
+      x: t ? Math.floor(w.scrollLeft / s) : 0,
+      y: t ? Math.floor(w.scrollTop  / s) : 0,
+      xSize: t ? Math.ceil(this.imageData.width  / s) : this.field.xSize,
+      ySize: t ? Math.ceil(this.imageData.height / s) : this.field.ySize
+    };
   }
 
 }
