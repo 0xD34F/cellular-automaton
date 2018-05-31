@@ -17,25 +17,25 @@ const zoom = {
 
 const eventHandlers = [ {
   events: [ 'contextmenu' ],
-  handler: function(e) {
+  handler(e) {
     // контекстное меню доступно при зажатом ctrl
     return e.ctrlKey;
   }
 }, {
   events: [ 'mouseup', 'mouseleave' ],
-  handler: function(e) {
+  handler(e) {
     this.oldEventCoord = {};
   }
 }, {
   events: [ 'mousedown', 'mousemove' ],
-  handler: function(e) {
+  handler(e) {
     e.preventDefault();
 
     if (![ mouseButtons.left, mouseButtons.right ].includes(e.buttons)) {
       return;
     }
 
-    var
+    const
       oldCoord = this.oldEventCoord || {},
       newCoord = detectEventCoord(this, e);
 
@@ -43,24 +43,22 @@ const eventHandlers = [ {
       return;
     }
 
-    var action = userActions[this.mode.split('.')[0]];
-    if (action.events.indexOf(e.type) !== -1 &&
-      action.handler.call(this, e, newCoord, oldCoord) !== false) {
-
+    const { events, handler } = userActions[this.mode.split('.')[0]];
+    if (events.includes(e.type) && handler.call(this, e, newCoord, oldCoord) !== false) {
       this.oldEventCoord = newCoord;
     }
   }
 }, {
   wrapper: true,
   events: [ 'scroll' ],
-  handler: function(e) {
+  handler(e) {
     scrollFix(this);
     this.render();
   }
 }, {
   wrapper: true,
   events: [ 'wheel' ],
-  handler: function(e) {
+  handler(e) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -71,10 +69,9 @@ const eventHandlers = [ {
 const userActions = {
   edit: {
     events: [ 'mousedown', 'mousemove' ],
-    handler: function(e, newCoord, oldCoord) {
-      var
-        x = newCoord.x,
-        y = newCoord.y,
+    handler(e, newCoord, oldCoord) {
+      let { x, y } = newCoord;
+      const
         f = this.field,
         fx = f.xSize,
         fy = f.ySize,
@@ -86,32 +83,32 @@ const userActions = {
         return false;
       }
 
-      var coord = getLineCoord(newCoord, { ...newCoord, ...oldCoord });
-      for (var i = 0; i < coord.length; i++) {
+      const coord = getLineCoord(newCoord, { ...newCoord, ...oldCoord });
+      for (let i = 0; i < coord.length; i++) {
         x = (coord[i].x - Math.floor(bx / 2) + fx) % fx;
         y = (coord[i].y - Math.floor(by / 2) + fy) % fy;
 
         f.copy(b, {
-          x: x,
-          y: y,
+          x,
+          y,
           skipZeros: true,
           setZeros: e.buttons === mouseButtons.right
         });
-        this.renderPartial({ x: x, y: y, xSize: bx, ySize: by });
+        this.renderPartial({ x, y, xSize: bx, ySize: by });
       }
     }
   },
   shift: {
     events: [ 'mousemove' ],
-    handler: function(e, newCoord, oldCoord) {
+    handler(e, newCoord, oldCoord) {
       this.field.shift(oldCoord.x - newCoord.x, oldCoord.y - newCoord.y);
       this.render();
     }
   },
   zoom: {
     events: [ 'mousedown' ],
-    handler: function(e, newCoord, oldCoord) {
-      var subMode = this.mode.split('.')[1] === 'in';
+    handler(e, newCoord, oldCoord) {
+      const subMode = this.mode.split('.')[1] === 'in';
       changeZoom(this, ({
         [mouseButtons.left]:  subMode ? zoom.in  : zoom.out,
         [mouseButtons.right]: subMode ? zoom.out : zoom.in
@@ -126,25 +123,27 @@ function changeZoom(view, change, coord) {
     return;
   }
 
-  var
+  const
     oldCellSide = view.cellSide,
     newCellSide = limitation(oldCellSide + change, view.zoom.min, view.zoom.max);
 
   if (oldCellSide !== newCellSide) {
-    var
+    const
       w = view.wrapper,
       oldScrollX = w.scrollLeft,
-      oldScrollY = w.scrollTop,
+      oldScrollY = w.scrollTop;
+
+    let
       newScrollX = coord.x * (newCellSide - oldCellSide) + oldScrollX,
-      newScrollY = coord.y * (newCellSide - oldCellSide) + oldScrollY;
+      newScrollY = coord.y * (newCellSide - oldCellSide) + oldScrollY,
+      fixScrollX = 0,
+      fixScrollY = 0;
 
     view.resize(newCellSide);
 
-    var
+    const
       maxScrollX = w.scrollWidth - w.clientWidth,
-      maxScrollY = w.scrollHeight - w.clientHeight,
-      fixScrollX = 0,
-      fixScrollY = 0;
+      maxScrollY = w.scrollHeight - w.clientHeight;
 
     if (newScrollX < 0) {
       fixScrollX = Math.round(newScrollX / (newCellSide + view.cellBorder));
@@ -174,7 +173,7 @@ function changeZoom(view, change, coord) {
 }
 
 function getFullSize(view) {
-  var
+  const
     f = view.field,
     b = view.cellBorder,
     s = view.cellSide + b;
@@ -187,7 +186,7 @@ function getFullSize(view) {
 
 // левый верхний угол canvas'а совпадает с левым верхним углом клетки (если возможно)
 function scrollFix(view) {
-  var
+  const
     s = view.cellSide + view.cellBorder,
     w = view.wrapper,
     size = getFullSize(view);
@@ -197,7 +196,7 @@ function scrollFix(view) {
 }
 
 function detectEventCoord(view, e) {
-  var
+  const
     b = view.cellBorder,
     t = Math.round(b / 2),
     w = view.wrapper;
@@ -209,7 +208,7 @@ function detectEventCoord(view, e) {
 }
 
 function detectViewCoord(view) {
-  var
+  const
     w = view.wrapper,
     t = w.classList.contains('scrollable'),
     s = view.cellSide + view.cellBorder;
@@ -290,7 +289,7 @@ function afterLoad(o) {
     o.wrapperScroll.classList.add('cells-field-wrapper-scroll');
     o.wrapper.appendChild(o.wrapperScroll);
   } else {
-    var size = getFullSize(o);
+    let size = getFullSize(o);
     o.wrapper.style.width = `${size.width}px`;
     o.wrapper.style.height = `${size.height}px`;
   }
@@ -300,7 +299,7 @@ function afterLoad(o) {
 
   eventHandlers.forEach(function(eh) {
     eh.events.forEach(function(eventName) {
-      var elem = eh.wrapper ? o.wrapper : o.canvas;
+      let elem = eh.wrapper ? o.wrapper : o.canvas;
       elem[`on${eventName}`] = eh.handler.bind(o);
     });
   });
@@ -346,7 +345,7 @@ export default class CellFieldView {
 
   @logExecutionTime('renderPartial')
   renderPartial(coord) {
-    var
+    const
       mask = this.showBitPlanes,
       cells = this.field.data,
       maxX = this.field.xSize,
@@ -358,12 +357,12 @@ export default class CellFieldView {
       fixY = border - this.wrapper.scrollTop,
       c = this.context;
 
-    for (var x = coord.x, i = 0; i < coord.xSize; i++, x++) {
+    for (let x = coord.x, i = 0; i < coord.xSize; i++, x++) {
       if (x === maxX) {
         x = 0;
       }
 
-      for (var y = coord.y, j = 0; j < coord.ySize; j++, y++) {
+      for (let y = coord.y, j = 0; j < coord.ySize; j++, y++) {
         if (y === maxY) {
           y = 0;
         }
@@ -384,7 +383,7 @@ export default class CellFieldView {
       return;
     }
 
-    var
+    const
       canvas = this.canvas,
       context = this.context = canvas.getContext('2d'),
       side = this.cellSide = cellSide,
@@ -422,15 +421,15 @@ export default class CellFieldView {
   }
 
   setColors(colors, forceRender) {
-    var
+    const
       oldColors = this.colors || defaultColors,
       newColors = {},
       colorsForRender = {};
 
     colors = Object.assign({}, oldColors, colors || defaultColors);
 
-    for (var i in defaultColors) {
-      var color = colors[i] || oldColors[i];
+    for (let i in defaultColors) {
+      let color = colors[i] || oldColors[i];
       if (color[0] !== '#') {
         color = `#${color}`;
       }
