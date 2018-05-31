@@ -19,6 +19,16 @@ function transformColor(color) {
     return (parseInt(color.slice(5) + color.slice(3, 5) + color.slice(1, 3), 16)) | (0xFF << 24);
 }
 
+function gradient(from, to, numSteps) {
+    var componentsFrom = getColorComponents(from),
+        componentsTo = getColorComponents(to),
+        componentsItems = componentsFrom.map((n, i) => (n - componentsTo[i]) / (numSteps - 1));
+
+    return [...Array(numSteps)].map((n, i) => {
+        return componentsFrom.map((m, j) => ((m - i * componentsItems[j]) | 0).toString(16).padStart(2, '0')).join('');
+    });
+}
+
 function getLineCoord(p0, p1) {
     var x = p0.x,
         y = p0.y,
@@ -68,4 +78,4 @@ function logExecutionTime(message) {
     };
 }
 
-export { rotateArray, limitation, bitMask, getColorComponents, transformColor, getLineCoord, logExecutionTime };
+export { rotateArray, limitation, bitMask, getColorComponents, transformColor, gradient, getLineCoord, logExecutionTime };

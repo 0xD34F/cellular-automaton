@@ -1,4 +1,4 @@
-﻿import { bitMask, logExecutionTime } from 'utils';
+﻿import { bitMask, logExecutionTime, gradient } from 'utils';
 import Rules from './rules/';
 import neighborhood from './neighborhood';
 
@@ -128,6 +128,7 @@ export default class Generations {
         this.CAB = new Compiler(2, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] &  3) << 2' } ] });
 
         this.rules = Rules;
+        this.utils = { gradient };
     }
 
     get rule() {
@@ -139,7 +140,7 @@ export default class Generations {
         this.setNeighborhoods();
 
         let
-            { view, rules, setNeighborhoods, makeTable, on, main } = this,
+            { view, rules, utils, setNeighborhoods, makeTable, on, main } = this,
             cells = this.cells.curr;
 
         eval(code);

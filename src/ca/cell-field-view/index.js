@@ -1,4 +1,4 @@
-﻿import { limitation, bitMask, getColorComponents, transformColor, getLineCoord, logExecutionTime } from 'utils';
+﻿import { limitation, bitMask, transformColor, getLineCoord, logExecutionTime } from 'utils';
 import config from 'config';
 import './style.scss';
 
@@ -432,15 +432,5 @@ export default class CellFieldView {
         if (forceRender && this.canvas) {
             this.render();
         }
-    }
-
-    gradient(from, to, items = this.field.numCellStates) {
-        var componentsFrom = getColorComponents(from),
-            componentsTo = getColorComponents(to),
-            componentsItems = componentsFrom.map((n, i) => (n - componentsTo[i]) / (items - 1));
-
-        return [...Array(items)].map((n, i) => {
-            return componentsFrom.map((m, j) => ((m - i * componentsItems[j]) | 0).toString(16).padStart(2, '0')).join('');
-        });
     }
 }
