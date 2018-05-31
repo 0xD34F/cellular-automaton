@@ -61,7 +61,7 @@ $(document).ready(function() {
   $('.toolbar').buttonset();
 
   $('.content')
-    .append(ca.view.wrapper)
+    .append(ca.view.element)
     .find(' > .controls')
     .find('button').button().end()
     .on('click.ca-dialog', '[data-dialog]', function() {

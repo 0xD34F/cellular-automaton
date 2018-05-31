@@ -15,6 +15,8 @@ const zoom = {
   out: -1
 };
 
+const _props = new WeakMap();
+
 const
   _changeZoom = Symbol(),
   _getFullSize = Symbol(),
@@ -31,7 +33,7 @@ const eventHandlers = [ {
 }, {
   events: [ 'mouseup', 'mouseleave' ],
   handler(e) {
-    this.oldEventCoord = {};
+    _props.get(this).oldEventCoord = {};
   }
 }, {
   events: [ 'mousedown', 'mousemove' ],
@@ -43,7 +45,8 @@ const eventHandlers = [ {
     }
 
     const
-      oldCoord = this.oldEventCoord || {},
+      props = _props.get(this),
+      oldCoord = props.oldEventCoord || {},
       newCoord = this[_detectEventCoord](e);
 
     if (newCoord.x === oldCoord.x && newCoord.y === oldCoord.y) {
@@ -52,7 +55,7 @@ const eventHandlers = [ {
 
     const { events, handler } = userActions[this.mode.split('.')[0]];
     if (events.includes(e.type) && handler.call(this, e, newCoord, oldCoord) !== false) {
-      this.oldEventCoord = newCoord;
+      props.oldEventCoord = newCoord;
     }
   }
 }, {
@@ -79,10 +82,11 @@ const userActions = {
     handler(e, newCoord, oldCoord) {
       let { x, y } = newCoord;
       const
-        f = this.field,
+        p = _props.get(this),
+        f = p.field,
         fx = f.xSize,
         fy = f.ySize,
-        b = this.brush,
+        b = p.brush,
         bx = b.xSize,
         by = b.ySize;
 
@@ -108,7 +112,7 @@ const userActions = {
   shift: {
     events: [ 'mousemove' ],
     handler(e, newCoord, oldCoord) {
-      this.field.shift(oldCoord.x - newCoord.x, oldCoord.y - newCoord.y);
+      _props.get(this).field.shift(oldCoord.x - newCoord.x, oldCoord.y - newCoord.y);
       this.render();
     }
   },
@@ -125,8 +129,6 @@ const userActions = {
 };
 
 
-const limit = limitation;
-
 /*
  * собственные методы отрисовки под различные размеры клетки
  *
@@ -137,16 +139,17 @@ const cellFieldRenderFunction = cellRenderCode => eval(`
 (function() {
   var
     coord = this[_detectViewCoord](),
-    mask = this.showBitPlanes,
-    cells = this.field.data,
-    maxX = limit(coord.x + coord.xSize, 0, this.field.xSize),
-    maxY = limit(coord.y + coord.ySize, 0, this.field.ySize),
-    border = this.cellBorder,
-    side = this.cellSide,
+    props = _props.get(this),
+    mask = props.showBitPlanes,
+    cells = props.field.data,
+    maxX = Math.min(coord.x + coord.xSize, props.field.xSize),
+    maxY = Math.min(coord.y + coord.ySize, props.field.ySize),
+    border = props.cellBorder,
+    side = props.cellSide,
     sideFull = side + border,
-    image = this.buf32,
-    width = this.imageData.width,
-    colors = this.colorsForRender;
+    image = props.buf32,
+    width = props.imageData.width,
+    colors = props.colorsForRender;
 
   for (var i = 0, x = coord.x; x < maxX; x++, i++) {
     var column = cells[x];
@@ -158,11 +161,11 @@ const cellFieldRenderFunction = cellRenderCode => eval(`
     }
   }
 
-  this.imageData.data.set(this.buf8);
-  this.context.putImageData(
-    this.imageData,
-    -(this.wrapper.scrollLeft % sideFull),
-    -(this.wrapper.scrollTop % sideFull)
+  props.imageData.data.set(props.buf8);
+  props.context.putImageData(
+    props.imageData,
+    -(props.wrapper.scrollLeft % sideFull),
+    -(props.wrapper.scrollTop % sideFull)
   );
 })
 `);
@@ -184,64 +187,95 @@ const renderFunctions = {
 
 export default class CellFieldView {
 
-  constructor(options) {
-    const o = Object.assign(this, options);
+  constructor(props) {
+    const p = { ...props };
+    _props.set(this, p);
 
-    o.wrapper = o.wrapper instanceof HTMLElement ? o.wrapper : document.querySelector(o.wrapper);
-    o.cellSide = o.cellSide | 0;
-    o.cellBorder = o.cellBorder | 0;
-    o.showBitPlanes = isNaN(o.showBitPlanes) ? bitMask(o.field.numBitPlanes) : +o.showBitPlanes;
+    p.wrapper = p.wrapper instanceof HTMLElement ? p.wrapper : document.querySelector(p.wrapper);
+    p.cellSide = p.cellSide | 0;
+    p.cellBorder = p.cellBorder | 0;
+    p.showBitPlanes = isNaN(p.showBitPlanes) ? bitMask(p.field.numBitPlanes) : +p.showBitPlanes;
 
-    if (o.wrapper.classList.contains('scrollable')) {
-      o.wrapperScroll = document.createElement('div');
-      o.wrapperScroll.classList.add('cells-field-wrapper-scroll');
-      o.wrapper.appendChild(o.wrapperScroll);
+    if (p.wrapper.classList.contains('scrollable')) {
+      p.wrapperScroll = document.createElement('div');
+      p.wrapperScroll.classList.add('cells-field-wrapper-scroll');
+      p.wrapper.appendChild(p.wrapperScroll);
     } else {
-      const size = o[_getFullSize]();
-      o.wrapper.style.width = `${size.width}px`;
-      o.wrapper.style.height = `${size.height}px`;
+      const size = this[_getFullSize]();
+      p.wrapper.style.width = `${size.width}px`;
+      p.wrapper.style.height = `${size.height}px`;
     }
 
-    o.canvas = document.createElement('canvas');
-    o.wrapper.appendChild(o.canvas);
+    p.canvas = document.createElement('canvas');
+    p.wrapper.appendChild(p.canvas);
 
-    eventHandlers.forEach(function(eh) {
-      eh.events.forEach(function(eventName) {
-        const elem = eh.wrapper ? o.wrapper : o.canvas;
-        elem[`on${eventName}`] = eh.handler.bind(o);
-      });
-    });
+    eventHandlers.forEach(eh => eh.events.forEach(eventName => {
+      const elem = eh.wrapper ? p.wrapper : p.canvas;
+      elem[`on${eventName}`] = eh.handler.bind(this);
+    }));
 
-    o.setColors(null);
-    o.resize();
+    this.setColors(null);
+    this.resize();
 
-    o.mode = 'edit';
+    this.mode = 'edit';
+  }
+
+  get colors() {
+    return { ..._props.get(this).colors };
+  }
+
+  get element() {
+    return _props.get(this).wrapper;
+  }
+
+  get sizes() {
+    const { cellSide, cellBorder } = _props.get(this);
+    return { cellSide, cellBorder };
+  }
+
+  get brush() {
+    return _props.get(this).brush;
+  }
+
+  get imageData() {
+    const image = _props.get(this).imageData;
+    return new ImageData(new Uint8ClampedArray(image.data), image.width, image.height);
   }
 
   get mode() {
-    return this._mode;
+    return _props.get(this).mode;
   }
   set mode(value) {
-    this._mode = value;
-    this.canvas.setAttribute('data-mode', value);
+    const props = _props.get(this)
+    props.mode = value;
+    props.canvas.setAttribute('data-mode', value);
     document.dispatchEvent(new CustomEvent('cell-field-mode', {
       detail: this
     }));
   }
 
+  get showBitPlanes() {
+    return _props.get(this).showBitPlanes;
+  }
+  set showBitPlanes(value) {
+    const props = _props.get(this);
+    props.showBitPlanes = value & bitMask(props.field.numBitPlanes);
+  }
+
   @logExecutionTime('renderPartial')
   renderPartial(coord) {
     const
-      mask = this.showBitPlanes,
-      cells = this.field.data,
-      maxX = this.field.xSize,
-      maxY = this.field.ySize,
-      border = this.cellBorder,
-      side = this.cellSide,
+      props = _props.get(this),
+      mask = props.showBitPlanes,
+      cells = props.field.data,
+      maxX = props.field.xSize,
+      maxY = props.field.ySize,
+      border = props.cellBorder,
+      side = props.cellSide,
       sideFull = side + border,
-      fixX = border - this.wrapper.scrollLeft,
-      fixY = border - this.wrapper.scrollTop,
-      c = this.context;
+      fixX = border - props.wrapper.scrollLeft,
+      fixY = border - props.wrapper.scrollTop,
+      c = props.context;
 
     for (let x = coord.x, i = 0; i < coord.xSize; i++, x++) {
       if (x === maxX) {
@@ -253,7 +287,7 @@ export default class CellFieldView {
           y = 0;
         }
 
-        c.fillStyle = this.colors[cells[x][y] & mask];
+        c.fillStyle = props.colors[cells[x][y] & mask];
         c.fillRect(x * sideFull + fixX, y * sideFull + fixY, side, side);
       }
     }
@@ -261,42 +295,43 @@ export default class CellFieldView {
 
   @logExecutionTime('render')
   render() {
-    (renderFunctions[this.cellSide] || renderFunctions['default']).call(this);
+    (renderFunctions[_props.get(this).cellSide] || renderFunctions['default']).call(this);
   }
 
-  resize(cellSide = this.cellSide, cellBorder = this.cellBorder || 0) {
+  resize(cellSide = _props.get(this).cellSide, cellBorder = _props.get(this).cellBorder || 0) {
     if (isNaN(cellSide) || cellSide < 1) {
       return;
     }
 
     const
-      canvas = this.canvas,
-      context = this.context = canvas.getContext('2d'),
-      side = this.cellSide = cellSide,
-      border = this.cellBorder = cellBorder,
+      props = _props.get(this),
+      canvas = props.canvas,
+      context = props.context = canvas.getContext('2d'),
+      side = props.cellSide = cellSide,
+      border = props.cellBorder = cellBorder,
       sideFull = side + border,
       size = this[_getFullSize](),
-      isScroll = !!this.wrapperScroll,
-      width = isScroll ? (this.wrapper.clientWidth || 1) : size.width,
-      height = isScroll ? (this.wrapper.clientHeight || 1) : size.height;
+      isScroll = !!props.wrapperScroll,
+      width = isScroll ? (props.wrapper.clientWidth || 1) : size.width,
+      height = isScroll ? (props.wrapper.clientHeight || 1) : size.height;
 
     if (isScroll) {
-      this.wrapperScroll.style.width = `${Math.max(size.width, width)}px`;
-      this.wrapperScroll.style.height = `${Math.max(size.height, height)}px`;
+      props.wrapperScroll.style.width = `${Math.max(size.width, width)}px`;
+      props.wrapperScroll.style.height = `${Math.max(size.height, height)}px`;
     }
 
     canvas.width = context.width = width;
     canvas.height = context.height = height;
 
-    this.imageData = context.createImageData(
+    props.imageData = context.createImageData(
       Math.min(size.width, Math.ceil(width / sideFull) * sideFull),
       Math.min(size.height, Math.ceil(height / sideFull) * sideFull)
     );
-    this.imageBuff = new ArrayBuffer(this.imageData.data.length);
-    this.buf8 = new Uint8ClampedArray(this.imageBuff);
-    this.buf32 = new Uint32Array(this.imageBuff);
+    props.imageBuff = new ArrayBuffer(props.imageData.data.length);
+    props.buf8 = new Uint8ClampedArray(props.imageBuff);
+    props.buf32 = new Uint32Array(props.imageBuff);
 
-    this.buf32.fill(this.colorsForRender.background);
+    props.buf32.fill(props.colorsForRender.background);
 
     if (!renderFunctions.hasOwnProperty(cellSide) && cellSide <= config.MAX_CELL_SIDE_WITH_OWN_RENDER) {
       renderFunctions[cellSide] = cellFieldRenderFunction(cellRenderCode(cellSide));
@@ -308,7 +343,8 @@ export default class CellFieldView {
 
   setColors(colors, forceRender) {
     const
-      oldColors = this.colors || defaultColors,
+      props = _props.get(this),
+      oldColors = props.colors || defaultColors,
       newColors = {},
       colorsForRender = {};
 
@@ -324,26 +360,28 @@ export default class CellFieldView {
       colorsForRender[i] = transformColor(color);
     }
 
-    this.colors = newColors;
-    this.colorsForRender = colorsForRender;
+    props.colors = newColors;
+    props.colorsForRender = colorsForRender;
 
-    if (forceRender && this.canvas) {
+    if (forceRender) {
       this.render();
     }
   }
 
   [_changeZoom](change, coord) {
-    if (!this.zoom) {
+    const props = _props.get(this);
+
+    if (!props.zoom) {
       return;
     }
 
     const
-      oldCellSide = this.cellSide,
-      newCellSide = limitation(oldCellSide + change, this.zoom.min, this.zoom.max);
+      oldCellSide = props.cellSide,
+      newCellSide = limitation(oldCellSide + change, props.zoom.min, props.zoom.max);
 
     if (oldCellSide !== newCellSide) {
       const
-        w = this.wrapper,
+        w = props.wrapper,
         oldScrollX = w.scrollLeft,
         oldScrollY = w.scrollTop;
 
@@ -360,19 +398,19 @@ export default class CellFieldView {
         maxScrollY = w.scrollHeight - w.clientHeight;
 
       if (newScrollX < 0) {
-        fixScrollX = Math.round(newScrollX / (newCellSide + this.cellBorder));
+        fixScrollX = Math.round(newScrollX / (newCellSide + props.cellBorder));
         newScrollX = 0;
       }
       if (newScrollX > maxScrollX) {
-        fixScrollX = Math.round((newScrollX - maxScrollX) / (newCellSide + this.cellBorder));
+        fixScrollX = Math.round((newScrollX - maxScrollX) / (newCellSide + props.cellBorder));
         newScrollX = maxScrollX;
       }
       if (newScrollY < 0) {
-        fixScrollY = Math.round(newScrollY / (newCellSide + this.cellBorder));
+        fixScrollY = Math.round(newScrollY / (newCellSide + props.cellBorder));
         newScrollY = 0;
       }
       if (newScrollY > maxScrollY) {
-        fixScrollY = Math.round((newScrollY - maxScrollY) / (newCellSide + this.cellBorder));
+        fixScrollY = Math.round((newScrollY - maxScrollY) / (newCellSide + props.cellBorder));
         newScrollY = maxScrollY;
       }
 
@@ -380,7 +418,7 @@ export default class CellFieldView {
       w.scrollTop  = newScrollY;
 
       if (fixScrollX || fixScrollY) {
-        this.field.shift(fixScrollX, fixScrollY);
+        props.field.shift(fixScrollX, fixScrollY);
         this.render();
       }
     }
@@ -388,9 +426,10 @@ export default class CellFieldView {
 
   [_getFullSize]() {
     const
-      f = this.field,
-      b = this.cellBorder,
-      s = this.cellSide + b;
+      p = _props.get(this),
+      f = p.field,
+      b = p.cellBorder,
+      s = p.cellSide + b;
 
     return {
       width:  f.xSize * s + b,
@@ -401,8 +440,9 @@ export default class CellFieldView {
   // левый верхний угол canvas'а совпадает с левым верхним углом клетки (если возможно)
   [_scrollFix]() {
     const
-      s = this.cellSide + this.cellBorder,
-      w = this.wrapper,
+      p = _props.get(this),
+      s = p.cellSide + p.cellBorder,
+      w = p.wrapper,
       size = this[_getFullSize]();
 
     w.scrollLeft = Math.min(Math.round(w.scrollLeft / s) * s, size.width  - w.clientWidth);
@@ -411,27 +451,29 @@ export default class CellFieldView {
 
   [_detectEventCoord](e) {
     const
-      b = this.cellBorder,
+      p = _props.get(this),
+      b = p.cellBorder,
       t = Math.round(b / 2),
-      w = this.wrapper;
+      w = p.wrapper;
 
     return {
-      x: Math.floor((e.offsetX + w.scrollLeft - t) / (this.cellSide + b)),
-      y: Math.floor((e.offsetY + w.scrollTop  - t) / (this.cellSide + b))
+      x: Math.floor((e.offsetX + w.scrollLeft - t) / (p.cellSide + b)),
+      y: Math.floor((e.offsetY + w.scrollTop  - t) / (p.cellSide + b))
     };
   }
 
   [_detectViewCoord]() {
     const
-      w = this.wrapper,
+      p = _props.get(this),
+      w = p.wrapper,
       t = w.classList.contains('scrollable'),
-      s = this.cellSide + this.cellBorder;
+      s = p.cellSide + p.cellBorder;
 
     return {
       x: t ? Math.floor(w.scrollLeft / s) : 0,
       y: t ? Math.floor(w.scrollTop  / s) : 0,
-      xSize: t ? Math.ceil(this.imageData.width  / s) : this.field.xSize,
-      ySize: t ? Math.ceil(this.imageData.height / s) : this.field.ySize
+      xSize: t ? Math.ceil(p.imageData.width  / s) : p.field.xSize,
+      ySize: t ? Math.ceil(p.imageData.height / s) : p.field.ySize
     };
   }
 

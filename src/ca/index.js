@@ -38,12 +38,9 @@ class CellularAutomaton {
     }
 
     sizes() {
-        return {
-            xSize: this.cells.curr.xSize,
-            ySize: this.cells.curr.ySize,
-            cellSide: this.view.cellSide,
-            cellBorder: this.view.cellBorder
-        }
+        const { xSize, ySize } = this.cells.curr;
+
+        return { xSize, ySize, ...this.view.sizes };
     }
 
     resize(sizes = {}) {
