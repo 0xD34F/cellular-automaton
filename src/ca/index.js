@@ -37,23 +37,6 @@ class CellularAutomaton {
     this.generations.rule = options.ruleCode || Rules.get(options.ruleName || 'default');
   }
 
-  sizes() {
-    const { xSize, ySize } = this.cells.curr;
-
-    return { xSize, ySize, ...this.view.sizes };
-  }
-
-  resize(sizes = {}) {
-    if (!isNaN(sizes.xSize) && !isNaN(sizes.ySize)) {
-      if (this.cells.curr.xSize !== sizes.xSize || this.cells.curr.ySize !== sizes.ySize) {
-        this.cells.curr.resize(sizes.xSize, sizes.ySize);
-        this.cells.next.conform(this.cells.curr);
-      }
-    }
-
-    this.view.resize(sizes.cellSide, sizes.cellBorder);
-  }
-
   fill({ invert = [], random = {}, copy = {} } = {}) {
     this.cells.curr
       .invertBitPlane(invert)
@@ -76,6 +59,22 @@ class CellularAutomaton {
       this.generations.next(n);
       this.view.render();
     }
+  }
+
+  get sizes() {
+    const { xSize, ySize } = this.cells.curr;
+
+    return { xSize, ySize, ...this.view.sizes };
+  }
+  set sizes(sizes = {}) {
+    if (!isNaN(sizes.xSize) && !isNaN(sizes.ySize)) {
+      if (this.cells.curr.xSize !== sizes.xSize || this.cells.curr.ySize !== sizes.ySize) {
+        this.cells.curr.resize(sizes.xSize, sizes.ySize);
+        this.cells.next.conform(this.cells.curr);
+      }
+    }
+
+    this.view.resize(sizes.cellSide, sizes.cellBorder);
   }
 
   get generationsPerStep() {
