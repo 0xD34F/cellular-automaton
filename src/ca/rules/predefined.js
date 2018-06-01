@@ -243,4 +243,22 @@ main = function(n) {
 
     return s ? t : n.center;
 }`
-} ].map(n => ({ ...n, predefined: true }));
+}, {
+    name: 'Steppers',
+    code:
+`// https://habr.com/post/237629/
+
+setNeighborhoods('Moore-thick');
+view.setColors([ '#000000', '#27FFFF', '1C00FF' ]);
+
+makeTable(function(n) {
+    var _n = [ n.north, n.south, n.west, n.east, n.n_west, n.s_west, n.n_east, n.s_east ],
+        alive = _n.filter(c => c !== 0).length;
+
+    return [
+        (alive === 3 && _n.filter(c => c === 2).length > 1) ? 1 : 0,
+        2,
+        ([2, 3].includes(alive) && _n.filter(c => c === 1).length < 2) ? 2 : 0
+    ][n.center] || 0;
+});`
+}, ].map(n => ({ ...n, predefined: true }));
