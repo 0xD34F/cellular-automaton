@@ -6,39 +6,43 @@ import CellField from './cell-field';
 import CellFieldView from './cell-field-view/';
 import config from 'config';
 
-const defaultOptions = {
-  _intervalID: null,
-  _stepDuration: config.DEFAULT_STEP_DURATION,
-  _generationsPerStep: config.DEFAULT_GENERATIONS_PER_STEP
+const defaultProps = {
+  intervalID: null,
+  stepDuration: config.DEFAULT_STEP_DURATION,
+  generationsPerStep: config.DEFAULT_GENERATIONS_PER_STEP
 };
+
+const _props = new WeakMap();
+
 
 class CellularAutomaton {
   constructor(options) {
-    Object.assign(this, defaultOptions);
+    const props = { ...defaultProps };
+    _props.set(this, props);
 
-    this.cells = {
+    props.cells = {
       curr: new CellField(options.xSize, options.ySize)
     };
-    this.cells.next = this.cells.curr.clone();
-    this.cells.next._shift = this.cells.curr._shift; // чтобы не заниматься синхронизацией, просто сделаем объект смещения общим
+    props.cells.next = props.cells.curr.clone();
+    props.cells.next._shift = props.cells.curr._shift; // чтобы не заниматься синхронизацией, просто сделаем объект смещения общим
 
-    this.view = new CellFieldView({ ...options.view, field: this.cells.curr });
+    props.view = new CellFieldView({ ...options.view, field: props.cells.curr });
 
-    this.generations = new Generations({
-      cells: this.cells,
-      view: this.view
+    props.generations = new Generations({
+      cells: props.cells,
+      view: props.view
     });
 
-    this.history = new History({
-      cells: this.cells,
-      generations: this.generations
+    props.history = new History({
+      cells: props.cells,
+      generations: props.generations
     });
 
-    this.generations.rule = options.ruleCode || Rules.get(options.ruleName || 'default');
+    this.rule = options.ruleCode || Rules.get(options.ruleName || 'default');
   }
 
   fill({ invert = [], random = {}, copy = {} } = {}) {
-    this.cells.curr
+    this.cells
       .invertBitPlane(invert)
       .fillRandom(random)
       .copyBitPlane(copy);
@@ -46,87 +50,102 @@ class CellularAutomaton {
   }
 
   clear() {
-    this.cells.curr.fill(() => 0);
+    this.cells.fill(() => 0);
     this.view.render();
   }
 
   newGeneration(n) {
-    if (!this._intervalID) {
-      if (!this.history.data) {
-        this.history.save();
+    const props = _props.get(this);
+
+    if (!props.intervalID) {
+      if (!props.history.data) {
+        props.history.save();
       }
 
-      this.generations.next(n);
-      this.view.render();
+      props.generations.next(n);
+      props.view.render();
     }
   }
 
+  get cells() {
+    return _props.get(this).cells.curr;
+  }
+
+  get view() {
+    return _props.get(this).view;
+  }
+
   get sizes() {
-    const { xSize, ySize } = this.cells.curr;
+    const { xSize, ySize } = this.cells;
 
     return { xSize, ySize, ...this.view.sizes };
   }
   set sizes(sizes = {}) {
+    const props = _props.get(this);
+
     if (!isNaN(sizes.xSize) && !isNaN(sizes.ySize)) {
-      if (this.cells.curr.xSize !== sizes.xSize || this.cells.curr.ySize !== sizes.ySize) {
-        this.cells.curr.resize(sizes.xSize, sizes.ySize);
-        this.cells.next.conform(this.cells.curr);
+      if (props.cells.curr.xSize !== sizes.xSize || props.cells.curr.ySize !== sizes.ySize) {
+        props.cells.curr.resize(sizes.xSize, sizes.ySize);
+        props.cells.next.conform(props.cells.curr);
       }
     }
 
-    this.view.resize(sizes.cellSide, sizes.cellBorder);
+    props.view.resize(sizes.cellSide, sizes.cellBorder);
   }
 
   get generationsPerStep() {
-    return this._generationsPerStep;
+    return _props.get(this).generationsPerStep;
   }
   set generationsPerStep(value) {
-    this._generationsPerStep = limitation(value, config.GENERATIONS_PER_STEP_MIN, config.GENERATIONS_PER_STEP_MAX);
+    _props.get(this).generationsPerStep = limitation(value, config.GENERATIONS_PER_STEP_MIN, config.GENERATIONS_PER_STEP_MAX);
   }
 
   get stepDuration() {
-    return this._stepDuration;
+    return _props.get(this).stepDuration;
   }
   set stepDuration(value) {
-    this._stepDuration = limitation(value, config.STEP_DURATION_MIN, config.STEP_DURATION_MAX);
-    if (this._intervalID) {
+    const props = _props.get(this);
+    props.stepDuration = limitation(value, config.STEP_DURATION_MIN, config.STEP_DURATION_MAX);
+    if (props.intervalID) {
       this.stop();
       this.start();
     }
   }
 
   get rule() {
-    return this.generations.rule;
+    return _props.get(this).generations.rule;
   }
   set rule(code) {
-    this.generations.rule = code;
+    _props.get(this).generations.rule = code;
   }
 
   rotateClockwise() {
-    this.cells.curr.rotateClockwise();
-    this.cells.next.conform(this.cells.curr);
+    this.cells.rotateClockwise();
+    _props.get(this).cells.next.conform(this.cells);
     this.view.refresh();
   }
   rotateCounterclockwise() {
-    this.cells.curr.rotateCounterclockwise();
-    this.cells.next.conform(this.cells.curr);
+    this.cells.rotateCounterclockwise();
+    _props.get(this).cells.next.conform(this.cells);
     this.view.refresh();
   }
 
   start() {
-    if (this._intervalID) {
+    const props = _props.get(this);
+
+    if (props.intervalID) {
       return false;
     }
 
-    this._intervalID = setInterval(() => {
-      this.generations.next(this.generationsPerStep);
-      this.view.render();
-    }, this.stepDuration);
+    props.intervalID = setInterval(() => {
+      props.generations.next(props.generationsPerStep);
+      props.view.render();
+    }, props.stepDuration);
 
-    this.history.save();
+    props.history.save();
 
-    if (this.view.mode === 'edit') {
-      this.view.mode = 'shift';
+    if (props.view.mode === 'edit') {
+      props.view.mode = 'shift';
     }
 
     document.dispatchEvent(new CustomEvent('ca-start', {
@@ -137,14 +156,16 @@ class CellularAutomaton {
   }
 
   stop() {
-    if (!this._intervalID) {
+    const props = _props.get(this);
+
+    if (!props.intervalID) {
       return false;
     }
 
-    clearInterval(this._intervalID);
-    this._intervalID = null;
+    clearInterval(props.intervalID);
+    props.intervalID = null;
 
-    this.view.mode = 'edit';
+    props.view.mode = 'edit';
 
     document.dispatchEvent(new CustomEvent('ca-stop', {
       detail: this
@@ -154,9 +175,11 @@ class CellularAutomaton {
   }
 
   back() {
-    if (this.history.data) {
+    const { history } = _props.get(this);
+
+    if (history.data) {
       this.stop();
-      this.history.back();
+      history.back();
       this.view.refresh();
     }
   }

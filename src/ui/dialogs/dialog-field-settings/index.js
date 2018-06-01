@@ -15,7 +15,7 @@ const {
 } = config;
 
 const bitPlanesOptions = {
-  meta: ca.cells.curr.bitPlanesList,
+  meta: ca.cells.bitPlanesList,
   row: r =>
     `<tr>
       <td class="center">${r}</td>
