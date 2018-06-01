@@ -24,7 +24,6 @@ class CellularAutomaton {
       curr: new CellField(options.xSize, options.ySize)
     };
     props.cells.next = props.cells.curr.clone();
-    props.cells.next._shift = props.cells.curr._shift; // чтобы не заниматься синхронизацией, просто сделаем объект смещения общим
 
     props.view = new CellFieldView({ ...options.view, field: props.cells.curr });
 
