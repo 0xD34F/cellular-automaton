@@ -4,7 +4,7 @@ import './style.scss';
 
 
 const bitPlanesOptions = {
-  meta: ca.cells.curr.bitPlanesList,
+  meta: ca.cells.bitPlanesList,
   row: r =>
     `<tr data-bit-plane="${r}">
       <td class="center">${r}</td>
@@ -49,7 +49,7 @@ export default {
 </div>`,
   width: 480,
   create() {
-    const max = ca.cells.curr.randomFillDensityDescritization;
+    const max = ca.cells.randomFillDensityDescritization;
 
     $(this)
       .find('table').settingsTable(bitPlanesOptions)
@@ -89,7 +89,7 @@ export default {
 
       switch ($tr.find('.ca-filling-method').val()) {
         case 'invert': invert.push(plane); break;
-        case   'all1': random[plane] = ca.cells.curr.randomFillDensityDescritization; break;
+        case   'all1': random[plane] = ca.cells.randomFillDensityDescritization; break;
         case   'all0': random[plane] = 0; break;
         case 'random': random[plane] = $tr.find('.ca-filling-random input').val(); break;
         case   'copy': copy[plane] = $tr.find('.ca-filling-copy input').val(); break;

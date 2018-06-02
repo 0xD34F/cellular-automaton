@@ -15,7 +15,7 @@ const {
 } = config;
 
 const bitPlanesOptions = {
-  meta: ca.cells.curr.bitPlanesList,
+  meta: ca.cells.bitPlanesList,
   row: r =>
     `<tr>
       <td class="center">${r}</td>
@@ -69,7 +69,7 @@ export default {
   open() {
     const $this = $(this);
 
-    $this.find('#ca-field-sizes table').settingsTable('set', ca.sizes());
+    $this.find('#ca-field-sizes table').settingsTable('set', ca.sizes);
 
     $this.find('.ca-bit-plane-cb').each(function(i) {
       this.checked = !!(ca.view.showBitPlanes & (1 << i));
@@ -78,6 +78,6 @@ export default {
   ok() {
     ca.view.showBitPlanes = this.find('.ca-bit-plane-cb').toArray().reduce((planes, cb, i) => planes | (cb.checked << i), 0);
 
-    ca.resize(this.find('#ca-field-sizes table').settingsTable('get'));
+    ca.sizes = this.find('#ca-field-sizes table').settingsTable('get');
   }
 };
