@@ -1,6 +1,5 @@
 ﻿import { limitation } from 'utils';
 import Rules from './rules/';
-import History from './history';
 import Generations from './generations';
 import CellField from './cell-field';
 import CellFieldView from './cell-field-view/';
@@ -13,6 +12,10 @@ const defaultProps = {
 };
 
 const _props = new WeakMap();
+
+const
+  _dispatch = Symbol(),
+  _save = Symbol();
 
 
 class CellularAutomaton {
@@ -30,11 +33,6 @@ class CellularAutomaton {
     props.generations = new Generations({
       cells: props.cells,
       view: props.view
-    });
-
-    props.history = new History({
-      cells: props.cells,
-      generations: props.generations
     });
 
     this.rule = options.ruleCode || Rules.get(options.ruleName || 'default');
@@ -57,8 +55,8 @@ class CellularAutomaton {
     const props = _props.get(this);
 
     if (!props.intervalID) {
-      if (!props.history.data) {
-        props.history.save();
+      if (!props.history) {
+        this[_save]();
       }
 
       props.generations.next(n);
@@ -141,15 +139,13 @@ class CellularAutomaton {
       props.view.render();
     }, props.stepDuration);
 
-    props.history.save();
+    this[_save]();
 
     if (props.view.mode === 'edit') {
       props.view.mode = 'shift';
     }
 
-    document.dispatchEvent(new CustomEvent('ca-start', {
-      detail: this
-    }));
+    this[_dispatch]('ca-start');
 
     return true;
   }
@@ -166,21 +162,37 @@ class CellularAutomaton {
 
     props.view.mode = 'edit';
 
-    document.dispatchEvent(new CustomEvent('ca-stop', {
-      detail: this
-    }));
+    this[_dispatch]('ca-stop');
 
     return true;
   }
 
   back() {
-    const { history } = _props.get(this);
+    const props = _props.get(this);
 
-    if (history.data) {
+    if (props.history) {
       this.stop();
-      history.back();
+      props.cells.curr.conform(props.history.cells);
+      props.cells.next.conform(props.history.cells);
+      props.generations.time = props.history.time;
+      props.history = null;
       this.view.refresh();
     }
+  }
+
+  [_dispatch](name) {
+    document.dispatchEvent(new CustomEvent(name, {
+      detail: this
+    }));
+  }
+
+  [_save]() {
+    const props = _props.get(this);
+
+    props.history = {
+      cells: props.cells.curr.clone(),
+      time: props.generations.time
+    };
   }
 }
 
