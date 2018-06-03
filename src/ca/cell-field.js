@@ -15,7 +15,7 @@ export default class CellField {
   }
 
   fill(f) {
-    this.data = this.data.map((col, x) => col.map((cell, y) => f.call(this, x, y, cell)));
+    this.data = this.data.map((col, x) => col.map((cell, y) => f.call(this, cell, x, y)));
 
     return this;
   }
@@ -89,7 +89,7 @@ export default class CellField {
   invertBitPlane(bitPlanes) {
     const mask = bitPlanes.reduce((mask, plane) => mask | (1 << plane), 0);
 
-    return mask ? this.fill((x, y, value) => value ^ mask) : this;
+    return mask ? this.fill(value => value ^ mask) : this;
   }
 
   // bitPlanes - объект вида { <номер заполняемой битовой плоскости>: <номер копируемой битовой плоскости>, ... }
@@ -100,7 +100,7 @@ export default class CellField {
       }
     }
 
-    return Object.keys(bitPlanes).length ? this.fill(function(x, y, value) {
+    return Object.keys(bitPlanes).length ? this.fill(value => {
       let newVal = value;
 
       for (let i in bitPlanes) {
@@ -113,7 +113,7 @@ export default class CellField {
 
   // bitPlanes - объект вида { <номер битовой плоскости>: <плотность заполнения>, ... }
   fillRandom(bitPlanes) {
-    return Object.keys(bitPlanes).length ? this.fill(function(x, y, value) {
+    return Object.keys(bitPlanes).length ? this.fill(value => {
       for (let i in bitPlanes) {
         const mask = 1 << i;
 
