@@ -3,6 +3,10 @@ import ca from 'ca';
 import './style.scss';
 
 
+const
+  MIN_DENSITY = 0,
+  MAX_DENSITY = ca.cells.randomFillDensityDescritization;
+
 const bitPlanesOptions = {
   meta: ca.cells.bitPlanesList,
   row: r =>
@@ -49,16 +53,14 @@ export default {
 </div>`,
   width: 480,
   create() {
-    const max = ca.cells.randomFillDensityDescritization;
-
     $(this)
       .find('table').settingsTable(bitPlanesOptions)
 
       .find('.ca-filling-random > input').spinner({
-        min: 0,
-        max: max,
+        min: MIN_DENSITY,
+        max: MAX_DENSITY,
         step: 1
-      }).val(max * config.DEFAULT_FILL_DENSITY | 0).end()
+      }).val(MAX_DENSITY * config.DEFAULT_FILL_DENSITY | 0).end()
 
       .find('select').selectmenu({
         width: 100
@@ -89,8 +91,8 @@ export default {
 
       switch ($tr.find('.ca-filling-method').val()) {
         case 'invert': invert.push(plane); break;
-        case   'all1': random[plane] = ca.cells.randomFillDensityDescritization; break;
-        case   'all0': random[plane] = 0; break;
+        case   'all1': random[plane] = MAX_DENSITY; break;
+        case   'all0': random[plane] = MIN_DENSITY; break;
         case 'random': random[plane] = $tr.find('.ca-filling-random input').val(); break;
         case   'copy': copy[plane] = $tr.find('.ca-filling-copy input').val(); break;
       }
