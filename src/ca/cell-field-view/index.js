@@ -294,8 +294,14 @@ export default class CellFieldView {
   }
 
   @logExecutionTime('render')
-  render() {
-    (renderFunctions[_props.get(this).cellSide] || renderFunctions['default']).call(this);
+  render(updateBackground) {
+    const props = _props.get(this);
+
+    if (updateBackground) {
+      props.buf32.fill(props.colorsForRender.background);
+    }
+
+    (renderFunctions[props.cellSide] || renderFunctions['default']).call(this);
   }
 
   resize(cellSide = _props.get(this).cellSide, cellBorder = _props.get(this).cellBorder || 0) {
@@ -336,14 +342,12 @@ export default class CellFieldView {
     props.buf8 = new Uint8ClampedArray(props.imageBuff);
     props.buf32 = new Uint32Array(props.imageBuff);
 
-    props.buf32.fill(props.colorsForRender.background);
-
     if (!renderFunctions.hasOwnProperty(side) && side <= config.MAX_CELL_SIDE_WITH_OWN_RENDER) {
       renderFunctions[side] = cellFieldRenderFunction(cellRenderCode(side));
     }
 
     this[_scrollFix]();
-    this.render();
+    this.render(true);
   }
 
   setColors(colors, noRender) {
@@ -369,7 +373,7 @@ export default class CellFieldView {
     props.colorsForRender = colorsForRender;
 
     if (!noRender) {
-      this.render();
+      this.render(true);
     }
   }
 
