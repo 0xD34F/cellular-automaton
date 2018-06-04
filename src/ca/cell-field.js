@@ -52,14 +52,11 @@ export default class CellField {
   }
 
   clone() {
-    return new CellField(this.xSize, this.ySize, this._shift).copy(this);
+    return new CellField().conform(this);
   }
 
   conform(f) {
-    this.data = f.data.map(col => [...col]);
-    Object.assign(this._shift, f._shift);
-
-    return this;
+    return this.resize(f.xSize, f.ySize, f._shift).copy(f);
   }
 
   copy(source, options) {
