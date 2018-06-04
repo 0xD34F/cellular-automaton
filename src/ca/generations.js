@@ -26,12 +26,12 @@ const codeTemplate = {
 })`,
 
     nextGeneration: nextStateCode => `
-(function(d, newD) {
+(function(cells, newCellsData) {
   var
     table_0 = this.CAA.table,
     table_2 = this.CAB.table,
-    xSize = d.length,
-    ySize = d[0].length,
+    { xSize, ySize } = cells,
+    d = cells.data,
     fixX = cells._shift.x,
     fixY = cells._shift.y,
     time = this.time,
@@ -39,7 +39,7 @@ const codeTemplate = {
 
   for (var x = 0; x < xSize; x++) {
     var
-      newDX = newD[x],
+      newDX = newCellsData[x],
       xPrev = x === 0 ? xSize - 1 : x - 1,
       xNext = x === xSize - 1 ? 0 : x + 1,
       dXCurr = d[x],
@@ -144,9 +144,7 @@ export default class Generations {
     this.view.setColors(null);
     this.setNeighborhoods();
 
-    let
-      { view, rules, utils, setNeighborhoods, makeTable, on, main } = this,
-      cells = this.cells.curr;
+    let { view, rules, utils, setNeighborhoods, makeTable, on, main } = this;
 
     eval(code);
 
@@ -182,7 +180,7 @@ export default class Generations {
         this.on.beforeNewGeneration.call(this);
       }
 
-      this.calculateNewGeneration(curr.data, next.data);
+      this.calculateNewGeneration(curr, next.data);
       [ next.data, curr.data ] = [ curr.data, next.data ];
 
       this.time++;
