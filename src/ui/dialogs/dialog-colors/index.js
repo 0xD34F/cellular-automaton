@@ -3,49 +3,38 @@ import ca from 'ca';
 import './style.scss';
 
 
-const colorsListTemplate = colors => `
+export default {
+  template: `
+<div id="ca-colors" title="Colors">
   <div class="ca-state-select">
-    ${colors.map(n => `
+    ${Object.keys(ca.view.colors).map(n => `
     <div class="ca-state">
       <div>
-        <span class="ca-state-name">${n.label}</span>
-        <input type="text" class="jscolor" color-name="${n.color}" readonly="readonly">
+        <span class="ca-state-name">${isNaN(n) ? n : (+n).toString(16).toUpperCase()}</span>
+        <input type="text" class="jscolor" color-name="${n}" readonly="readonly">
       </div>
     </div>
     `).join('')}
-  </div>`;
-
-export default {
-  template: `<div id="ca-colors" title="Colors"></div>`,
+  </div>
+</div>`,
   width: 320,
   height: 420,
   create() {
-    var $this = $(this);
-
-    $this.append(colorsListTemplate($.map(ca.view.colors, (n, i) => ({
-      color: i,
-      label: isNaN(i) ? i : (+i).toString(16).toUpperCase()
-    })))).find('.jscolor').each(function() {
+    $(this).find('.jscolor').each(function() {
       this.jscolor = new jscolor(this, {
         hash: true
       });
     });
   },
   open() {
-    $(this).find('.jscolor').each(function() {
-      var $this = $(this);
-      $this.val(ca.view.colors[$this.attr('color-name')]);
-      this.jscolor.importColor();
+    Object.entries(ca.view.colors).forEach(([ key, color ]) => {
+      $(this).find(`[color-name="${key}"]`).val(color).get(0).jscolor.importColor();
     });
   },
   ok() {
-    var newColors = {};
-
-    this.find('.jscolor').each(function() {
-      var $this = $(this);
-      newColors[$this.attr('color-name')] = $this.val();
-    });
-
-    ca.view.setColors(newColors);
+    ca.view.setColors(Object.keys(ca.view.colors).reduce((colors, key) => ({
+      ...colors,
+      [key]: this.find(`[color-name="${key}"]`).val()
+    }), {}));
   }
 };
