@@ -74,8 +74,10 @@ class Compiler {
 
     [].concat(neighborhoods).forEach(n => {
       if (neighborhood.main[n]) {
+        // действительным является последнее назначение основной окрестности
         main = neighborhood.main[n];
-      } else {
+      } else if (extra.every(m => m !== n && m.name !== n.name)) {
+        // одну и ту же дополнительную окрестность нельзя подключить более одного раза
         extra.push(n);
       }
     });
