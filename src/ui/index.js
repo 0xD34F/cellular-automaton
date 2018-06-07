@@ -60,16 +60,9 @@ $(document).ready(function() {
 
   $('.toolbar').buttonset();
 
-  $('.content')
+  $('#app')
     .append(ca.view.element)
-    .find(' > .controls')
-    .find('button').button().end()
-    .on('click.ca-dialog', '[data-dialog]', function() {
-      $(`#${$(this).attr('data-dialog')}`).confirmDialog('open');
-    })
-    .on('click.ca-action', '[data-action]', function() {
-      ca[$(this).attr('data-action')]();
-    });
+    .find(' > .controls button').button();
 
 
   $('#save-as-image').click(function() {

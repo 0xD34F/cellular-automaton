@@ -1,33 +1,12 @@
 ﻿<!DOCTYPE html>
-<html>
-<head>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
     <title>Cellular automaton</title>
     <link rel="shortcut icon" href="images/favicon.png" type="image/png">
+  </head>
+  <body class="ui-helper-hidden">
+    <div id="app"></div>
     <script src="dist/build.js"></script>
-</head>
-<body class="ui-helper-hidden">
-    <div class="content">
-        <div class="controls">
-            <button id="start" data-action="start" class="ca-start-hide"><span class="ui-icon ui-icon-play"></span></button>
-            <button id="stop" data-action="stop" class="ca-start-show"><span class="ui-icon ui-icon-pause"></span></button>
-            <input id="skip">
-            <button id="back" data-action="back" title="Return to the initial configuration"><span class="ui-icon ui-icon-seek-prev"></span></button>
-            <button id="save-as-image" title="Save cells field as image"><span class="ui-icon ui-icon-disk"></span></button>
-            <div id="cell-field-mode"></div>
-            <div class="toolbar">
-                <button id="rotate-counterclockwise" data-action="rotateCounterclockwise" title="Rotate counterclockwise"><span class="ui-icon ui-icon-triangle-1-w"></span></button>
-                <button id="rotate-clockwise" data-action="rotateClockwise" title="Rotate clockwise"><span class="ui-icon ui-icon-triangle-1-e"></span></button>
-            </div>
-            <button id="brush" data-dialog="ca-brush">Brush...</button>
-            <button id="colors" data-dialog="ca-colors">Colors...</button>
-            <button id="view" data-dialog="ca-field" title="Cells field settings">Field...</button>
-            <div class="toolbar">
-                <button id="fill" data-dialog="ca-filling" class="ca-start-disable" title="Cells field filling">Fill...</button>
-                <button id="clear" data-action="clear" class="ca-start-disable" title="Cells field clear">Clear</button>
-            </div>
-            <button id="speed" data-dialog="ca-speed">Speed...</button>
-            <button id="rule" data-dialog="ca-rule" class="ca-start-disable">Rule...</button>
-        </div>
-    </div>
-</body>
+  </body>
 </html>
