@@ -27,7 +27,7 @@
       <el-button @click="openDialog('ca-colors')">Colors...</el-button>
       <el-button @click="openDialog('ca-field')" title="Cells field settings">Field...</el-button>
       <el-button-group>
-        <el-button @click="openDialog('ca-filling')" :disabled="run" title="Cells field filling">Fill...</el-button>
+        <el-button @click="openDialog('ca-field-fill')" :disabled="run" title="Cells field filling">Fill...</el-button>
         <el-button @click="ca.clear()" :disabled="run" title="Cells field clear">Clear</el-button>
       </el-button-group>
       <el-button @click="openDialog('ca-speed')">Speed...</el-button>
@@ -230,8 +230,6 @@ html, body {
 button,
 input,
 textarea,
-select,
-li,
 .ui-selectmenu-button {
   outline: 0;
   border: 1px solid rgb(197, 197, 197);
