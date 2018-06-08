@@ -13,8 +13,6 @@ import 'jquery-ui/themes/base/spinner.css';
 import 'jquery-ui/themes/base/selectmenu.css';
 import 'jquery-ui/themes/base/theme.css';
 
-import 'jscolor-picker';
-
 import 'toastr/toastr.scss';
 
 import ca from 'ca';
