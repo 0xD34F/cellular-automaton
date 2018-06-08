@@ -144,10 +144,6 @@ html, body {
   height: 100%;
 }
 
-#toast-container > div {
-  border-radius: 0;
-}
-
 #app {
   width: 100%;
   height: 100%;
@@ -156,8 +152,16 @@ html, body {
   box-sizing: border-box;
 }
 
+.el-dialog__body {
+  padding: 10px 20px;
+}
+
 .el-button + .el-button {
   margin-left: unset;
+}
+
+.el-notification__content {
+  margin: 5px 10px 0 0;
 }
 
 .icon {

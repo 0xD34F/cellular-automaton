@@ -13,27 +13,13 @@ import 'jquery-ui/themes/base/spinner.css';
 import 'jquery-ui/themes/base/selectmenu.css';
 import 'jquery-ui/themes/base/theme.css';
 
-import 'toastr/toastr.scss';
-
 import ca from 'ca';
-import config from 'config';
 import { limitation } from 'utils';
 
-import './input-with-button/';
 import './settings-table/';
 
 import dialogs from './dialogs/';
 
-
-$.extend($.ui.autocomplete.prototype.options, {
-  delay: 0,
-  minLength: 0,
-  create() {
-    $(this).click(function() {
-      $(this).autocomplete('search');
-    });
-  }
-});
 
 $.widget('ui.spinner', $.ui.spinner, {
   _create() {
