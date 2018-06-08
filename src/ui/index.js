@@ -25,7 +25,6 @@ import './input-with-button/';
 import './settings-table/';
 
 import dialogs from './dialogs/';
-import cellFieldModeSwitch from './cell-field-mode';
 
 
 $.extend($.ui.autocomplete.prototype.options, {
@@ -56,52 +55,8 @@ $.widget('ui.spinner', $.ui.spinner, {
 
 $(document).ready(function() {
   dialogs.init();
-  cellFieldModeSwitch.init();
 
-  $('.toolbar').buttonset();
-
-  $('#app')
-    .append(ca.view.element)
-    .find(' > .controls button').button();
-
-
-  $('#save-as-image').click(function() {
-    /*
-     * отдельный canvas - чтобы результирующее изображение содержало
-     * только данные из view.imageData; актуально для случаев, когда
-     * размеры view.imageData меньше, чем размеры wrapper'а
-     */
-    const
-      canvas = document.createElement('canvas'),
-      ctx = canvas.getContext('2d'),
-      image = ca.view.imageData;
-
-    canvas.width = image.width;
-    canvas.height = image.height;
-    ctx.putImageData(image, 0, 0);
-
-    const a = document.createElement('a');
-    a.href = canvas.toDataURL();
-    a.download = `${Date.now().toString()}.png`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  });
-
-  $('#skip').inputWithButton({
-    icon: 'ui-icon-seek-next',
-    title: 'Skip generations',
-    value: config.SKIP_GENERATIONS_MIN,
-    click() {
-      ca.newGeneration(this.val());
-    }
-  }).width(50).on('input', function() {
-    const
-      $this = $(this),
-      val = parseInt($this.val(), 10);
-
-    $this.val(limitation(val, config.SKIP_GENERATIONS_MIN, config.SKIP_GENERATIONS_MAX));
-  });
+  $('#app').append(ca.view.element);
 }).on({
   'ca-start'() {
     $('.ca-start-disable').addClass('ui-state-disabled');
