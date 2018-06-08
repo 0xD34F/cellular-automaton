@@ -49,3 +49,15 @@ export default {
     dialogsList.forEach(n => $(n.template).appendTo('body').confirmDialog(n));
   }
 };
+
+
+const vueDialogsContext = require.context('./', false, /dialog-[\w\-]+\.vue$/);
+
+export const dialogs = vueDialogsContext.keys().reduce((dialogs, key) => {
+  const dialog = vueDialogsContext(key).default;
+
+  return {
+    ...dialogs,
+    [dialog.name]: dialog
+  }
+}, {});

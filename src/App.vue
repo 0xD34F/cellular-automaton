@@ -33,19 +33,29 @@
       <el-button @click="openDialog('ca-speed')">Speed...</el-button>
       <el-button @click="openDialog('ca-rule')" :disabled="run">Rule...</el-button>
     </div>
+    <div
+      v-for="d in dialogs"
+      :key="d"
+      :is="d"
+      :show="d === openedDialog"
+      @close="openedDialog = null"
+    ></div>
   </div>
 </template>
 
 <script>
 import $ from 'jquery';
 import './ui/';
+import { dialogs } from './ui/dialogs/';
 import { limitation } from 'utils';
 import ca from 'ca';
 import config from 'config';
 
-
 export default {
   name: 'app',
+  components: {
+    ...dialogs
+  },
   data() {
     return {
       run: false,
@@ -58,11 +68,17 @@ export default {
         { name: 'zoom.in',  title: 'Zoom out', icon: 'zoom-in' },
         { name: 'zoom.out', title: 'Zoom in',  icon: 'zoom-out' },
       ],
+      dialogs: Object.keys(dialogs),
+      openedDialog: null,
     };
   },
   methods: {
     openDialog(name) {
-      $(`#${name}`).confirmDialog('open');
+      if (this.dialogs.includes(name)) {
+        this.openedDialog = name;
+      } else {
+        $(`#${name}`).confirmDialog('open');
+      }
     },
     skip() {
       this.ca.newGeneration(this.skipGenerations);
