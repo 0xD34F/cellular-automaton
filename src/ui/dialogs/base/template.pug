@@ -1,0 +1,10 @@
+el-dialog(
+  :visible.sync="visible"
+  :title="title"
+  :width="width"
+  @open="onOpen"
+)
+  block body
+  span(slot="footer")
+    el-button(@click="onClickOK" type="primary") OK
+    el-button(@click="onClickCancel") Cancel

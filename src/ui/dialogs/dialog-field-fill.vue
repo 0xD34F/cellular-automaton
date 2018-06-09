@@ -1,66 +1,61 @@
-<template>
-  <el-dialog :visible.sync="visible" title="Cells field filling" width="520px">
-    <table style="table-layout: fixed;">
-      <tr>
-        <th width="65px">Bit plane</th>
-        <th width="125px">Method</th>
-        <th width="185px"></th>
-        <th width="25px">Fill</th>
-      </tr>
-      <tr v-for="p in bitPlanes">
-        <td class="center">{{p.plane}}</td>
-        <td>
-          <el-select v-model="p.method">
-            <el-option
+<template lang="pug">
+  extends ./base/template.pug
+  block body
+    table(style="table-layout: fixed;")
+      tr
+        th(width="85px") Fill bit plane
+        th(width="125px") Method
+        th(width="185px")
+      tr(
+        v-for="p in bitPlanes"
+        :key="`fill-bit-plane-${p.plane}`"
+      )
+        td.center
+          el-checkbox(
+            v-model="p.fill"
+            :label="p.plane.toString()"
+          )
+        td
+          el-select(v-model="p.method")
+            el-option(
               v-for="m in fillMethods"
+              :key="`fill-bit-plane-${p.plane}-${m.name}`"
               :label="m.label"
               :value="m.name"
-            />
-          </el-select>
-        </td>
-        <td class="ca-filling-options">
-          <div v-show="p.method === 'random'">
-            <span class="ca-filling-options-note">density, ‰</span>
-            <el-input-number
+            )
+        td.ca-filling-options
+          div(v-show="p.method === 'random'")
+            span.ca-filling-options-note density, ‰
+            el-input-number(
               v-model="p.density"
               v-bind="fillDensity"
               controls-position="right"
-            />
-          </div>
-          <div v-show="p.method === 'copy'">
-            <span class="ca-filling-options-note">from plane</span>
-            <el-select v-model="p.copy.from" placeholder="">
-              <el-option
+            )
+          div(v-show="p.method === 'copy'")
+            span.ca-filling-options-note from plane
+            el-select(v-model="p.copy.from" placeholder="")
+              el-option(
                 v-for="o in p.copy.options"
+                :key="`fill-bit-plane-${p.plane}-copy-from-${o}`"
                 :label="o"
                 :value="o"
-              />
-            </el-select>
-          </div>
-        </td>
-        <td class="center">
-          <el-checkbox v-model="p.fill" />
-        </td>
-      </tr>
-    </table>
-    <span slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="clickOK">OK</el-button>
-      <el-button @click="clickCancel">Cancel</el-button>
-    </span>
-  </el-dialog>
+              )
 </template>
 
 <script>
 import ca from 'ca';
 import config from 'config';
+import baseDialog from './base/';
 
 export default {
   name: 'ca-field-fill',
-  props: [ 'show' ],
+  mixins: [ baseDialog ],
   data() {
     const max = ca.cells.randomFillDensityDescritization;
 
     return {
+      title: 'Cells field filling',
+      width: '500px',
       bitPlanes: ca.cells.bitPlanesList.map((n, i, planes) => ({
         plane: n,
         fill: true,
@@ -84,16 +79,6 @@ export default {
       },
     };
   },
-  computed: {
-    visible: {
-      get() {
-        return this.show;
-      },
-      set() {
-        this.close();
-      },
-    },
-  },
   methods: {
     clickOK() {
       const
@@ -114,14 +99,6 @@ export default {
       });
 
       ca.fill({ invert, random, copy });
-
-      this.close();
-    },
-    clickCancel() {
-      this.close();
-    },
-    close() {
-      this.$emit('close');
     },
   },
 };

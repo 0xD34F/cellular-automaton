@@ -1,58 +1,46 @@
-<template>
-  <el-dialog
-    :visible.sync="visible"
-    title="Rule"
-    width="80%"
-    @open="onOpen"
-  >
-    <div class="controls">
-      <el-autocomplete
-        class="inline-input"
+<template lang="pug">
+  extends ./base/template.pug
+  block body
+    .controls
+      el-autocomplete(
         v-model="ruleName"
         :fetch-suggestions="getRuleNames"
         :debounce="0"
         placeholder="enter rule name..."
         @select="onRuleSelect"
-      >
-        <span
+      )
+        span(
           slot-scope="item"
           v-html="highlightMatched(item)"
-          :class="[ item.item.predefined ? 'predefined-rule' : '' ]"
-        />
-        <el-button slot="append" @click="ruleName = ''">
-          <v-icon name="x" />
-        </el-button>
-      </el-autocomplete>
-      <el-button @click="saveRule" title="Save rule into localStorage">
-        <v-icon name="save" />
-      </el-button>
-      <el-button @click="deleteRule" title="Delete rule from localStorage">
-        <v-icon name="trash" />
-      </el-button>
-      <el-input
+          :class="{ 'predefined-rule': item.item.predefined }"
+        )
+        el-button(slot="append" @click="ruleName = ''")
+          v-icon(name="x")
+      el-button(@click="saveRule" title="Save rule into localStorage")
+        v-icon(name="save")
+      el-button(@click="deleteRule" title="Delete rule from localStorage")
+        v-icon(name="trash")
+      el-input(
         id="ca-rule-code"
         v-model="ruleCode"
         :autosize="ruleCodeSizes"
         @keydown.native.tab.prevent="onTab"
         type="textarea"
-      />
-    </div>
-    <span slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="clickOK">OK</el-button>
-      <el-button @click="clickCancel">Cancel</el-button>
-    </span>
-  </el-dialog>
+      )
 </template>
 
 <script>
 import config from 'config';
 import ca, { CA } from 'ca';
+import baseDialog from './base/';
 
 export default {
   name: 'ca-rule',
-  props: [ 'show' ],
+  mixins: [ baseDialog ],
   data() {
     return {
+      title: 'Rule',
+      width: '80%',
       ruleCodeSizes: {
         minRows: 6,
         maxRows: 15,
@@ -60,16 +48,6 @@ export default {
       ruleName: '',
       ruleCode: '',
     };
-  },
-  computed: {
-    visible: {
-      get() {
-        return this.show;
-      },
-      set() {
-        this.close();
-      },
-    },
   },
   methods: {
     onOpen() {
@@ -123,20 +101,15 @@ export default {
     clickOK() {
       try {
         ca.rule = this.ruleCode;
-        this.close();
       } catch (e) {
         this.$notify({
           type: 'error',
           message: e.message || e,
           dangerouslyUseHTMLString: true,
         });
+
+        return false;
       }
-    },
-    clickCancel() {
-      this.close();
-    },
-    close() {
-      this.$emit('close');
     },
   },
 };

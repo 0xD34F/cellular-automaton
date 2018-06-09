@@ -1,41 +1,33 @@
-<template>
-  <el-dialog
-    :visible.sync="visible"
-    title="Speed"
-    width="320px"
-    @open="onOpen"
-  >
-    <el-form label-width="150px">
-      <el-form-item
+<template lang="pug">
+  extends ./base/template.pug
+  block body
+    el-form(label-width="150px")
+      el-form-item(
         v-for="o in speedOptions"
         :key="o.name"
         :label="o.label"
-      >
-        <el-input-number
+      )
+        el-input-number(
           v-model="formData[o.name]"
           :min="o.min"
           :max="o.max"
           :step="o.step"
           controls-position="right"
-        />
-      </el-form-item>
-    </el-form>
-    <span slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="clickOK">OK</el-button>
-      <el-button @click="clickCancel">Cancel</el-button>
-    </span>
-  </el-dialog>
+        )
 </template>
 
 <script>
 import config from 'config';
 import ca from 'ca';
+import baseDialog from './base/';
 
 export default {
   name: 'ca-speed',
-  props: [ 'show' ],
+  mixins: [ baseDialog ],
   data() {
     return {
+      title: 'Speed',
+      width: '320px',
       formData: {},
       speedOptions: [
         { name: 'generationsPerStep', label: 'Generations per step', min: config.GENERATIONS_PER_STEP_MIN, max: config.GENERATIONS_PER_STEP_MAX, step: config.GENERATIONS_PER_STEP_CHANGE },
@@ -43,29 +35,12 @@ export default {
       ],
     };
   },
-  computed: {
-    visible: {
-      get() {
-        return this.show;
-      },
-      set() {
-        this.close();
-      },
-    },
-  },
   methods: {
     onOpen() {
       this.formData = this.speedOptions.reduce((data, n) => ({ ...data, [n.name]: ca[n.name] }), {});
     },
     clickOK() {
       Object.assign(ca, this.formData);
-      this.close();
-    },
-    clickCancel() {
-      this.close();
-    },
-    close() {
-      this.$emit('close');
     },
   },
 };
