@@ -80,7 +80,7 @@ class CellularAutomaton {
   set sizes(sizes = {}) {
     const props = _props.get(this);
 
-    if (!isNaN(sizes.xSize) && !isNaN(sizes.ySize)) {
+    if (!isNaN(sizes.xSize) && !isNaN(sizes.ySize) && !props.intervalID) {
       if (props.cells.curr.xSize !== sizes.xSize || props.cells.curr.ySize !== sizes.ySize) {
         props.cells.curr.resize(sizes.xSize, sizes.ySize);
         props.cells.next.conform(props.cells.curr);
