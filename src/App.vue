@@ -25,7 +25,7 @@
       </el-button-group>
       <el-button @click="openDialog('ca-brush')">Brush...</el-button>
       <el-button @click="openDialog('ca-colors')">Colors...</el-button>
-      <el-button @click="openDialog('ca-field')" title="Cells field settings">Field...</el-button>
+      <el-button @click="openDialog('ca-field-settings')" title="Cells field settings">Field...</el-button>
       <el-button-group>
         <el-button @click="openDialog('ca-field-fill')" :disabled="run" title="Cells field filling">Fill...</el-button>
         <el-button @click="ca.clear()" :disabled="run" title="Cells field clear">Clear</el-button>
