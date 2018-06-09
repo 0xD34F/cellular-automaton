@@ -44,8 +44,6 @@
 </template>
 
 <script>
-import $ from 'jquery';
-import './ui/';
 import dialogs from './ui/dialogs/';
 import { limitation } from 'utils';
 import ca from 'ca';
@@ -122,13 +120,8 @@ export default {
       }
     });
 
-    $(document).ready(() => {
-      $(document).trigger('ca-stop');
-
-      $('.ui-helper-hidden').removeClass('ui-helper-hidden');
-
-      this.ca.view.refresh();
-    });
+    this.$el.append(ca.view.element);
+    this.ca.view.refresh();
   },
 };
 </script>
@@ -214,54 +207,6 @@ html, body {
       margin-right: 5px;
       font-family: "Lucida Console", monospace;
     }
-  }
-}
-
-button,
-input,
-textarea,
-.ui-selectmenu-button {
-  outline: 0;
-  border: 1px solid rgb(197, 197, 197);
-}
-
-.ui-button {
-  padding: 6px 6px 4px 6px;
-}
-
-.ui-autocomplete {
-  max-height: 300px;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.ui-menu {
-  &,
-  li,
-  .ui-menu-item-wrapper {
-    list-style: none;
-    border: 0;
-    margin: 0;
-    padding: 0;
-  }
-}
-
-.ui-visual-focus,
-.ui-state-focus {
-  box-shadow: none;
-}
-
-.ui-corner {
-  &-all,
-  &-top,
-  &-right,
-  &-left,
-  &-bottom,
-  &-tr {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    border-bottom-left-radius: 0;
   }
 }
 </style>
