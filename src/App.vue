@@ -46,7 +46,7 @@
 <script>
 import $ from 'jquery';
 import './ui/';
-import { dialogs } from './ui/dialogs/';
+import dialogs from './ui/dialogs/';
 import { limitation } from 'utils';
 import ca from 'ca';
 import config from 'config';
@@ -74,11 +74,7 @@ export default {
   },
   methods: {
     openDialog(name) {
-      if (this.dialogs.includes(name)) {
-        this.openedDialog = name;
-      } else {
-        $(`#${name}`).confirmDialog('open');
-      }
+      this.openedDialog = name;
     },
     skip() {
       this.ca.newGeneration(this.skipGenerations);
@@ -217,16 +213,6 @@ html, body {
       font-size: 18px;
       margin-right: 5px;
       font-family: "Lucida Console", monospace;
-    }
-
-    .ca-state-color {
-      display: inline-block;
-      vertical-align: top;
-      margin-right: 5px;
-      width: 16px;
-      height: 16px;
-      border: 1px solid black;
-      box-sizing: border-box;
     }
   }
 }

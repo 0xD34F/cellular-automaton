@@ -1,0 +1,140 @@
+<template>
+  <el-dialog
+    :visible.sync="visible"
+    title="Brush"
+    width="400px"
+    @open="onOpen"
+  >
+    <cell-field :field="field" :brush="brush" :side="12" :border="1" ref="field" />
+    <div class="ca-state-select">
+      <div
+        v-for="c in colors"
+        :class="[ 'ca-state', c.state === brush.data[0][0] ? 'ca-state-active' : '' ]"
+        @click="selectActiveState(c.state)"
+      >
+        <div>
+          <span class="ca-state-name">{{c.label}}</span>
+          <span class="ca-state-color" :style="`background-color: ${c.color}`"></span>
+        </div>
+      </div>
+    </div>
+    <span slot="footer" class="dialog-footer">
+      <el-button type="primary" @click="clickOK">OK</el-button>
+      <el-button @click="clickCancel">Cancel</el-button>
+    </span>
+  </el-dialog>
+</template>
+
+<script>
+import Vue from 'vue';
+import config from 'config';
+import ca, { CA } from 'ca';
+
+// TODO: избавиться от этого костыля, сделать нормальный компонент
+Vue.component('cell-field', {
+  template: '<div class="cells-field-wrapper"></div>',
+  props: [ 'field', 'side', 'border', 'brush' ],
+  data() {
+    return {
+      cellField: null
+    }
+  },
+  mounted() {
+    this.cellField = new CA.CellFieldView({
+      field: this.field,
+      wrapper: this.$el,
+      cellSide: this.side,
+      cellBorder: this.border,
+      brush: this.brush,
+    });
+  }
+});
+
+export default {
+  name: 'ca-brush',
+  props: [ 'show' ],
+  data() {
+    return {
+      brush: new CA.CellField(1).fill(() => 1),
+      colors: {},
+    };
+  },
+  computed: {
+    visible: {
+      get() {
+        return this.show;
+      },
+      set() {
+        this.close();
+      },
+    },
+  },
+  methods: {
+    onOpen() {
+      this.field.copy(ca.view.brush);
+
+      this.colors = Object.entries(ca.view.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
+        label: (+k).toString(16),
+        state: +k,
+        color: v,
+      }));
+
+      this.$nextTick(() => this.$refs.field.cellField.setColors(ca.view.colors));
+    },
+    selectActiveState(state) {
+      this.$set(this.brush.data[0], 0, state);
+    },
+    clickOK() {
+      ca.view.brush.copy(this.field);
+      this.close();
+    },
+    clickCancel() {
+      this.close();
+    },
+    close() {
+      this.$emit('close');
+    },
+  },
+  created() {
+    const { BRUSH_SIZE } = config;
+    ca.view.brush.resize(BRUSH_SIZE);
+    ca.view.brush.data[BRUSH_SIZE / 2 | 0][BRUSH_SIZE / 2 | 0] = 1;
+    this.field = ca.view.brush.clone();
+  },
+};
+</script>
+
+<style lang="scss" scoped>
+/deep/ .el-dialog__body {
+  display: flex;
+  justify-content: space-between;
+}
+
+.cells-field-wrapper {
+  display: inline-block;
+}
+
+.ca-state-select {
+  display: inline-grid;
+  grid: repeat(4, 1fr) / repeat(4, 1fr);
+
+  .ca-state {
+    cursor: pointer;
+
+    &.ca-state-active {
+      background-color: #007fff;
+      color: #fff;
+    }
+
+    .ca-state-color {
+      display: inline-block;
+      vertical-align: top;
+      margin-right: 5px;
+      width: 16px;
+      height: 16px;
+      border: 1px solid black;
+      box-sizing: border-box;
+    }
+  }
+}
+</style>

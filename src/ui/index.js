@@ -15,11 +15,6 @@ import 'jquery-ui/themes/base/theme.css';
 
 import ca from 'ca';
 
-import dialogs from './dialogs/';
-
-
 $(document).ready(function() {
-  dialogs.init();
-
   $('#app').append(ca.view.element);
 });
