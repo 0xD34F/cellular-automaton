@@ -1,34 +1,28 @@
-<template>
-  <el-dialog
-    :visible.sync="visible"
-    title="Brush"
-    width="400px"
-    @open="onOpen"
-  >
-    <cell-field :field="field" :brush="brush" :side="12" :border="1" ref="field" />
-    <div class="ca-state-select">
-      <div
+<template lang="pug">
+  extends ./base/template.pug
+  block body
+    cell-field(
+      :field="field"
+      :brush="brush"
+      :side="12"
+      :border="1"
+      ref="field"
+    )
+    .ca-state-select
+      .ca-state(
         v-for="c in colors"
-        :class="[ 'ca-state', c.state === brush.data[0][0] ? 'ca-state-active' : '' ]"
+        :class="{ 'ca-state-active': c.state === brush.data[0][0] }"
         @click="selectActiveState(c.state)"
-      >
-        <div>
-          <span class="ca-state-name">{{c.label}}</span>
-          <span class="ca-state-color" :style="`background-color: ${c.color}`"></span>
-        </div>
-      </div>
-    </div>
-    <span slot="footer" class="dialog-footer">
-      <el-button type="primary" @click="clickOK">OK</el-button>
-      <el-button @click="clickCancel">Cancel</el-button>
-    </span>
-  </el-dialog>
+      )
+        span.ca-state-name {{ c.label }}
+        span.ca-state-color(:style="`background-color: ${c.color}`")
 </template>
 
 <script>
 import Vue from 'vue';
 import config from 'config';
 import ca, { CA } from 'ca';
+import baseDialog from './base/';
 
 // TODO: избавиться от этого костыля, сделать нормальный компонент
 Vue.component('cell-field', {
@@ -52,29 +46,21 @@ Vue.component('cell-field', {
 
 export default {
   name: 'ca-brush',
-  props: [ 'show' ],
+  mixins: [ baseDialog ],
   data() {
     return {
+      title: 'Brush',
+      width: '400px',
       brush: new CA.CellField(1).fill(() => 1),
       colors: {},
     };
-  },
-  computed: {
-    visible: {
-      get() {
-        return this.show;
-      },
-      set() {
-        this.close();
-      },
-    },
   },
   methods: {
     onOpen() {
       this.field.copy(ca.view.brush);
 
       this.colors = Object.entries(ca.view.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
-        label: (+k).toString(16),
+        label: (+k).toString(16).toUpperCase(),
         state: +k,
         color: v,
       }));
@@ -86,13 +72,6 @@ export default {
     },
     clickOK() {
       ca.view.brush.copy(this.field);
-      this.close();
-    },
-    clickCancel() {
-      this.close();
-    },
-    close() {
-      this.$emit('close');
     },
   },
   created() {
@@ -120,6 +99,10 @@ export default {
 
   .ca-state {
     cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 
     &.ca-state-active {
       background-color: #007fff;
@@ -127,13 +110,10 @@ export default {
     }
 
     .ca-state-color {
-      display: inline-block;
-      vertical-align: top;
       margin-right: 5px;
       width: 16px;
       height: 16px;
       border: 1px solid black;
-      box-sizing: border-box;
     }
   }
 }
