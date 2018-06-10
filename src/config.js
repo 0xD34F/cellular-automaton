@@ -1,26 +1,40 @@
 export default {
 
-  X_SIZE_MIN: 32,
-  Y_SIZE_MIN: 32,
-  X_SIZE_MAX: 1024,
-  Y_SIZE_MAX: 1024,
+  X_SIZE: {
+    min: 32,
+    max: 1024
+  },
+  Y_SIZE: {
+    min: 32,
+    max: 1024
+  },
 
-  CELL_SIDE_MIN: 1,
-  CELL_SIDE_MAX: 20,
-  CELL_BORDER_MIN: 0,
-  CELL_BORDER_MAX: 4,
+  CELL_SIDE: {
+    min: 1,
+    max: 20
+  },
+  CELL_BORDER: {
+    min: 0,
+    max: 4
+  },
 
   BRUSH_SIZE: 11,
 
-  GENERATIONS_PER_STEP_MIN: 1,
-  GENERATIONS_PER_STEP_MAX: 100,
-  GENERATIONS_PER_STEP_CHANGE: 1,
-  STEP_DURATION_MIN: 0,
-  STEP_DURATION_MAX: 5000,
-  STEP_DURATION_CHANGE: 10,
+  GENERATIONS_PER_STEP: {
+    min: 1,
+    max: 100,
+    step: 1
+  },
+  STEP_DURATION: {
+    min: 0,
+    max: 5000,
+    step: 10
+  },
 
-  SKIP_GENERATIONS_MIN: 1,
-  SKIP_GENERATIONS_MAX: 10000,
+  SKIP_GENERATIONS: {
+    min: 1,
+    max: 10000
+  },
 
   MAX_CELL_SIDE_WITH_OWN_RENDER: 20,
 

@@ -106,7 +106,7 @@ export default {
   watch: {
     skipGenerations(val) {
       this.$nextTick(() => {
-        this.skipGenerations = limitation(parseInt(val, 10), config.SKIP_GENERATIONS_MIN, config.SKIP_GENERATIONS_MAX);
+        this.skipGenerations = limitation(parseInt(val, 10), config.SKIP_GENERATIONS.min, config.SKIP_GENERATIONS.max);
       });
     },
   },

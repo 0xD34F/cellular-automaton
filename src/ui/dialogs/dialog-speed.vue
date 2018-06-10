@@ -30,8 +30,8 @@ export default {
       width: '320px',
       formData: {},
       speedOptions: [
-        { name: 'generationsPerStep', label: 'Generations per step', min: config.GENERATIONS_PER_STEP_MIN, max: config.GENERATIONS_PER_STEP_MAX, step: config.GENERATIONS_PER_STEP_CHANGE },
-        { name: 'stepDuration',       label: 'Step duration, ms',    min: config.STEP_DURATION_MIN,        max: config.STEP_DURATION_MAX,        step: config.STEP_DURATION_CHANGE },
+        { name: 'generationsPerStep', label: 'Generations per step', ...config.GENERATIONS_PER_STEP },
+        { name: 'stepDuration',       label: 'Step duration, ms',    ...config.STEP_DURATION },
       ],
     };
   },
