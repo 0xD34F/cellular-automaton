@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import { Notification } from 'element-ui';
 import ca, { CA } from 'ca';
 import baseDialog from './base/';
 
@@ -82,7 +83,7 @@ export default {
     saveRule() {
       const result = CA.Rules.save(this.ruleName, this.ruleCode);
 
-      this.$notify({
+      Notification({
         type: result.status ? 'success' : 'error',
         message: result.message,
         dangerouslyUseHTMLString: true,
@@ -91,7 +92,7 @@ export default {
     deleteRule() {
       const result = CA.Rules.del(this.ruleName);
 
-      this.$notify({
+      Notification({
         type: result.status ? 'success' : 'error',
         message: result.message,
         dangerouslyUseHTMLString: true,
@@ -101,7 +102,7 @@ export default {
       try {
         ca.rule = this.ruleCode;
       } catch (e) {
-        this.$notify({
+        Notification({
           type: 'error',
           message: e.message || e,
           dangerouslyUseHTMLString: true,

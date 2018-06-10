@@ -1,11 +1,26 @@
 ﻿import Vue from 'vue';
-import Element from 'element-ui';
-import 'element-ui/lib/theme-chalk/index.css';
-import locale from 'element-ui/lib/locale/lang/en';
+import { Button, ButtonGroup, Dialog, Form, FormItem, Autocomplete, Input, InputNumber, Checkbox, Select, Option, Card, ColorPicker } from 'element-ui';
+import lang from 'element-ui/lib/locale/lang/en';
+import locale from 'element-ui/lib/locale';
 import Icon from 'vue-icon';
 import App from './App.vue';
 
-Vue.use(Element, { locale });
+
+locale.use(lang);
+
+Vue.use(Button);
+Vue.use(ButtonGroup);
+Vue.use(Dialog);
+Vue.use(Form);
+Vue.use(FormItem);
+Vue.use(Autocomplete);
+Vue.use(Input);
+Vue.use(InputNumber);
+Vue.use(Checkbox);
+Vue.use(Select);
+Vue.use(Option);
+Vue.use(Card);
+Vue.use(ColorPicker);
 Vue.use(Icon, 'v-icon');
 
 
