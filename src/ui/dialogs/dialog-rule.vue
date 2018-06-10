@@ -30,7 +30,6 @@
 </template>
 
 <script>
-import config from 'config';
 import ca, { CA } from 'ca';
 import baseDialog from './base/';
 

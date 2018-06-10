@@ -42,10 +42,10 @@ export default {
       width: '480px',
       formData: {},
       sizesOptions: [
-        { name: 'xSize',      label: 'Field width',  min: config.X_SIZE_MIN,      max: config.X_SIZE_MAX },
-        { name: 'ySize',      label: 'Field height', min: config.Y_SIZE_MIN,      max: config.Y_SIZE_MAX },
-        { name: 'cellSide',   label: 'Cell side',    min: config.CELL_SIDE_MIN,   max: config.CELL_SIDE_MAX },
-        { name: 'cellBorder', label: 'Cell border',  min: config.CELL_BORDER_MIN, max: config.CELL_BORDER_MAX },
+        { name: 'xSize',      label: 'Field width',  ...config.X_SIZE },
+        { name: 'ySize',      label: 'Field height', ...config.Y_SIZE },
+        { name: 'cellSide',   label: 'Cell side',    ...config.CELL_SIDE },
+        { name: 'cellBorder', label: 'Cell border',  ...config.CELL_BORDER },
       ],
       bitPlanes: ca.cells.bitPlanesList.map(n => ({
         plane: n,

@@ -11,10 +11,7 @@ const ca = new CA.CellularAutomaton({
   ruleName: config.DEFAULT_RULE,
   view: {
     wrapper,
-    zoom: {
-      min: config.CELL_SIDE_MIN,
-      max: config.CELL_SIDE_MAX
-    },
+    zoom: { ...config.CELL_SIDE },
     cellSide: config.DEFAULT_CELL_SIDE,
     cellBorder: config.DEFAULT_CELL_BORDER,
     brush: new CA.CellField(1).fill(() => 1)
