@@ -1,46 +1,64 @@
-<template>
-  <div id="app">
-    <div class="controls">
-      <el-button @click="ca.start()" v-show="!run"><v-icon name="play" /></el-button>
-      <el-button @click="ca.stop()" v-show="run"><v-icon name="pause" /></el-button>
-      <el-input v-model="skipGenerations" :disabled="run" style="width: 120px">
-        <el-button slot="append" @click="skip" :disabled="run"><v-icon name="skip-forward" /></el-button>
-      </el-input>
-      <el-button @click="ca.back()" title="Return to the initial configuration"><v-icon name="skip-back" /></el-button>
-      <el-button @click="saveImage" title="Save cells field as image"><v-icon name="download" /></el-button>
-      <el-button-group>
-        <el-button
+<template lang="pug">
+  #app
+    .controls
+      el-button(@click="ca.start()" v-show="!run")
+        v-icon(name="play")
+      el-button(@click="ca.stop()" v-show="run")
+        v-icon(name="pause")
+      el-input(
+        v-model="skipGenerations"
+        :disabled="run"
+        style="width: 120px"
+      )
+        el-button(slot="append" @click="skip" :disabled="run")
+          v-icon(name="skip-forward")
+      el-button(@click="ca.back()" title="Return to the initial configuration")
+        v-icon(name="skip-back")
+      el-button(@click="saveImage" title="Save cells field as image")
+        v-icon(name="download")
+      el-button-group
+        el-button(
           v-for="m in modes"
           :key="m.name"
           :type="caViewMode === m.name ? 'primary' : ''"
           :disabled="run && m.disableOnRun"
           @click="setMode(m.name)"
-        >
-          <v-icon :name="m.icon" />
-        </el-button>
-      </el-button-group>
-      <el-button-group>
-        <el-button @click="ca.rotateCounterclockwise()" title="Rotate counterclockwise" size="mini"><v-icon name="rotate-ccw" /></el-button>
-        <el-button @click="ca.rotateClockwise()" title="Rotate clockwise" size="mini"><v-icon name="rotate-cw" /></el-button>
-      </el-button-group>
-      <el-button @click="openDialog('ca-brush')">Brush...</el-button>
-      <el-button @click="openDialog('ca-colors')">Colors...</el-button>
-      <el-button @click="openDialog('ca-field-settings')" title="Cells field settings">Field...</el-button>
-      <el-button-group>
-        <el-button @click="openDialog('ca-field-fill')" :disabled="run" title="Cells field filling">Fill...</el-button>
-        <el-button @click="ca.clear()" :disabled="run" title="Cells field clear">Clear</el-button>
-      </el-button-group>
-      <el-button @click="openDialog('ca-speed')">Speed...</el-button>
-      <el-button @click="openDialog('ca-rule')" :disabled="run">Rule...</el-button>
-    </div>
-    <div
+        )
+          v-icon(:name="m.icon")
+      el-button-group
+        el-button(
+          @click="ca.rotateCounterclockwise()"
+          title="Rotate counterclockwise"
+        )
+          v-icon(name="rotate-ccw")
+        el-button(
+          @click="ca.rotateClockwise()"
+          title="Rotate clockwise"
+        )
+          v-icon(name="rotate-cw")
+      el-button(@click="openDialog('ca-brush')") Brush...
+      el-button(@click="openDialog('ca-colors')") Colors...
+      el-button(@click="openDialog('ca-field-settings')" title="Cells field settings") Field...
+      el-button-group
+        el-button(
+          @click="openDialog('ca-field-fill')"
+          :disabled="run"
+          title="Cells field filling"
+        ) Fill...
+        el-button(
+          @click="ca.clear()"
+          :disabled="run"
+          title="Cells field clear"
+        ) Clear
+      el-button(@click="openDialog('ca-speed')") Speed...
+      el-button(@click="openDialog('ca-rule')" :disabled="run") Rule...
+    div(
       v-for="d in dialogs"
       :key="d"
       :is="d"
       :show="d === openedDialog"
       @close="openedDialog = null"
-    ></div>
-  </div>
+    )
 </template>
 
 <script>
