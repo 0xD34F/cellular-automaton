@@ -103,6 +103,7 @@ export default {
     flex-direction: row;
     justify-content: center;
     align-items: center;
+    padding: 6px;
 
     &.ca-state-active {
       background-color: #007fff;
@@ -114,6 +115,12 @@ export default {
       width: 16px;
       height: 16px;
       border: 1px solid black;
+    }
+
+    .ca-state-name {
+      font-size: 18px;
+      margin-right: 5px;
+      font-family: "Lucida Console", monospace;
     }
   }
 }

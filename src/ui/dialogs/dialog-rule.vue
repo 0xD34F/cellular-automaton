@@ -117,6 +117,7 @@ export default {
 <style lang="scss" scoped>
 /deep/ #ca-rule-code {
   font-family: monospace;
+  margin-top: 10px;
 }
 
 .el-autocomplete-suggestion__list li span {

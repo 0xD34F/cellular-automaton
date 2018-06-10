@@ -163,12 +163,13 @@ html, body {
   padding: 10px 20px;
 }
 
-.el-button + .el-button {
-  margin-left: unset;
-}
-
 .el-notification__content {
   margin: 5px 10px 0 0;
+}
+
+.el-form-item__content {
+  /* Firefox fix */
+  height: 40px;
 }
 
 .icon {
@@ -176,14 +177,17 @@ html, body {
 }
 
 .controls {
-  padding: 15px 10px;
+  padding: 10px 10px;
   width: 100%;
   box-sizing: border-box;
   flex: 0;
 
-  > * {
+  > .el-button,
+  > .el-button-group,
+  > .el-input-group,
+  > .el-autocomplete {
     vertical-align: top;
-    margin: 5px 1px 5px 0;
+    margin: 5px 10px 5px 0;
   }
 
   .el-button {
@@ -207,23 +211,6 @@ html, body {
           }
         }
       }
-    }
-  }
-}
-
-.ca-state-select {
-  .ca-state {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    padding: 5px;
-    border: 1px solid transparent;
-
-    .ca-state-name {
-      display: inline-block;
-      font-size: 18px;
-      margin-right: 5px;
-      font-family: "Lucida Console", monospace;
     }
   }
 }

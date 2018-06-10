@@ -17,7 +17,7 @@ export default {
   data() {
     return {
       title: 'Colors',
-      width: '360px',
+      width: '390px',
       colors: ca.view.colors,
     };
   },
@@ -42,11 +42,17 @@ export default {
   justify-content: flex-end;
 
   .ca-state {
-    padding: 5px 10px;
+    padding: 5px 15px;
     display: inline-flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
+
+    .ca-state-name {
+      font-size: 18px;
+      margin-right: 5px;
+      font-family: "Lucida Console", monospace;
+    }
   }
 }
 </style>

@@ -37,11 +37,3 @@ export default {
   },
 };
 </script>
-
-<style lang="scss">
-.el-dialog {
-  .el-button {
-    margin-left: 5px;
-  }
-}
-</style>
