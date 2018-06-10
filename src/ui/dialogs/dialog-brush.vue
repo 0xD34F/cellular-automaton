@@ -9,14 +9,13 @@
       ref="field"
     )
     .ca-state-select
-      div.ca-state(
+      .ca-state(
         v-for="c in colors"
         :class="{ 'ca-state-active': c.state === brush.data[0][0] }"
         @click="selectActiveState(c.state)"
       )
-        div
-          span.ca-state-name {{ c.label }}
-          span.ca-state-color(:style="`background-color: ${c.color}`")
+        span.ca-state-name {{ c.label }}
+        span.ca-state-color(:style="`background-color: ${c.color}`")
 </template>
 
 <script>
@@ -61,7 +60,7 @@ export default {
       this.field.copy(ca.view.brush);
 
       this.colors = Object.entries(ca.view.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
-        label: (+k).toString(16),
+        label: (+k).toString(16).toUpperCase(),
         state: +k,
         color: v,
       }));
@@ -100,6 +99,10 @@ export default {
 
   .ca-state {
     cursor: pointer;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
 
     &.ca-state-active {
       background-color: #007fff;
@@ -107,13 +110,10 @@ export default {
     }
 
     .ca-state-color {
-      display: inline-block;
-      vertical-align: top;
       margin-right: 5px;
       width: 16px;
       height: 16px;
       border: 1px solid black;
-      box-sizing: border-box;
     }
   }
 }
