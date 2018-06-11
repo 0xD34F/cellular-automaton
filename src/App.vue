@@ -172,6 +172,14 @@ html, body {
   height: 40px;
 }
 
+.el-color-dropdown {
+  .el-color-dropdown__btns {
+    .el-button {
+      display: none;
+    }
+  }
+}
+
 .icon {
   width: 24px;
 }

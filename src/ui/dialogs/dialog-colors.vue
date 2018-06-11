@@ -2,9 +2,15 @@
   extends ./base/template.pug
   block body
     .ca-state-select
-      .ca-state(v-for="(c, key) in colors" :key="key")
+      .ca-state(
+        v-for="(color, key) in colors"
+        :key="key"
+      )
         span.ca-state-name {{ colorName(key) }}
-        el-color-picker(v-model="colors[key]")
+        el-color-picker(
+          :value="color"
+          @active-change="onActiveChange($event, key)"
+        )
 </template>
 
 <script>
@@ -24,6 +30,10 @@ export default {
   methods: {
     colorName(color) {
       return isNaN(color) ? color : (+color).toString(16).toUpperCase();
+    },
+    onActiveChange(color, key) {
+      // rgb -> hex 
+      this.colors[key] = color.match(/(\d+)/g).map(n => (+n).toString(16).toUpperCase().padStart(2, '0')).join('');
     },
     onOpen() {
       this.colors = ca.view.colors;
