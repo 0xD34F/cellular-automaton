@@ -1,20 +1,21 @@
 import config from 'config';
 import * as CA from './ca/';
 
-
-const wrapper = document.createElement('div');
-wrapper.classList.add('cells-field-wrapper', 'scrollable');
+const { BRUSH_SIZE } = config;
+const brush = new CA.CellField(BRUSH_SIZE);
+brush.data[BRUSH_SIZE / 2 | 0][BRUSH_SIZE / 2 | 0] = 1;
 
 const ca = new CA.CellularAutomaton({
   xSize: config.DEFAULT_X_SIZE,
   ySize: config.DEFAULT_Y_SIZE,
-  ruleName: config.DEFAULT_RULE,
   view: {
-    wrapper,
+    scrollable: true,
     zoom: { ...config.CELL_SIDE },
-    cellSide: config.DEFAULT_CELL_SIDE,
-    cellBorder: config.DEFAULT_CELL_BORDER,
-    brush: new CA.CellField(1).fill(() => 1)
+    cellSizes: {
+      cellSide: config.DEFAULT_CELL_SIDE,
+      cellBorder: config.DEFAULT_CELL_BORDER
+    },
+    brush
   }
 });
 

@@ -143,7 +143,6 @@ export default class Generations {
   }
   set rule(code) {
     Object.assign(this, defaultOptions());
-    this.view.setColors(null);
     this.setNeighborhoods();
 
     let { view, rules, utils, setNeighborhoods, makeTable, on, main } = this;

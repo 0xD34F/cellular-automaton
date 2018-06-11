@@ -4,8 +4,7 @@
     cell-field(
       :field="field"
       :brush="brush"
-      :side="12"
-      :border="1"
+      :cellSizes="{ cellSide: 12, cellBorder: 1 }"
       ref="field"
     )
     .ca-state-select
@@ -19,44 +18,32 @@
 </template>
 
 <script>
-import Vue from 'vue';
 import config from 'config';
 import ca, { CA } from 'ca';
 import baseDialog from './base/';
-
-// TODO: избавиться от этого костыля, сделать нормальный компонент
-Vue.component('cell-field', {
-  template: '<div class="cells-field-wrapper"></div>',
-  props: [ 'field', 'side', 'border', 'brush' ],
-  data() {
-    return {
-      cellField: null
-    }
-  },
-  mounted() {
-    this.cellField = new CA.CellFieldView({
-      field: this.field,
-      wrapper: this.$el,
-      cellSide: this.side,
-      cellBorder: this.border,
-      brush: this.brush,
-    });
-  }
-});
+import cellField from '../cell-field';
 
 export default {
   name: 'ca-brush',
   mixins: [ baseDialog ],
+  components: {
+    cellField,
+  },
   data() {
     return {
       title: 'Brush',
       width: '400px',
+      field: null,
       brush: new CA.CellField(1).fill(() => 1),
       colors: {},
     };
   },
   methods: {
     onOpen() {
+      if (!this.field) {
+        this.field = ca.view.brush.clone();
+      }
+
       this.field.copy(ca.view.brush);
 
       this.colors = Object.entries(ca.view.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
@@ -65,20 +52,14 @@ export default {
         color: v,
       }));
 
-      this.$nextTick(() => this.$refs.field.cellField.setColors(ca.view.colors));
+      this.$nextTick(() => this.$refs.field.setColors(ca.view.colors));
     },
     selectActiveState(state) {
-      this.$set(this.brush.data[0], 0, state);
+      this.brush.fill(() => state);
     },
     clickOK() {
       ca.view.brush.copy(this.field);
     },
-  },
-  created() {
-    const { BRUSH_SIZE } = config;
-    ca.view.brush.resize(BRUSH_SIZE);
-    ca.view.brush.data[BRUSH_SIZE / 2 | 0][BRUSH_SIZE / 2 | 0] = 1;
-    this.field = ca.view.brush.clone();
   },
 };
 </script>
@@ -87,10 +68,6 @@ export default {
 /deep/ .el-dialog__body {
   display: flex;
   justify-content: space-between;
-}
-
-.cells-field-wrapper {
-  display: inline-block;
 }
 
 .ca-state-select {

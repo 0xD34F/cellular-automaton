@@ -2,7 +2,6 @@
 import Rules from './rules/';
 import Generations from './generations';
 import CellField from './cell-field';
-import CellFieldView from './cell-field-view/';
 import config from 'config';
 
 const defaultProps = {
@@ -28,14 +27,14 @@ class CellularAutomaton {
     };
     props.cells.next = props.cells.curr.clone();
 
-    props.view = new CellFieldView({ ...options.view, field: props.cells.curr });
+    props.viewOptions = options.view;
 
     props.generations = new Generations({
       cells: props.cells,
-      view: props.view
+      view: {
+        setColors: (...args) => props.view.setColors(...args)
+      }
     });
-
-    this.rule = options.ruleCode || Rules.get(options.ruleName || 'default');
   }
 
   fill({ invert = [], random = {}, copy = {} } = {}) {
@@ -68,8 +67,15 @@ class CellularAutomaton {
     return _props.get(this).cells.curr;
   }
 
+  get viewOptions() {
+    return _props.get(this).viewOptions;
+  }
+
   get view() {
     return _props.get(this).view;
+  }
+  set view(val) {
+    _props.get(this).view = val;
   }
 
   get sizes() {
@@ -196,4 +202,4 @@ class CellularAutomaton {
   }
 }
 
-export { CellField, CellFieldView, CellularAutomaton, Rules };
+export { CellField, CellularAutomaton, Rules };

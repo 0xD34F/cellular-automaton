@@ -16,13 +16,13 @@
         v-icon(name="skip-back")
       el-button(@click="saveImage" title="Save cells field as image")
         v-icon(name="download")
-      el-button-group
+      el-button-group(v-if="ca.view")
         el-button(
           v-for="m in modes"
           :key="m.name"
-          :type="caViewMode === m.name ? 'primary' : ''"
+          :type="ca.view.mode === m.name ? 'primary' : ''"
           :disabled="run && m.disableOnRun"
-          @click="setMode(m.name)"
+          @click="ca.view.mode = m.name"
         )
           v-icon(:name="m.icon")
       el-button-group
@@ -59,25 +59,31 @@
       :show="d === openedDialog"
       @close="openedDialog = null"
     )
+    cell-field(
+      :field="ca.cells"
+      v-bind="ca.viewOptions"
+      ref="field"
+    )
 </template>
 
 <script>
 import dialogs from './ui/dialogs/';
+import cellField from './ui/cell-field';
 import { limitation } from 'utils';
-import ca from 'ca';
+import ca, { CA } from 'ca';
 import config from 'config';
 
 export default {
   name: 'app',
   components: {
-    ...dialogs
+    ...dialogs,
+    cellField,
   },
   data() {
     return {
       run: false,
       skipGenerations: 1,
       ca,
-      caViewMode: ca.view.mode,
       modes: [
         { name: 'edit',     title: 'Edit',     icon: 'edit', disableOnRun: true },
         { name: 'shift',    title: 'Shift',    icon: 'move' },
@@ -94,9 +100,6 @@ export default {
     },
     skip() {
       this.ca.newGeneration(this.skipGenerations);
-    },
-    setMode(mode) {
-      this.ca.view.mode = mode;
     },
     saveImage() {
       /*
@@ -132,14 +135,12 @@ export default {
     window.addEventListener('resize', () => this.ca.view.refresh());
     document.addEventListener('ca-start', () => this.run = true);
     document.addEventListener('ca-stop', () => this.run = false);
-    document.addEventListener('cell-field-mode', (e) => {
-      if (e.detail === ca.view) {
-        this.caViewMode = ca.view.mode;
-      }
-    });
 
-    this.$el.append(ca.view.element);
-    this.ca.view.refresh();
+    this.$nextTick(() => {
+      this.ca.view = this.$refs.field;
+      this.ca.rule = CA.Rules.get(config.DEFAULT_RULE);
+      this.$forceUpdate();
+    });
   },
 };
 </script>

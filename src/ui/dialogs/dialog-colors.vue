@@ -29,6 +29,7 @@
 
 <script>
 import ca from 'ca';
+import config from 'config';
 import { gradient } from 'utils';
 import baseDialog from './base/';
 
@@ -39,7 +40,7 @@ export default {
     return {
       title: 'Colors',
       width: '390px',
-      colors: ca.view.colors,
+      colors: { ...config.DEFAULT_COLORS },
       gradient: {
         use: false,
         colors: {
