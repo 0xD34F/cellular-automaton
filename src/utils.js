@@ -19,14 +19,14 @@ function transformColor(color) {
   return parseInt(getColorComponents(color, true).reverse().join(''), 16) | (0xFF << 24);
 }
 
-function gradient(from, to, numSteps) {
+function gradient(colorFrom, colorTo, numSteps) {
   const
-    componentsFrom = getColorComponents(from),
-    componentsTo = getColorComponents(to),
-    componentsItems = componentsFrom.map((n, i) => (n - componentsTo[i]) / (numSteps - 1));
+    from = getColorComponents(colorFrom),
+    to = getColorComponents(colorTo),
+    items = from.map((n, i) => (n - to[i]) / (numSteps - 1));
 
   return [...Array(numSteps)].map((n, i) => {
-    return componentsFrom.map((m, j) => ((m - i * componentsItems[j]) | 0).toString(16).padStart(2, '0')).join('');
+    return `#${from.map((m, j) => ((m - i * items[j]) | 0).toString(16).padStart(2, '0')).join('')}`;
   });
 }
 
