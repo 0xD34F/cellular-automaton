@@ -5,10 +5,12 @@
         v-icon(name="play")
       el-button(@click="ca.stop()" v-show="run")
         v-icon(name="pause")
-      el-input(
+      el-input-number(
         v-model="skipGenerations"
+        v-bind="config.SKIP_GENERATIONS"
         :disabled="run"
-        style="width: 120px"
+        :controls="false"
+        style="width: 130px"
       )
         el-button(slot="append" @click="skip" :disabled="run")
           v-icon(name="skip-forward")
@@ -84,6 +86,7 @@ export default {
       run: false,
       skipGenerations: 1,
       ca,
+      config,
       modes: [
         { name: 'edit',     title: 'Edit',     icon: 'edit', disableOnRun: true },
         { name: 'shift',    title: 'Shift',    icon: 'move' },
@@ -122,13 +125,6 @@ export default {
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-    },
-  },
-  watch: {
-    skipGenerations(val) {
-      this.$nextTick(() => {
-        this.skipGenerations = limitation(parseInt(val, 10), config.SKIP_GENERATIONS.min, config.SKIP_GENERATIONS.max);
-      });
     },
   },
   mounted() {
@@ -194,6 +190,7 @@ html, body {
   > .el-button,
   > .el-button-group,
   > .el-input-group,
+  > .el-input-number,
   > .el-autocomplete {
     vertical-align: top;
     margin: 5px 10px 5px 0;
@@ -207,7 +204,13 @@ html, body {
     align-items: center;
   }
 
+  .el-input-number {
+    display: inline-flex;
+  }
+
   .el-input-group {
+    display: inline-table;
+
     .el-input-group__append {
       .el-button {
         margin: -1px -20px;
