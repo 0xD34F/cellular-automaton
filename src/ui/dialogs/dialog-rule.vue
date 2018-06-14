@@ -30,8 +30,9 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { Notification } from 'element-ui';
-import ca, { CA } from 'ca';
+import ca from 'ca';
 import baseDialog from './base/';
 
 export default {
@@ -49,14 +50,17 @@ export default {
       ruleCode: '',
     };
   },
+  computed: {
+    ...mapGetters([ 'rules' ]),
+  },
   methods: {
     onOpen() {
       this.ruleCode = ca.rule;
     },
     getRuleNames(queryString, cb) {
-      var q = queryString.toLowerCase();
+      const q = queryString.toLowerCase();
 
-      cb(CA.Rules.get().filter(n => !!n.name.toLowerCase().match(q)).map(n => ({
+      cb(this.rules.filter(n => !!n.name.toLowerCase().match(q)).map(n => ({
         value: n.name,
         code: n.code,
         predefined: n.predefined,
@@ -74,28 +78,31 @@ export default {
         start = el.selectionStart,
         end = el.selectionEnd,
         value = this.ruleCode,
-        tab = Array(5).join(' ');
+        tab = Array(3).join(' ');
 
       this.ruleCode = value.slice(0, start) + tab + value.slice(end);
 
       this.$nextTick(() => el.selectionStart = el.selectionEnd = start + tab.length);
     },
     saveRule() {
-      const result = CA.Rules.save(this.ruleName, this.ruleCode);
-
-      Notification({
-        type: result.status ? 'success' : 'error',
-        message: result.message,
-        dangerouslyUseHTMLString: true,
+      this.$store.dispatch('saveRule', {
+        name: this.ruleName,
+        code: this.ruleCode,
+      }).then(result => {
+        Notification({
+          type: result.status ? 'success' : 'error',
+          message: result.message,
+          dangerouslyUseHTMLString: true,
+        });
       });
     },
     deleteRule() {
-      const result = CA.Rules.del(this.ruleName);
-
-      Notification({
-        type: result.status ? 'success' : 'error',
-        message: result.message,
-        dangerouslyUseHTMLString: true,
+      this.$store.dispatch('deleteRule', this.ruleName).then(result => {
+        Notification({
+          type: result.status ? 'success' : 'error',
+          message: result.message,
+          dangerouslyUseHTMLString: true,
+        });
       });
     },
     clickOK() {

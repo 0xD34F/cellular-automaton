@@ -69,14 +69,17 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import dialogs from './ui/dialogs/';
 import cellField from './ui/cell-field';
 import { limitation } from 'utils';
-import ca, { CA } from 'ca';
+import ca from 'ca';
 import config from 'config';
+import store from './store/';
 
 export default {
   name: 'app',
+  store,
   components: {
     ...dialogs,
     cellField,
@@ -96,6 +99,9 @@ export default {
       dialogs: Object.keys(dialogs),
       openedDialog: null,
     };
+  },
+  computed: {
+    ...mapGetters([ 'rules' ]),
   },
   methods: {
     openDialog(name) {
@@ -134,7 +140,7 @@ export default {
 
     this.$nextTick(() => {
       this.ca.view = this.$refs.field;
-      this.ca.rule = CA.Rules.get(config.DEFAULT_RULE);
+      this.ca.rule = this.rules.find(n => n.name === this.config.DEFAULT_RULE).code;
       this.$forceUpdate();
     });
   },

@@ -1,5 +1,4 @@
 ﻿import { limitation } from 'utils';
-import Rules from './rules/';
 import Generations from './generations';
 import CellField from './cell-field';
 import config from 'config';
@@ -202,4 +201,4 @@ class CellularAutomaton {
   }
 }
 
-export { CellField, CellularAutomaton, Rules };
+export { CellField, CellularAutomaton };
