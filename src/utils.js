@@ -3,7 +3,7 @@ function rotateArray(array, rotate) {
   array.push(...array.splice(0, rotate));
 }
 
-function limitation(val, min, max) {
+function limitation(val, { min, max }) {
   return Math.min(max, Math.max(min, val | 0));
 }
 

@@ -100,7 +100,7 @@ class CellularAutomaton {
     return _props.get(this).generationsPerStep;
   }
   set generationsPerStep(value) {
-    _props.get(this).generationsPerStep = limitation(value, config.GENERATIONS_PER_STEP.min, config.GENERATIONS_PER_STEP.max);
+    _props.get(this).generationsPerStep = limitation(value, config.GENERATIONS_PER_STEP);
   }
 
   get stepDuration() {
@@ -108,7 +108,7 @@ class CellularAutomaton {
   }
   set stepDuration(value) {
     const props = _props.get(this);
-    props.stepDuration = limitation(value, config.STEP_DURATION.min, config.STEP_DURATION.max);
+    props.stepDuration = limitation(value, config.STEP_DURATION);
     if (props.intervalID) {
       this.stop();
       this.start();

@@ -329,7 +329,7 @@ export default {
 
       const
         oldCellSide = this.cellSide,
-        newCellSide = limitation(oldCellSide + change, this.zoom.min, this.zoom.max);
+        newCellSide = limitation(oldCellSide + change, this.zoom);
 
       if (oldCellSide !== newCellSide) {
         const

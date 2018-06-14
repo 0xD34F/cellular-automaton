@@ -36,7 +36,7 @@ function result(status, message) {
 }
 
 function numberedRule(rule, max) {
-  return (ruleNumber, ...rest) => rule(limitation(ruleNumber, 0, Math.pow(2, max) - 1), ...rest);
+  return (ruleNumber, ...rest) => rule(limitation(ruleNumber, { min: 0, max: Math.pow(2, max) - 1 }), ...rest);
 }
 
 
