@@ -5,6 +5,12 @@ el-dialog(
   @open="onOpen"
 )
   block body
-  span(slot="footer")
+  span(slot="footer" style="width: 100%;")
+    el-button(
+      v-if="resetLabel"
+      @click="clickReset"
+      type="text"
+      style="float: left;"
+    ) {{ resetLabel }}
     el-button(@click="onClickOK" type="primary") OK
     el-button(@click="onClickCancel") Cancel

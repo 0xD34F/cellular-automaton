@@ -9,6 +9,7 @@ export default {
     return {
       title: '',
       width: '300px',
+      resetLabel: '',
     };
   },
   computed: {
@@ -34,6 +35,7 @@ export default {
     close() {
       this.$emit('close');
     },
+    clickReset() {},
   },
 };
 </script>

@@ -49,6 +49,7 @@ export default {
         },
         prevColors: null,
       },
+      resetLabel: 'Default colors',
     };
   },
   methods: {
@@ -84,6 +85,10 @@ export default {
     },
     clickOK() {
       ca.view.setColors(this.colors);
+    },
+    clickReset() {
+      this.gradient.use = false;
+      this.colors = { ...config.DEFAULT_COLORS };
     },
   },
   watch: {

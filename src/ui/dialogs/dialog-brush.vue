@@ -36,6 +36,7 @@ export default {
       field: null,
       brush: new CA.CellField(1).fill(() => 1),
       colors: {},
+      resetLabel: 'Reset',
     };
   },
   methods: {
@@ -59,6 +60,11 @@ export default {
     },
     clickOK() {
       ca.view.brush.copy(this.field);
+    },
+    clickReset() {
+      const center = config.BRUSH_SIZE / 2 | 0;
+      this.field.fill(() => 0).data[center][center] = 1;
+      this.$refs.field.render();
     },
   },
 };
