@@ -38,9 +38,6 @@
           title="Rotate clockwise"
         )
           v-icon(name="rotate-cw")
-      el-button(@click="openDialog('ca-brush')") Brush...
-      el-button(@click="openDialog('ca-colors')") Colors...
-      el-button(@click="openDialog('ca-field-settings')" title="Cells field settings") Field...
       el-button-group
         el-button(
           @click="openDialog('ca-field-fill')"
@@ -52,8 +49,15 @@
           :disabled="run"
           title="Cells field clear"
         ) Clear
-      el-button(@click="openDialog('ca-speed')") Speed...
-      el-button(@click="openDialog('ca-rule')" :disabled="run") Rule...
+      el-dropdown(@command="openDialog" trigger="click")
+        el-button
+          v-icon(name="settings")
+        el-dropdown-menu(slot="dropdown")
+          el-dropdown-item(command="ca-field-settings") Field
+          el-dropdown-item(command="ca-speed") Speed
+          el-dropdown-item(command="ca-colors") Colors
+          el-dropdown-item(command="ca-brush") Brush
+          el-dropdown-item(command="ca-rule" :disabled="run") Rule
     div(
       v-for="d in dialogs"
       :key="d"
@@ -193,6 +197,7 @@ html, body {
   box-sizing: border-box;
   flex: 0;
 
+  > .el-dropdown,
   > .el-button,
   > .el-button-group,
   > .el-input-group,
