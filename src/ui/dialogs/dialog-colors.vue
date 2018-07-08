@@ -40,7 +40,7 @@ export default {
     return {
       title: 'Colors',
       width: '390px',
-      colors: { ...config.DEFAULT_COLORS },
+      colors: {},
       gradient: {
         use: false,
         colors: {
@@ -73,25 +73,26 @@ export default {
       return gradient(from, to, ca.cells.numCellStates);
     },
     onOpen() {
-      const colors = ca.view.colors;
-
-      // если текущие цвета не совпадают с градиентными -
-      // сбрасываем чекбокс, чтобы не вводить пользователя в заблуждение
-      if (this.getGradient().some((color, state) => color !== colors[state])) {
-        this.gradient.use = false;
-      }
-
-      this.colors = colors;
+      this.colors = { ...ca.view.colors };
     },
     clickOK() {
       ca.view.setColors(this.colors);
     },
     clickReset() {
-      this.gradient.use = false;
       this.colors = { ...config.DEFAULT_COLORS };
     },
   },
   watch: {
+    colors: {
+      deep: true,
+      handler() {
+        // если текущие цвета не совпадают с градиентными -
+        // сбрасываем чекбокс, чтобы не вводить пользователя в заблуждение
+        if (this.getGradient().some((color, state) => color !== this.colors[state])) {
+          this.gradient.use = false;
+        }
+      },
+    },
     gradient: {
       deep: true,
       handler() {
