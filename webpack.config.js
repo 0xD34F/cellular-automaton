@@ -70,7 +70,6 @@ module.exports = {
   resolve: {
     alias: {
       config: path.resolve(__dirname, 'src/config'),
-      ca: path.resolve(__dirname, 'src/ca'),
       utils: path.resolve(__dirname, 'src/utils'),
       'vue$': 'vue/dist/vue.esm.js'
     },

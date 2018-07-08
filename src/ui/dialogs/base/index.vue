@@ -3,6 +3,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
   props: [ 'show' ],
   data() {
@@ -13,6 +15,7 @@ export default {
     };
   },
   computed: {
+    ...mapGetters([ 'ca' ]),
     visible: {
       get() {
         return this.show;

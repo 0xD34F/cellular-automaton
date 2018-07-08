@@ -28,7 +28,6 @@
 </template>
 
 <script>
-import ca from 'ca';
 import config from 'config';
 import { gradient } from 'utils';
 import baseDialog from './base/';
@@ -70,13 +69,13 @@ export default {
     getGradient() {
       const { from, to } = this.gradient.colors;
 
-      return gradient(from, to, ca.cells.numCellStates);
+      return gradient(from, to, this.ca.cells.numCellStates);
     },
     onOpen() {
-      this.colors = { ...ca.view.colors };
+      this.colors = { ...this.ca.view.colors };
     },
     clickOK() {
-      ca.view.setColors(this.colors);
+      this.ca.view.setColors(this.colors);
     },
     clickReset() {
       this.colors = { ...config.DEFAULT_COLORS };

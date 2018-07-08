@@ -19,7 +19,7 @@
 
 <script>
 import config from 'config';
-import ca, { CA } from 'ca';
+import { CellField } from '../../ca/';
 import baseDialog from './base/';
 import cellField from '../cell-field';
 
@@ -34,7 +34,7 @@ export default {
       title: 'Brush',
       width: '400px',
       field: null,
-      brush: new CA.CellField(1).fill(() => 1),
+      brush: new CellField(1).fill(() => 1),
       colors: {},
       resetLabel: 'Reset',
     };
@@ -42,24 +42,24 @@ export default {
   methods: {
     onOpen() {
       if (!this.field) {
-        this.field = ca.view.brush.clone();
+        this.field = this.ca.view.brush.clone();
       }
 
-      this.field.copy(ca.view.brush);
+      this.field.copy(this.ca.view.brush);
 
-      this.colors = Object.entries(ca.view.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
+      this.colors = Object.entries(this.ca.view.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
         label: (+k).toString(16).toUpperCase(),
         state: +k,
         color: v,
       }));
 
-      this.$nextTick(() => this.$refs.field.setColors(ca.view.colors));
+      this.$nextTick(() => this.$refs.field.setColors(this.ca.view.colors));
     },
     selectActiveState(state) {
       this.brush.fill(() => state);
     },
     clickOK() {
-      ca.view.brush.copy(this.field);
+      this.ca.view.brush.copy(this.field);
     },
     clickReset() {
       const center = config.BRUSH_SIZE / 2 | 0;

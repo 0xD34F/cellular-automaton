@@ -32,7 +32,6 @@
 <script>
 import { mapGetters } from 'vuex';
 import { Notification } from 'element-ui';
-import ca from 'ca';
 import baseDialog from './base/';
 
 export default {
@@ -55,7 +54,7 @@ export default {
   },
   methods: {
     onOpen() {
-      this.ruleCode = ca.rule;
+      this.ruleCode = this.ca.rule;
     },
     getRuleNames(queryString, cb) {
       const q = queryString.toLowerCase();
@@ -107,7 +106,7 @@ export default {
     },
     clickOK() {
       try {
-        ca.rule = this.ruleCode;
+        this.ca.rule = this.ruleCode;
       } catch (e) {
         Notification({
           type: 'error',

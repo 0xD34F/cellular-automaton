@@ -11,22 +11,16 @@ const defaultProps = {
 
 const _props = new WeakMap();
 
-const
-  _dispatch = Symbol(),
-  _save = Symbol();
-
 
 class CellularAutomaton {
   constructor(options) {
     const props = { ...defaultProps };
     _props.set(this, props);
 
-    props.cells = {
-      curr: new CellField(options.xSize, options.ySize)
-    };
-    props.cells.next = props.cells.curr.clone();
-
-    props.viewOptions = options.view;
+    props.cells = (cf => ({
+      curr: cf,
+      next: cf.clone(),
+    }))(new CellField(options.xSize, options.ySize));
 
     props.generations = new Generations({
       cells: props.cells,
@@ -53,10 +47,6 @@ class CellularAutomaton {
     const props = _props.get(this);
 
     if (!props.intervalID) {
-      if (!props.history) {
-        this[_save]();
-      }
-
       props.generations.next(n);
       props.view.render();
     }
@@ -64,10 +54,6 @@ class CellularAutomaton {
 
   get cells() {
     return _props.get(this).cells.curr;
-  }
-
-  get viewOptions() {
-    return _props.get(this).viewOptions;
   }
 
   get view() {
@@ -144,13 +130,9 @@ class CellularAutomaton {
       props.view.render();
     }, props.stepDuration);
 
-    this[_save]();
-
     if (props.view.mode === 'edit') {
       props.view.mode = 'shift';
     }
-
-    this[_dispatch]('ca-start');
 
     return true;
   }
@@ -167,37 +149,26 @@ class CellularAutomaton {
 
     props.view.mode = 'edit';
 
-    this[_dispatch]('ca-stop');
-
     return true;
   }
 
-  back() {
+  get state() {
     const props = _props.get(this);
 
-    if (props.history) {
-      this.stop();
-      props.cells.curr.conform(props.history.cells);
-      props.cells.next.conform(props.history.cells);
-      props.generations.time = props.history.time;
-      props.history = null;
-      this.view.refresh();
-    }
-  }
-
-  [_dispatch](name) {
-    document.dispatchEvent(new CustomEvent(name, {
-      detail: this
-    }));
-  }
-
-  [_save]() {
-    const props = _props.get(this);
-
-    props.history = {
+    return {
       cells: props.cells.curr.clone(),
-      time: props.generations.time
+      time: props.generations.time,
     };
+  }
+
+  set state({ cells, time }) {
+    const props = _props.get(this);
+
+    this.stop();
+    props.cells.curr.conform(cells);
+    props.cells.next.conform(cells);
+    props.generations.time = time;
+    this.view.refresh();
   }
 }
 

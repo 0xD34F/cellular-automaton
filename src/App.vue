@@ -1,9 +1,9 @@
 <template lang="pug">
   #app
     .controls
-      el-button(@click="ca.start()" v-show="!run")
+      el-button(@click="start" v-show="!run")
         v-icon(name="play")
-      el-button(@click="ca.stop()" v-show="run")
+      el-button(@click="stop" v-show="run")
         v-icon(name="pause")
       el-input-number(
         v-model="skipGenerations"
@@ -12,9 +12,9 @@
         :controls="false"
         style="width: 130px"
       )
-        el-button(slot="append" @click="skip" :disabled="run")
+        el-button(slot="append" @click="skip(skipGenerations)" :disabled="run")
           v-icon(name="skip-forward")
-      el-button(@click="ca.back()" title="Return to the initial configuration")
+      el-button(@click="back" title="Return to the initial configuration")
         v-icon(name="skip-back")
       el-button(@click="saveImage" title="Save cells field as image")
         v-icon(name="download")
@@ -67,17 +67,16 @@
     )
     cell-field(
       :field="ca.cells"
-      v-bind="ca.viewOptions"
+      v-bind="$store.state.automaton.viewOptions"
       ref="field"
     )
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
 import dialogs from './ui/dialogs/';
 import cellField from './ui/cell-field';
 import { limitation } from 'utils';
-import ca from 'ca';
 import config from 'config';
 import store from './store/';
 
@@ -90,9 +89,7 @@ export default {
   },
   data() {
     return {
-      run: false,
       skipGenerations: 1,
-      ca,
       config,
       modes: [
         { name: 'edit',     title: 'Edit',     icon: 'edit', disableOnRun: true },
@@ -105,14 +102,12 @@ export default {
     };
   },
   computed: {
-    ...mapGetters([ 'rules' ]),
+    ...mapGetters([ 'ca', 'run', 'rules' ]),
   },
   methods: {
+    ...mapActions([ 'start', 'stop', 'back', 'skip' ]),
     openDialog(name) {
       this.openedDialog = name;
-    },
-    skip() {
-      this.ca.newGeneration(this.skipGenerations);
     },
     saveImage() {
       /*
@@ -123,7 +118,7 @@ export default {
       const
         canvas = document.createElement('canvas'),
         ctx = canvas.getContext('2d'),
-        image = ca.view.imageData;
+        image = this.ca.view.imageData;
 
       canvas.width = image.width;
       canvas.height = image.height;
@@ -139,8 +134,6 @@ export default {
   },
   mounted() {
     window.addEventListener('resize', () => this.ca.view.refresh());
-    document.addEventListener('ca-start', () => this.run = true);
-    document.addEventListener('ca-stop', () => this.run = false);
 
     this.$nextTick(() => {
       this.ca.view = this.$refs.field;

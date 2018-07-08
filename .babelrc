@@ -4,13 +4,20 @@
     "stage-3"
   ],
   "plugins": [
-    "transform-object-rest-spread",
     "transform-decorators-legacy",
     [
       "component",
       {
         "libraryName": "element-ui",
         "styleLibraryName": "theme-chalk"
+      }
+    ],
+    [
+      "transform-runtime",
+      {
+        "helpers": false,
+        "polyfill": false,
+        "regenerator": true
       }
     ]
   ]

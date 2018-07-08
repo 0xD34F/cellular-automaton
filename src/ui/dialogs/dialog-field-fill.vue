@@ -43,7 +43,6 @@
 </template>
 
 <script>
-import ca from 'ca';
 import config from 'config';
 import baseDialog from './base/';
 
@@ -51,21 +50,10 @@ export default {
   name: 'ca-field-fill',
   mixins: [ baseDialog ],
   data() {
-    const max = ca.cells.randomFillDensityDescritization;
-
     return {
       title: 'Cells field filling',
       width: '500px',
-      bitPlanes: ca.cells.bitPlanesList.map((n, i, planes) => ({
-        plane: n,
-        fill: true,
-        method: 'random',
-        density: max * config.DEFAULT_FILL_DENSITY | 0,
-        copy: {
-          from: null,
-          options: planes.filter(p => p !== n),
-        },
-      })),
+      bitPlanes: null,
       fillMethods: [
         { name: 'random', label: 'Random' },
         { name:   'copy', label:   'Copy' },
@@ -73,10 +61,7 @@ export default {
         { name:   'all1', label:  'All 1' },
         { name:   'all0', label:  'All 0' },
       ],
-      fillDensity: {
-        min: 0,
-        max: max,
-      },
+      fillDensity: null,
     };
   },
   methods: {
@@ -98,8 +83,29 @@ export default {
         }
       });
 
-      ca.fill({ invert, random, copy });
+      this.ca.fill({ invert, random, copy });
     },
+  },
+  created() {
+    const
+      cells = this.ca.cells,
+      max = cells.randomFillDensityDescritization;
+
+    this.bitPlanes = cells.bitPlanesList.map((n, i, planes) => ({
+      plane: n,
+      fill: true,
+      method: 'random',
+      density: max * config.DEFAULT_FILL_DENSITY | 0,
+      copy: {
+        from: null,
+        options: planes.filter(p => p !== n),
+      },
+    }));
+
+    this.fillDensity = {
+      min: 0,
+      max: max,
+    };
   },
 };
 </script>

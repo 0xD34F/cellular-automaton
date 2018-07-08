@@ -18,7 +18,6 @@
 
 <script>
 import config from 'config';
-import ca from 'ca';
 import baseDialog from './base/';
 
 export default {
@@ -37,10 +36,10 @@ export default {
   },
   methods: {
     onOpen() {
-      this.formData = this.speedOptions.reduce((data, n) => ({ ...data, [n.name]: ca[n.name] }), {});
+      this.formData = this.speedOptions.reduce((data, n) => ({ ...data, [n.name]: this.ca[n.name] }), {});
     },
     clickOK() {
-      Object.assign(ca, this.formData);
+      Object.assign(this.ca, this.formData);
     },
   },
 };

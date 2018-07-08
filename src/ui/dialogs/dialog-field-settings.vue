@@ -13,6 +13,7 @@
             v-model="formData[o.name]"
             :min="o.min"
             :max="o.max"
+            :disabled="run && o.disableOnRun"
             controls-position="right"
           )
     el-card(id="ca-field-planes")
@@ -29,8 +30,8 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import config from 'config';
-import ca from 'ca';
 import baseDialog from './base/';
 
 export default {
@@ -42,26 +43,32 @@ export default {
       width: '480px',
       formData: {},
       sizesOptions: [
-        { name: 'xSize',      label: 'Field width',  ...config.X_SIZE },
-        { name: 'ySize',      label: 'Field height', ...config.Y_SIZE },
+        { name: 'xSize',      label: 'Field width',  ...config.X_SIZE, disableOnRun: true },
+        { name: 'ySize',      label: 'Field height', ...config.Y_SIZE, disableOnRun: true },
         { name: 'cellSide',   label: 'Cell side',    ...config.CELL_SIDE },
         { name: 'cellBorder', label: 'Cell border',  ...config.CELL_BORDER },
       ],
-      bitPlanes: ca.cells.bitPlanesList.map(n => ({
-        plane: n,
-        show: true,
-      })),
+      bitPlanes: null,
     };
+  },
+  computed: {
+    ...mapGetters([ 'run' ]),
   },
   methods: {
     onOpen() {
-      this.bitPlanes.forEach(n => n.show = !!(ca.view.showBitPlanes & (1 << n.plane)));
-      this.formData = ca.sizes;
+      this.bitPlanes.forEach(n => n.show = !!(this.ca.view.showBitPlanes & (1 << n.plane)));
+      this.formData = this.ca.sizes;
     },
     clickOK() {
-      ca.view.showBitPlanes = this.bitPlanes.reduce((show, n) => show | (n.show << n.plane), 0);
-      ca.sizes = this.formData;
+      this.ca.view.showBitPlanes = this.bitPlanes.reduce((show, n) => show | (n.show << n.plane), 0);
+      this.ca.sizes = this.formData;
     },
+  },
+  created() {
+    this.bitPlanes = this.ca.cells.bitPlanesList.map(n => ({
+      plane: n,
+      show: true,
+    }));
   },
 };
 </script>
