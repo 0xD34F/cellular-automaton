@@ -2,6 +2,7 @@
   .cells-field-wrapper(
     :class="{ scrollable }"
     @scroll="onScroll"
+    @mousewheel.prevent.stop="onWheel"
     ref="wrapper"
   )
     .cells-field-wrapper-scroll(
@@ -188,9 +189,6 @@ export default {
       this.render();
     },
     onWheel(e) {
-      e.preventDefault();
-      e.stopPropagation();
-
       this.changeZoom(e.deltaY > 0 ? zoom.out : zoom.in, this.detectEventCoord(e));
     },
     onMouseActive(e) {
@@ -422,8 +420,6 @@ export default {
     },
   },
   mounted() {
-    this.$refs.wrapper.addEventListener('wheel', this.onWheel.bind(this));
-
     this.setColors(null, true);
     this.refresh();
   },
