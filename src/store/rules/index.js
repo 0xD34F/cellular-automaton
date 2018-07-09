@@ -18,10 +18,7 @@ export default {
       state.userDefined.push(rule);
     },
     delRule(state, name) {
-      const i = state.userDefined.findIndex(n => n.name === name);
-      if (i !== -1) {
-        state.userDefined.splice(i, 1);
-      }
+      state.userDefined = state.userDefined.filter(n => n.name !== name);
     },
   },
   actions: {

@@ -18,7 +18,6 @@
 </template>
 
 <script>
-import config from 'config';
 import { CellField } from '../../ca/';
 import baseDialog from './base/';
 import cellField from '../cell-field';
@@ -41,11 +40,7 @@ export default {
   },
   methods: {
     onOpen() {
-      if (!this.field) {
-        this.field = this.ca.view.brush.clone();
-      }
-
-      this.field.copy(this.ca.view.brush);
+      this.field = this.ca.view.brush.clone();
 
       this.colors = Object.entries(this.ca.view.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
         label: (+k).toString(16).toUpperCase(),
@@ -62,7 +57,7 @@ export default {
       this.ca.view.brush.copy(this.field);
     },
     clickReset() {
-      const center = config.BRUSH_SIZE / 2 | 0;
+      const center = this.field.data.length / 2 | 0;
       this.field.fill(() => 0).data[center][center] = 1;
       this.$refs.field.render();
     },
