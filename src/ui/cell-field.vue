@@ -64,7 +64,8 @@ const userActions = {
           x,
           y,
           skipZeros: true,
-          setZeros: e.buttons === mouseButtons.right
+          setZeros: e.buttons === mouseButtons.right,
+          ...this.editOptions,
         });
         this.renderPartial({ x, y, xSize: bx, ySize: by });
       }
@@ -157,6 +158,12 @@ export default {
     brush: CellField,
     zoom: {
       default: null,
+    },
+    editOptions: {
+      type: Object,
+      default() {
+        return {};
+      },
     },
   },
   data() {

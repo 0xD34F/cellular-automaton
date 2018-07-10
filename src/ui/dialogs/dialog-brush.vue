@@ -5,6 +5,7 @@
       :field="field"
       :brush="brush"
       :cellSizes="{ cellSide: 12, cellBorder: 1 }"
+      :editOptions="{ skipZeros: false }"
       ref="field"
     )
     .ca-state-select
