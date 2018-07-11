@@ -67,6 +67,7 @@
     )
     cell-field(
       :field="ca.cells"
+      :brush="brush"
       v-bind="$store.state.automaton.viewOptions"
       ref="field"
     )
@@ -102,7 +103,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters([ 'ca', 'run', 'rules' ]),
+    ...mapGetters([ 'ca', 'run', 'rules', 'brush' ]),
   },
   methods: {
     ...mapActions([ 'start', 'stop', 'back', 'skip' ]),

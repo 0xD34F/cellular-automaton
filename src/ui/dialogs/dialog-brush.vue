@@ -41,7 +41,7 @@ export default {
   },
   methods: {
     onOpen() {
-      this.field = this.ca.view.brush.clone();
+      this.field = this.$store.getters.brush.clone();
 
       this.colors = Object.entries(this.ca.view.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
         label: (+k).toString(16).toUpperCase(),
@@ -55,12 +55,10 @@ export default {
       this.brush.fill(() => state);
     },
     clickOK() {
-      this.ca.view.brush.copy(this.field);
+      this.$store.dispatch('updateBrush', this.field);
     },
     clickReset() {
-      const center = this.field.data.length / 2 | 0;
-      this.field.fill(() => 0).data[center][center] = 1;
-      this.$refs.field.render();
+      this.field = this.$store.getters.defaultBrush.clone();
     },
   },
 };

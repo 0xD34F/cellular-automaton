@@ -426,6 +426,11 @@ export default {
       };
     },
   },
+  watch: {
+    field() {
+      this.refresh();
+    },
+  },
   mounted() {
     this.setColors(null, true);
     this.refresh();
