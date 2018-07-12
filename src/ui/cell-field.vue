@@ -147,7 +147,6 @@ const renderFunctions = {
 
 
 export default {
-  name: 'cell-field',
   props: {
     field: CellField,
     cellSizes: null,

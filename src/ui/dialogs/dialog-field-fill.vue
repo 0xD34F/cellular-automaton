@@ -47,7 +47,6 @@ import config from 'config';
 import baseDialog from './base/';
 
 export default {
-  name: 'ca-field-fill',
   mixins: [ baseDialog ],
   data() {
     return {

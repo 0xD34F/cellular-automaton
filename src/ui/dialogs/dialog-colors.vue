@@ -33,7 +33,6 @@ import { gradient } from 'utils';
 import baseDialog from './base/';
 
 export default {
-  name: 'ca-colors',
   mixins: [ baseDialog ],
   data() {
     return {

@@ -40,7 +40,7 @@
           v-icon(name="rotate-cw")
       el-button-group
         el-button(
-          @click="openDialog('ca-field-fill')"
+          @click="openDialog('field-fill')"
           :disabled="run"
           title="Cells field filling"
         ) Fill...
@@ -53,11 +53,11 @@
         el-button
           v-icon(name="settings")
         el-dropdown-menu(slot="dropdown")
-          el-dropdown-item(command="ca-field-settings") Field
-          el-dropdown-item(command="ca-speed") Speed
-          el-dropdown-item(command="ca-colors") Colors
-          el-dropdown-item(command="ca-brush") Brush
-          el-dropdown-item(command="ca-rule" :disabled="run") Rule
+          el-dropdown-item(command="field-settings") Field
+          el-dropdown-item(command="speed") Speed
+          el-dropdown-item(command="colors") Colors
+          el-dropdown-item(command="brush") Brush
+          el-dropdown-item(command="rule" :disabled="run") Rule
     div(
       v-for="d in dialogs"
       :key="d"
@@ -82,7 +82,6 @@ import config from 'config';
 import store from './store/';
 
 export default {
-  name: 'app',
   store,
   components: {
     ...dialogs,
@@ -108,7 +107,7 @@ export default {
   methods: {
     ...mapActions([ 'start', 'stop', 'back', 'skip' ]),
     openDialog(name) {
-      this.openedDialog = name;
+      this.openedDialog = `dialog-${name}`;
     },
     saveImage() {
       /*

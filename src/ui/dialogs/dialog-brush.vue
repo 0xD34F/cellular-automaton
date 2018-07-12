@@ -24,7 +24,6 @@ import baseDialog from './base/';
 import cellField from '../cell-field';
 
 export default {
-  name: 'ca-brush',
   mixins: [ baseDialog ],
   components: {
     cellField,

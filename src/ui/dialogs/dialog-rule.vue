@@ -35,7 +35,6 @@ import { Notification } from 'element-ui';
 import baseDialog from './base/';
 
 export default {
-  name: 'ca-rule',
   mixins: [ baseDialog ],
   data() {
     return {

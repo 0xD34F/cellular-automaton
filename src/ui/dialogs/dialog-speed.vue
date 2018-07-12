@@ -21,7 +21,6 @@ import config from 'config';
 import baseDialog from './base/';
 
 export default {
-  name: 'ca-speed',
   mixins: [ baseDialog ],
   data() {
     return {
