@@ -30,10 +30,8 @@
 <script>
 import config from 'config';
 import { gradient } from 'utils';
-import baseDialog from './base/';
 
 export default {
-  mixins: [ baseDialog ],
   data() {
     return {
       title: 'Colors',

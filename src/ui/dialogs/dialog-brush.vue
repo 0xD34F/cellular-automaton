@@ -20,11 +20,9 @@
 
 <script>
 import { CellField } from '../../ca/';
-import baseDialog from './base/';
 import cellField from '../cell-field';
 
 export default {
-  mixins: [ baseDialog ],
   components: {
     cellField,
   },

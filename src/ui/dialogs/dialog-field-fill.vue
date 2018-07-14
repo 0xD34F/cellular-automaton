@@ -44,10 +44,8 @@
 
 <script>
 import config from 'config';
-import baseDialog from './base/';
 
 export default {
-  mixins: [ baseDialog ],
   data() {
     return {
       title: 'Cells field filling',

@@ -32,10 +32,8 @@
 <script>
 import { mapGetters } from 'vuex';
 import { Notification } from 'element-ui';
-import baseDialog from './base/';
 
 export default {
-  mixins: [ baseDialog ],
   data() {
     return {
       title: 'Rule',

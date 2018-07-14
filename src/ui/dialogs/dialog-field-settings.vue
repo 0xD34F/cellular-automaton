@@ -32,10 +32,8 @@
 <script>
 import { mapGetters } from 'vuex';
 import config from 'config';
-import baseDialog from './base/';
 
 export default {
-  mixins: [ baseDialog ],
   data() {
     return {
       title: 'Cell field settings',
