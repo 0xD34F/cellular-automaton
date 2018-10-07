@@ -10,9 +10,9 @@
         @select="onRuleSelect"
       )
         span(
-          slot-scope="item"
+          slot-scope="{ item }"
           v-html="highlightMatched(item)"
-          :class="{ 'predefined-rule': item.item.predefined }"
+          :class="{ 'predefined-rule': item.predefined }"
         )
         el-button(slot="append" @click="ruleName = ''")
           v-icon(name="x")
@@ -62,7 +62,7 @@ export default {
         predefined: n.predefined,
       })));
     },
-    highlightMatched({ item }) {
+    highlightMatched(item) {
       return item.value.replace(new RegExp(`(${this.ruleName})`, 'i'), '<span class="matched-text">$1</span>');
     },
     onRuleSelect(rule) {
