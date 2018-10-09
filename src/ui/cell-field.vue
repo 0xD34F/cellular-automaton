@@ -21,7 +21,7 @@
 </template>
 
 <script>
-import CellField from '../ca/cell-field';
+import CellField from '@/ca/cell-field';
 import { limitation, bitMask, transformColor, getLineCoord, logExecutionTime } from 'utils';
 import config from 'config';
 

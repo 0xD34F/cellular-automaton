@@ -19,8 +19,8 @@
 </template>
 
 <script>
-import { CellField } from '../../ca/';
-import cellField from '../cell-field';
+import { CellField } from '@/ca/';
+import cellField from '@/ui/cell-field';
 
 export default {
   components: {

@@ -1,5 +1,5 @@
 ﻿import config from 'config';
-import * as CA from '../../ca/';
+import * as CA from '@/ca/';
 
 
 const viewOptions = {

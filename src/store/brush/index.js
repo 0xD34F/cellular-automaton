@@ -1,5 +1,5 @@
 ﻿import config from 'config';
-import { CellField } from '../../ca/';
+import { CellField } from '@/ca/';
 
 
 const
