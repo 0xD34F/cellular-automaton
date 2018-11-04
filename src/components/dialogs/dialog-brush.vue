@@ -22,7 +22,7 @@
 
 <script>
 import { CellField } from '@/ca/';
-import cellField from '@/ui/cell-field';
+import cellField from '@/components/cell-field';
 
 export default {
   components: {

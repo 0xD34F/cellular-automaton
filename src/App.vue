@@ -77,8 +77,8 @@
 
 <script>
 import { mapGetters, mapActions } from 'vuex';
-import dialogs from './ui/dialogs/';
-import cellField from './ui/cell-field';
+import dialogs from './components/dialogs/';
+import cellField from './components/cell-field';
 import { limitation } from 'utils';
 import config from 'config';
 
