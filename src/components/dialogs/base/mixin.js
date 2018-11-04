@@ -1,8 +1,3 @@
-<template lang="pug">
-  include template.pug
-</template>
-
-<script>
 import { mapGetters } from 'vuex';
 
 export default {
@@ -41,4 +36,3 @@ export default {
     clickReset() {},
   },
 };
-</script>

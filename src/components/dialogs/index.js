@@ -1,4 +1,4 @@
-import baseDialog from './base/';
+import baseDialog from './base/mixin.js';
 
 const context = require.context('./', false, /dialog-[\w\-]+\.vue$/);
 
