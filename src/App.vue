@@ -16,7 +16,6 @@ import { mapGetters } from 'vuex';
 import { gradient, bitPlaneSum as sum } from 'utils';
 import mainMenu from './components/main-menu';
 import cellField from './components/cell-field';
-import config from 'config';
 
 export default {
   components: {
@@ -24,12 +23,10 @@ export default {
     cellField,
   },
   computed: {
-    ...mapGetters([ 'ca', 'rules', 'brush', 'viewOptions' ]),
+    ...mapGetters([ 'ca', 'brush', 'viewOptions' ]),
   },
   created() {
-    this.$store.commit('initCA', {
-      xSize: config.DEFAULT_X_SIZE,
-      ySize: config.DEFAULT_Y_SIZE,
+    this.$store.dispatch('initCA', {
       api: {
         setColors: (colors, noRender) => {
           this.$store.commit('setColors', colors);
@@ -44,11 +41,7 @@ export default {
   },
   mounted() {
     window.addEventListener('resize', () => this.ca.view.refresh());
-
-    this.$nextTick(() => {
-      this.ca.view = this.$refs.field;
-      this.ca.rule = this.rules.find(n => n.name === config.DEFAULT_RULE).code;
-    });
+    this.$nextTick(() => this.ca.view = this.$refs.field);
   },
 };
 </script>

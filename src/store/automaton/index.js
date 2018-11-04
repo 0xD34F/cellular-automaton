@@ -1,4 +1,5 @@
 ﻿import * as CA from '@/ca/';
+import config from 'config';
 
 
 export default {
@@ -12,8 +13,8 @@ export default {
     run: state => state.enabled,
   },
   mutations: {
-    initCA(state, options) {
-      state.automaton = new CA.CellularAutomaton(options);
+    initCA(state, ca) {
+      state.automaton = ca;
     },
     enable(state, enabled) {
       state.enabled = !!enabled;
@@ -23,6 +24,16 @@ export default {
     },
   },
   actions: {
+    initCA({ commit, getters }, options) {
+      const ca = new CA.CellularAutomaton({
+        xSize: config.DEFAULT_X_SIZE,
+        ySize: config.DEFAULT_Y_SIZE,
+        ...options,
+      });
+      ca.rule = getters.rules.find(n => n.name === config.DEFAULT_RULE).code;
+
+      commit('initCA', ca);
+    },
     start({ commit, state, getters }) {
       if (state.automaton.start()) {
         commit('enable', true);
