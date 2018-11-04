@@ -22,11 +22,9 @@
 
 <script>
 import CellField from '@/ca/cell-field';
-import { limitation, bitMask, transformColor, getLineCoord, logExecutionTime } from 'utils';
+import { limitation, transformColor, getLineCoord, logExecutionTime } from 'utils';
 import config from 'config';
 
-
-const defaultColors = config.DEFAULT_COLORS;
 
 const mouseButtons = {
   left: 1,
@@ -107,7 +105,7 @@ const cellFieldRenderFunction = cellRenderCode => eval(`
     maxY = Math.min(coord.y + coord.ySize, this.field.ySize),
     border = this.cellBorder,
     side = this.cellSide,
-    sideFull = side + border,
+    sideFull = this.cellSize,
     image = this.buf32,
     width = this.imageData.width,
     colors = this.colorsForRender;
@@ -149,14 +147,32 @@ const renderFunctions = {
 export default {
   props: {
     field: CellField,
-    cellSizes: null,
+    brush: CellField,
+    mode: {
+      type: String,
+      default: 'edit',
+    },
     scrollable: {
       type: Boolean,
       default: false,
     },
-    brush: CellField,
-    zoom: {
-      default: null,
+    cellSide: {
+      type: Number,
+      default: 2,
+    },
+    cellBorder: {
+      type: Number,
+      default: 1,
+    },
+    showBitPlanes: {
+      type: Number,
+      default: ~0,
+    },
+    colors: {
+      type: Object,
+      default() {
+        return { ...config.DEFAULT_COLORS };
+      },
     },
     editOptions: {
       type: Object,
@@ -165,22 +181,16 @@ export default {
       },
     },
   },
-  data() {
-    return {
-      mode: 'edit',
-      colors: { ...config.DEFAULT_COLORS },
-      showBitPlanes: bitMask(this.field.numBitPlanes),
-      ...this.cellSizes,
-    };
-  },
   computed: {
-    sizes() {
-      const { cellSide, cellBorder } = this;
-      return { cellSide, cellBorder };
-    },
     image() {
       const image = this.imageData;
       return new ImageData(new Uint8ClampedArray(image.data), image.width, image.height);
+    },
+    colorsForRender() {
+      return Object.entries(this.colors).reduce((acc, [k, v]) => ({ ...acc, [k]: transformColor(v) }), {});
+    },
+    cellSize() {
+      return this.cellSide + this.cellBorder;
     },
   },
   methods: {
@@ -218,7 +228,7 @@ export default {
       }
     },
     onMouseDeactivate() {
-      this.oldEventCoord = {};
+      this.oldEventCoord = null;
     },
     @logExecutionTime('renderPartial')
     renderPartial(coord) {
@@ -229,7 +239,7 @@ export default {
         maxY = this.field.ySize,
         border = this.cellBorder,
         side = this.cellSide,
-        sideFull = side + border,
+        sideFull = this.cellSize,
         fixX = border - this.$refs.wrapper.scrollLeft,
         fixY = border - this.$refs.wrapper.scrollTop,
         c = this.context;
@@ -257,19 +267,13 @@ export default {
 
       (renderFunctions[this.cellSide] || renderFunctions.default).call(this);
     },
-    resize(cellSide = this.cellSide, cellBorder = this.cellBorder || 0) {
-      this.cellSide = Math.max(1, cellSide | 0);
-      this.cellBorder = Math.max(0, cellBorder | 0);
-
-      this.refresh();
-    },
     refresh() {
       const
         canvas = this.$refs.canvas,
         context = this.context = canvas.getContext('2d'),
         side = this.cellSide,
         border = this.cellBorder,
-        sideFull = side + border,
+        sideFull = this.cellSize,
         size = this.getFullSize(),
         isScroll = this.scrollable,
         width = isScroll ? (this.$refs.wrapper.clientWidth || 1) : size.width,
@@ -301,99 +305,25 @@ export default {
       this.scrollFix();
       this.render(true);
     },
-    setColors(colors, noRender) {
-      const
-        oldColors = this.colors || defaultColors,
-        newColors = {},
-        colorsForRender = {};
-
-      colors = { ...oldColors, ...(colors || defaultColors) };
-
-      for (let i in defaultColors) {
-        let color = colors[i] || oldColors[i];
-        if (color[0] !== '#') {
-          color = `#${color}`;
-        }
-
-        newColors[i] = color;
-        colorsForRender[i] = transformColor(color);
-      }
-
-      this.colors = newColors;
-      this.colorsForRender = colorsForRender;
-
-      if (!noRender) {
-        this.render(true);
-      }
-    },
     changeZoom(change, coord) {
-      if (!this.zoom) {
-        return;
-      }
-
-      const
-        oldCellSide = this.cellSide,
-        newCellSide = limitation(oldCellSide + change, this.zoom);
-
-      if (oldCellSide !== newCellSide) {
-        const
-          w = this.$refs.wrapper,
-          oldScrollX = w.scrollLeft,
-          oldScrollY = w.scrollTop;
-
-        let
-          newScrollX = coord.x * (newCellSide - oldCellSide) + oldScrollX,
-          newScrollY = coord.y * (newCellSide - oldCellSide) + oldScrollY,
-          fixScrollX = 0,
-          fixScrollY = 0;
-
-        this.resize(newCellSide);
-
-        const
-          maxScrollX = w.scrollWidth - w.clientWidth,
-          maxScrollY = w.scrollHeight - w.clientHeight;
-
-        if (newScrollX < 0) {
-          fixScrollX = Math.round(newScrollX / (newCellSide + this.cellBorder));
-          newScrollX = 0;
-        }
-        if (newScrollX > maxScrollX) {
-          fixScrollX = Math.round((newScrollX - maxScrollX) / (newCellSide + this.cellBorder));
-          newScrollX = maxScrollX;
-        }
-        if (newScrollY < 0) {
-          fixScrollY = Math.round(newScrollY / (newCellSide + this.cellBorder));
-          newScrollY = 0;
-        }
-        if (newScrollY > maxScrollY) {
-          fixScrollY = Math.round((newScrollY - maxScrollY) / (newCellSide + this.cellBorder));
-          newScrollY = maxScrollY;
-        }
-
-        w.scrollLeft = newScrollX;
-        w.scrollTop  = newScrollY;
-
-        if (fixScrollX || fixScrollY) {
-          this.field.shift(fixScrollX, fixScrollY);
-          this.render();
-        }
-      }
+      this.oldEventCoord = coord;
+      this.$emit('zoom', this.cellSide + change);
     },
     getFullSize() {
       const
         f = this.field,
         b = this.cellBorder,
-        s = this.cellSide + b;
+        s = this.cellSize;
 
       return {
         width:  f.xSize * s + b,
-        height: f.ySize * s + b
+        height: f.ySize * s + b,
       };
     },
     // левый верхний угол canvas'а совпадает с левым верхним углом клетки (если возможно)
     scrollFix() {
       const
-        s = this.cellSide + this.cellBorder,
+        s = this.cellSize,
         w = this.$refs.wrapper,
         size = this.getFullSize();
 
@@ -407,21 +337,21 @@ export default {
         w = this.$refs.wrapper;
 
       return {
-        x: Math.floor((e.offsetX + w.scrollLeft - t) / (this.cellSide + b)),
-        y: Math.floor((e.offsetY + w.scrollTop  - t) / (this.cellSide + b))
+        x: Math.floor((e.offsetX + w.scrollLeft - t) / this.cellSize),
+        y: Math.floor((e.offsetY + w.scrollTop  - t) / this.cellSize),
       };
     },
     detectViewCoord() {
       const
         w = this.$refs.wrapper,
         t = this.scrollable,
-        s = this.cellSide + this.cellBorder;
+        s = this.cellSize;
 
       return {
         x: t ? Math.floor(w.scrollLeft / s) : 0,
         y: t ? Math.floor(w.scrollTop  / s) : 0,
         xSize: t ? Math.ceil(this.imageData.width  / s) : this.field.xSize,
-        ySize: t ? Math.ceil(this.imageData.height / s) : this.field.ySize
+        ySize: t ? Math.ceil(this.imageData.height / s) : this.field.ySize,
       };
     },
   },
@@ -429,9 +359,62 @@ export default {
     field() {
       this.refresh();
     },
+    showBitPlanes() {
+      this.refresh();
+    },
+    cellSize(newCellSize, oldCellSize) {
+      let coord = this.oldEventCoord;
+      if (!coord) {
+        coord = this.detectViewCoord();
+        coord.x += coord.xSize / 2 | 0;
+        coord.y += coord.ySize / 2 | 0;
+      }
+      this.oldEventCoord = null;
+
+      const
+        w = this.$refs.wrapper,
+        oldScrollX = w.scrollLeft,
+        oldScrollY = w.scrollTop;
+
+      let
+        newScrollX = coord.x * (newCellSize - oldCellSize) + oldScrollX,
+        newScrollY = coord.y * (newCellSize - oldCellSize) + oldScrollY,
+        fixScrollX = 0,
+        fixScrollY = 0;
+
+      this.refresh();
+
+      const
+        maxScrollX = w.scrollWidth - w.clientWidth,
+        maxScrollY = w.scrollHeight - w.clientHeight;
+
+      if (newScrollX < 0) {
+        fixScrollX = Math.round(newScrollX / newCellSize);
+        newScrollX = 0;
+      }
+      if (newScrollX > maxScrollX) {
+        fixScrollX = Math.round((newScrollX - maxScrollX) / newCellSize);
+        newScrollX = maxScrollX;
+      }
+      if (newScrollY < 0) {
+        fixScrollY = Math.round(newScrollY / newCellSize);
+        newScrollY = 0;
+      }
+      if (newScrollY > maxScrollY) {
+        fixScrollY = Math.round((newScrollY - maxScrollY) / newCellSize);
+        newScrollY = maxScrollY;
+      }
+
+      w.scrollLeft = newScrollX;
+      w.scrollTop  = newScrollY;
+
+      if (fixScrollX || fixScrollY) {
+        this.field.shift(fixScrollX, fixScrollY);
+        this.render();
+      }
+    },
   },
   mounted() {
-    this.setColors(null, true);
     this.refresh();
   },
 };

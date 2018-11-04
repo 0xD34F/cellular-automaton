@@ -4,7 +4,9 @@
     cell-field(
       :field="field"
       :brush="brush"
-      :cellSizes="{ cellSide: 12, cellBorder: 1 }"
+      :colors="$store.getters.viewOptions.colors"
+      :cellSide="12"
+      :cellBorder="1"
       :editOptions="{ skipZeros: false }"
       ref="field"
     )
@@ -46,7 +48,7 @@ export default {
         color: v,
       }));
 
-      this.$nextTick(() => this.$refs.field.setColors(this.ca.view.colors));
+      this.$nextTick(() => this.$refs.field.render(true));
     },
     selectActiveState(state) {
       this.brush.fill(() => state);

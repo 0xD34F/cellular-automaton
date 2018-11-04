@@ -69,10 +69,11 @@ export default {
       return gradient(from, to, this.ca.cells.numCellStates);
     },
     onOpen() {
-      this.colors = { ...this.ca.view.colors };
+      this.colors = { ...this.$store.getters.viewOptions.colors };
     },
     clickOK() {
-      this.ca.view.setColors(this.colors);
+      this.$store.commit('setColors', this.colors);
+      this.$nextTick(() => this.ca.view.render(true));
     },
     clickReset() {
       this.colors = { ...config.DEFAULT_COLORS };

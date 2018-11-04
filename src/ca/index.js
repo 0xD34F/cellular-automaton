@@ -24,9 +24,7 @@ class CellularAutomaton {
 
     props.generations = new Generations({
       cells: props.cells,
-      view: {
-        setColors: (...args) => props.view.setColors(...args)
-      }
+      view: options.view,
     });
   }
 
@@ -66,7 +64,7 @@ class CellularAutomaton {
   get sizes() {
     const { xSize, ySize } = this.cells;
 
-    return { xSize, ySize, ...this.view.sizes };
+    return { xSize, ySize };
   }
   set sizes(sizes = {}) {
     const props = _props.get(this);
@@ -77,8 +75,6 @@ class CellularAutomaton {
         props.cells.next.conform(props.cells.curr);
       }
     }
-
-    props.view.resize(sizes.cellSide, sizes.cellBorder);
   }
 
   get generationsPerStep() {
@@ -130,10 +126,6 @@ class CellularAutomaton {
       props.view.render();
     }, props.stepDuration);
 
-    if (props.view.mode === 'edit') {
-      props.view.mode = 'shift';
-    }
-
     return true;
   }
 
@@ -146,8 +138,6 @@ class CellularAutomaton {
 
     clearInterval(props.intervalID);
     props.intervalID = null;
-
-    props.view.mode = 'edit';
 
     return true;
   }

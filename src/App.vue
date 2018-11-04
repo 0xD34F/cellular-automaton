@@ -18,13 +18,13 @@
         v-icon(name="skip-back")
       el-button(@click="saveImage" title="Save cells field as image")
         v-icon(name="download")
-      el-button-group(v-if="ca.view")
+      el-button-group
         el-button(
           v-for="m in modes"
           :key="m.name"
-          :type="ca.view.mode === m.name ? 'primary' : ''"
+          :type="viewOptions.mode === m.name ? 'primary' : ''"
           :disabled="run && m.disableOnRun"
-          @click="ca.view.mode = m.name"
+          @click="setViewOption('mode', m.name)"
         )
           v-icon(:name="m.icon")
       el-button-group
@@ -68,8 +68,10 @@
     cell-field(
       :field="ca.cells"
       :brush="brush"
-      v-bind="$store.state.automaton.viewOptions"
+      :scrollable="true"
+      v-bind="viewOptions"
       ref="field"
+      @zoom="setViewOption('cellSide', $event)"
     )
 </template>
 
@@ -79,10 +81,8 @@ import dialogs from './ui/dialogs/';
 import cellField from './ui/cell-field';
 import { limitation } from 'utils';
 import config from 'config';
-import store from './store/';
 
 export default {
-  store,
   components: {
     ...dialogs,
     cellField,
@@ -102,7 +102,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters([ 'ca', 'run', 'rules', 'brush' ]),
+    ...mapGetters([ 'ca', 'run', 'rules', 'brush', 'viewOptions' ]),
   },
   methods: {
     ...mapActions([ 'start', 'stop', 'back', 'skip' ]),
@@ -131,6 +131,23 @@ export default {
       a.click();
       document.body.removeChild(a);
     },
+    setViewOption(name, val) {
+      this.$store.commit('setViewOptions', { [name]: val });
+    },
+  },
+  created() {
+    this.$store.commit('initCA', {
+      xSize: config.DEFAULT_X_SIZE,
+      ySize: config.DEFAULT_Y_SIZE,
+      view: {
+        setColors: (colors, noRender) => {
+          this.$store.commit('setColors', colors);
+          if (!noRender) {
+            this.$nextTick(() => this.ca.view.render(true));
+          }
+        },
+      },
+    });
   },
   mounted() {
     window.addEventListener('resize', () => this.ca.view.refresh());
@@ -138,7 +155,6 @@ export default {
     this.$nextTick(() => {
       this.ca.view = this.$refs.field;
       this.ca.rule = this.rules.find(n => n.name === this.config.DEFAULT_RULE).code;
-      this.$forceUpdate();
     });
   },
 };

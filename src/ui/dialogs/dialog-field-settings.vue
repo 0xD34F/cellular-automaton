@@ -49,16 +49,24 @@ export default {
     };
   },
   computed: {
-    ...mapGetters([ 'run' ]),
+    ...mapGetters([ 'run', 'viewOptions' ]),
   },
   methods: {
     onOpen() {
-      this.bitPlanes.forEach(n => n.show = !!(this.ca.view.showBitPlanes & (1 << n.plane)));
-      this.formData = this.ca.sizes;
+      const { cellSide, cellBorder, showBitPlanes } = this.viewOptions;
+
+      this.bitPlanes.forEach(n => n.show = !!(showBitPlanes & (1 << n.plane)));
+      this.formData = { ...this.ca.sizes, cellSide, cellBorder };
     },
     clickOK() {
-      this.ca.view.showBitPlanes = this.bitPlanes.reduce((show, n) => show | (n.show << n.plane), 0);
-      this.ca.sizes = this.formData;
+      const { xSize, ySize } = this.formData;
+
+      this.$store.commit('setViewOptions', {
+        showBitPlanes: this.bitPlanes.reduce((show, n) => show | (n.show << n.plane), 0),
+        cellSide: this.formData.cellSide,
+        cellBorder: this.formData.cellBorder,
+      });
+      this.ca.sizes = { xSize, ySize };
     },
   },
   created() {

@@ -4,6 +4,7 @@ import lang from 'element-ui/lib/locale/lang/en';
 import locale from 'element-ui/lib/locale';
 import Icon from 'vue-icon';
 import App from './App.vue';
+import store from './store/';
 
 
 locale.use(lang);
@@ -29,5 +30,6 @@ Vue.use(Icon, 'v-icon');
 
 new Vue({
   el: '#app',
-  render: h => h(App)
+  store,
+  render: h => h(App),
 });

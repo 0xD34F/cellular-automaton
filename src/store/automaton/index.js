@@ -1,32 +1,20 @@
-﻿import config from 'config';
-import * as CA from '@/ca/';
-
-
-const viewOptions = {
-  scrollable: true,
-  zoom: { ...config.CELL_SIDE },
-  cellSizes: {
-    cellSide: config.DEFAULT_CELL_SIDE,
-    cellBorder: config.DEFAULT_CELL_BORDER,
-  },
-};
+﻿import * as CA from '@/ca/';
 
 
 export default {
   state: {
-    automaton: new CA.CellularAutomaton({
-      xSize: config.DEFAULT_X_SIZE,
-      ySize: config.DEFAULT_Y_SIZE,
-    }),
+    automaton: null,
     enabled: false,
     history: null,
-    viewOptions,
   },
   getters: {
     ca: state => state.automaton,
     run: state => state.enabled,
   },
   mutations: {
+    initCA(state, options) {
+      state.automaton = new CA.CellularAutomaton(options);
+    },
     enable(state, enabled) {
       state.enabled = !!enabled;
     },
@@ -35,15 +23,20 @@ export default {
     },
   },
   actions: {
-    start({ commit, state }) {
+    start({ commit, state, getters }) {
       if (state.automaton.start()) {
         commit('enable', true);
         commit('updateHistory', state.automaton.state);
+
+        if (getters.viewOptions.mode === 'edit') {
+          commit('setViewOptions', { mode: 'shift' });
+        }
       }
     },
     stop({ commit, state }) {
       if (state.automaton.stop()) {
         commit('enable', false);
+        commit('setViewOptions', { mode: 'edit' });
       }
     },
     skip({ commit, state }, numGenerations) {
