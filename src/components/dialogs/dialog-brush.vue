@@ -4,7 +4,7 @@
     cell-field(
       :field="field"
       :brush="brush"
-      :colors="$store.getters.viewOptions.colors"
+      :colors="colors"
       :cellSide="12"
       :cellBorder="1"
       :editOptions="{ skipZeros: false }"
@@ -12,7 +12,7 @@
     )
     .ca-state-select
       .ca-state(
-        v-for="c in colors"
+        v-for="c in brushColors"
         :class="{ 'ca-state-active': c.state === brush.data[0][0] }"
         @click="selectActiveState(c.state)"
       )
@@ -34,20 +34,24 @@ export default {
       width: '400px',
       field: null,
       brush: new CellField(1).fill(() => 1),
-      colors: {},
       resetLabel: 'Reset',
     };
   },
-  methods: {
-    onOpen() {
-      this.field = this.$store.getters.brush.clone();
-
-      this.colors = Object.entries(this.ca.view.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
+  computed: {
+    colors() {
+      return this.$store.getters.viewOptions.colors;
+    },
+    brushColors() {
+      return Object.entries(this.colors).filter(n => !isNaN(n[0])).map(([ k, v ]) => ({
         label: (+k).toString(16).toUpperCase(),
         state: +k,
         color: v,
       }));
-
+    },
+  },
+  methods: {
+    onOpen() {
+      this.field = this.$store.getters.brush.clone();
       this.$nextTick(() => this.$refs.field.render(true));
     },
     selectActiveState(state) {
