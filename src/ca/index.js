@@ -24,7 +24,7 @@ class CellularAutomaton {
 
     props.generations = new Generations({
       cells: props.cells,
-      view: options.view,
+      api: options.api,
     });
   }
 

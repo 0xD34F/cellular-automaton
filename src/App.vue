@@ -13,6 +13,7 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { gradient, bitPlaneSum as sum } from 'utils';
 import mainMenu from './components/main-menu';
 import cellField from './components/cell-field';
 import config from 'config';
@@ -29,13 +30,15 @@ export default {
     this.$store.commit('initCA', {
       xSize: config.DEFAULT_X_SIZE,
       ySize: config.DEFAULT_Y_SIZE,
-      view: {
+      api: {
         setColors: (colors, noRender) => {
           this.$store.commit('setColors', colors);
           if (!noRender) {
             this.$nextTick(() => this.ca.view.render(true));
           }
         },
+        gradient,
+        sum,
       },
     });
   },

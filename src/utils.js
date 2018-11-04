@@ -11,6 +11,10 @@ function bitMask(size) {
   return Math.pow(2, size) - 1;
 }
 
+function bitPlaneSum(plane, ...values) {
+  return values.reduce((sum, val) => sum + ((val >> plane) & 1), 0);
+}
+
 function getColorComponents(color, str) {
   return color.match(/(\w\w)+?/g).map(n => str ? n : parseInt(n, 16));
 }
@@ -79,4 +83,4 @@ function logExecutionTime(message) {
   };
 }
 
-export { rotateArray, limitation, bitMask, getColorComponents, transformColor, gradient, getLineCoord, logExecutionTime };
+export { rotateArray, limitation, bitMask, bitPlaneSum, getColorComponents, transformColor, gradient, getLineCoord, logExecutionTime };

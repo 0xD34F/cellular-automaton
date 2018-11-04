@@ -1,4 +1,4 @@
-﻿import { bitMask, logExecutionTime, gradient } from 'utils';
+﻿import { bitMask, logExecutionTime } from 'utils';
 import Rules from './rules';
 import neighborhood from './neighborhood';
 
@@ -135,7 +135,7 @@ export default class Generations {
     this.CAB = new Compiler(2, { _center: [ { name: '_center', size: 2, code: '(dXCurr[y] &  3) << 2' } ] });
 
     this.rules = Rules;
-    this.utils = { gradient };
+    this.utils = options.api;
   }
 
   get rule() {
@@ -145,7 +145,7 @@ export default class Generations {
     Object.assign(this, defaultOptions());
     this.setNeighborhoods();
 
-    let { view, rules, utils, setNeighborhoods, makeTable, on, main } = this;
+    let { rules, utils, setNeighborhoods, makeTable, on, main } = this;
 
     eval(code);
 

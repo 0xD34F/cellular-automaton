@@ -32,7 +32,7 @@
   }
 });
 
-view.setColors([ '000000', 'FF0000', '00FF00' ]);
+utils.setColors([ '000000', 'FF0000', '00FF00' ]);
 
 makeTable(function(n) {
   var
@@ -109,7 +109,7 @@ makeTable(n => n.north ^ n.south ^ n.west ^ n.east ^ n.center);
   code:
 `setNeighborhoods('Moore-thick');
 
-view.setColors([ '000000', 'FF0000', '00FF00', 'FFFF00' ]);
+utils.setColors([ '000000', 'FF0000', '00FF00', 'FFFF00' ]);
 
 var
   ruleID = 260480,
@@ -124,7 +124,7 @@ makeTable(n => p0(n) | p1(n));`,
 
 makeTable(function(n) {
   var
-    s = rules.sum(0, n.center, n.north, n.south, n.west, n.east),
+    s = utils.sum(0, n.center, n.north, n.south, n.west, n.east),
     r = (+!!(2 & n.center & n.north & n.south & n.west & n.east)) ^ 1,
     p0 = [ 0, 0, r, +!r, 1, 1 ][s],
     p1 = 2 & (n.center ^ n.north ^ n.south ^ n.west ^ n.east);
@@ -185,12 +185,12 @@ makeTable(function(n) {
 `setNeighborhoods('Margolus');
 
 on.beforeNewGeneration = function() {
-  view.setColors(this.time & 1 ? [ '000000', 'FFFFFF' ] : [ 'FFFFFF', '000000' ], true);
+  utils.setColors(this.time & 1 ? [ '000000', 'FFFFFF' ] : [ 'FFFFFF', '000000' ], true);
 };
 
 makeTable(function(n) {
   var
-    s = rules.sum(0, n.center, n.cw, n.ccw, n.opp),
+    s = utils.sum(0, n.center, n.cw, n.ccw, n.opp),
     c = n.center ^ 1;
 
   return [ c, c, n.center & 1, n.opp ^ 1, c ][s];
@@ -202,7 +202,7 @@ makeTable(function(n) {
 
 makeTable(function(n) {
   var
-    s = rules.sum(0, n.center, n.cw, n.ccw, n.opp),
+    s = utils.sum(0, n.center, n.cw, n.ccw, n.opp),
     c = n.center;
 
   return [ 1, c, c, c, 0 ][s];
@@ -238,7 +238,7 @@ makeTable(function(n) {
 }, {
   name: 'Cyclic',
   code:
-`view.setColors(utils.gradient('#FF0000', '#FFFF00', 16));
+`utils.setColors(utils.gradient('#FF0000', '#FFFF00', 16));
 
 main = function(n) {
   var
@@ -253,7 +253,7 @@ main = function(n) {
 `// https://habr.com/post/237629/
 
 setNeighborhoods('Moore-thick');
-view.setColors([ '#000000', '#27FFFF', '1C00FF' ]);
+utils.setColors([ '#000000', '#27FFFF', '1C00FF' ]);
 
 makeTable(function(n) {
   var

@@ -1,4 +1,4 @@
-﻿import { limitation } from 'utils';
+﻿import { limitation, bitPlaneSum } from 'utils';
 
 
 function numberedRule(rule, bitSize) {
@@ -26,7 +26,7 @@ const rules = {
 
   totalistic2d5: numberedRule((ruleNumber, bitPlane = 0) => n => {
     const
-      total = rules.sum(bitPlane, n.north, n.south, n.west, n.east),
+      total = bitPlaneSum(bitPlane, n.north, n.south, n.west, n.east),
       mask = 1 << bitPlane;
 
     return (ruleNumber & (1 << (total * 2 + !!(n.center & mask)))) ? m : 0;
@@ -34,7 +34,7 @@ const rules = {
 
   totalistic2d9: numberedRule((ruleNumber, bitPlane = 0) => n => {
     const
-      total = rules.sum(bitPlane, n.north, n.south, n.west, n.east, n.n_west, n.n_east, n.s_west, n.s_east),
+      total = bitPlaneSum(bitPlane, n.north, n.south, n.west, n.east, n.n_west, n.n_east, n.s_west, n.s_east),
       mask = 1 << bitPlane;
 
     return (ruleNumber & (1 << (total * 2 + !!(n.center & mask)))) ? mask : 0;
@@ -53,8 +53,6 @@ const rules = {
 
     return rules.totalistic2d9(ruleNumber);
   },
-
-  sum: (plane, ...values) => values.reduce((sum, val) => sum + ((val >> plane) & 1), 0),
 
 };
 
